@@ -22,13 +22,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import productsData from "@/app/api/products/products.json"
-import { Product, ProductCardProps } from "@/types/Product"
+import { Product } from "@/types/Product"
 import HeroSection from "@/components/HeroSection"
 import Link from "next/link"
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 
-
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams()
   const category = searchParams.get('category')
   const subcategory = searchParams.get('subCategory')
@@ -46,7 +45,7 @@ export default function ProductsPage() {
 
   // Filter products based on query parameters
   const filteredProducts = React.useMemo(() => {
-    let products = productsData as Product[]
+    let products = productsData as unknown as Product[]
 
     // Filter by search query if provided
     if (search) {
@@ -75,35 +74,32 @@ export default function ProductsPage() {
     }
 
     if (isSaleItems) {
-      products = products.filter(product => product.isInSale)
+      products = products.filter(product => product.isSale)
     }
 
-    // Add discount and review data for ProductCard compatibility
-    let processedProducts = products.map((product, index) => {
-      // Use deterministic values based on product ID and index
-      const discount = 10 + (product.id % 20) // 10-30% based on product ID
-      const originalPrice = product.price
-      const currentPrice = originalPrice * (1 - discount / 100)
-
-      return {
-        id: product.id,
-        name: product.name,
-        image: product.image,
-        currentPrice: Math.round(currentPrice * 100) / 100,
-        originalPrice: Math.round(originalPrice * 100) / 100,
-        discount,
-        rating: 4 + (product.id % 2), // 4 or 5 based on product ID
-        reviews: 50 + (product.id % 100), // 50-150 based on product ID
-      } as ProductCardProps
-    })
+    // Ensure all required Product fields are present
+    const processedProducts = products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      images: product.images || [product.image],
+      category: product.category,
+      subcategory: product.subcategory,
+      brand: product.brand,
+      rating: product.rating || 4.0,
+      stock: product.stock || 10,
+      isSale: product.isSale || false,
+    } as Product))
 
     // Apply sorting
     switch (sort) {
       case 'price-low-high':
-        processedProducts.sort((a, b) => a.currentPrice - b.currentPrice)
+        processedProducts.sort((a, b) => a.price - b.price)
         break
       case 'price-high-low':
-        processedProducts.sort((a, b) => b.currentPrice - a.currentPrice)
+        processedProducts.sort((a, b) => b.price - a.price)
         break
       case 'rating':
         processedProducts.sort((a, b) => b.rating - a.rating)
@@ -217,7 +213,7 @@ export default function ProductsPage() {
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Search: "{search}"</BreadcrumbPage>
+                    <BreadcrumbPage>Search: &quot;{search}&quot;</BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
@@ -239,7 +235,7 @@ export default function ProductsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Search results for:</span>
                 <span className="text-sm font-medium text-gray-900 bg-gray-100 px-2 py-1 rounded">
-                  "{search}"
+                  &quot;{search}&quot;
                 </span>
                 <Link 
                   href={`/products${(() => {
@@ -403,5 +399,13 @@ export default function ProductsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   )
 }

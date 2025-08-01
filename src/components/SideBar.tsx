@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ChevronRight } from "lucide-react"
 
 import {
   NavigationMenu,
@@ -41,7 +40,7 @@ export default function SideBar() {
             {/* Women's Fashion - Expandable */}
             <NavigationMenuItem className="w-full relative">
               <NavigationMenuTrigger className="w-full justify-between px-2 py-1.5 text-sm">
-                Women's Fashion
+                Women&apos;s Fashion
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute left-full !top-[-5px] ml-1 z-50">
                 <ul className="grid w-[150px] bg-white">
@@ -57,7 +56,7 @@ export default function SideBar() {
             {/* Men's Fashion - Expandable */}
             <NavigationMenuItem className="w-full relative">
               <NavigationMenuTrigger className="w-full justify-between px-2 py-1.5 text-sm">
-                Men's Fashion
+                Men&apos;s Fashion
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute left-full !top-[-5px] ml-1 z-50">
                 <ul className="grid w-[150px] bg-white p-0">

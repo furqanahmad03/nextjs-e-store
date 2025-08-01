@@ -99,7 +99,7 @@ export default function AddressPage() {
         <div className="text-center py-12">
           <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Addresses Yet</h3>
-          <p className="text-gray-600 mb-6">You haven't added any addresses yet.</p>
+          <p className="text-gray-600 mb-6">You haven&apos;t added any addresses yet.</p>
           <Button className="bg-red-500 hover:bg-red-600 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Add Your First Address

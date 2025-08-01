@@ -6,11 +6,12 @@ export interface Product {
   category: string
   subcategory: string
   image: string
+  images: string[]
   date_added: string
   brand: string
   rating: number
   stock: number
-  isInSale: boolean
+  isSale: boolean
 }
 
 export interface ProductCardProps {

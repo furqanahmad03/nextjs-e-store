@@ -134,8 +134,8 @@ export default function CouponsPage() {
             <h3 className="font-medium text-blue-900 mb-1">How to Use Coupon Codes</h3>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• Add items to your cart and proceed to checkout</li>
-              <li>• Enter the coupon code in the "Coupon Code" field</li>
-              <li>• Click "Apply Coupon" to activate the discount</li>
+              <li>• Enter the coupon code in the &quot;Coupon Code&quot; field</li>
+              <li>• Click &quot;Apply Coupon&quot; to activate the discount</li>
               <li>• The discount will be automatically applied to your total</li>
               <li>• Each coupon can only be used once per customer unless stated otherwise</li>
             </ul>

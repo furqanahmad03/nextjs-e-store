@@ -1,34 +1,51 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
 import ProductCard from "./ProductCard"
-import productsData from "@/app/api/products/products.json"
-import { ProductCardProps } from "@/types/Product"
+import { Product } from "@/types/Product"
+import BestSellingsSkeleton from "./skeletons/BestSellingsSkeleton"
 
 export default function BestSellings() {
-  // Create best selling products with specific data
-  const bestSellingProducts = React.useMemo(() => {
-    // Select specific products for best sellers
-    const selectedProducts = productsData.slice(8, 12) // Get products 9-12
-    
-    return selectedProducts.map((product, index) => {
-      const discount = 10 + (product.id % 30) // 10-40% discount based on product ID
-      const originalPrice = product.price
-      const currentPrice = originalPrice * (1 - discount / 100)
-      
-      return {
-        id: product.id,
-        name: product.name,
-        image: product.image,
-        currentPrice: Math.round(currentPrice * 100) / 100,
-        originalPrice: Math.round(originalPrice * 100) / 100,
-        discount,
-        rating: 5, // Best sellers have 5-star ratings
-        reviews: 50 + (product.id % 50), // 50-100 reviews based on product ID
-      } as ProductCardProps
-    })
+  const [bestSellingProducts, setBestSellingProducts] = React.useState<Product[]>([])
+  const [loading, setLoading] = React.useState(true)
+
+  // Fetch best selling products from API
+  React.useEffect(() => {
+    const fetchBestSellers = async () => {
+      try {
+        const response = await fetch('/api/products/bestsellers')
+        const data = await response.json()
+        
+        // Transform the data to match Product format
+        const transformedProducts = data.map((product: Product) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          image: product.image,
+          images: product.images || [product.image], // Use images array or fallback to single image
+          category: product.category,
+          subcategory: product.subcategory,
+          brand: product.brand,
+          rating: product.rating || 5.0, // Best sellers have high ratings
+          stock: product.stock || 10,
+          isSale: product.isSale || false,
+        } as Product))
+        
+        setBestSellingProducts(transformedProducts)
+      } catch (error) {
+        console.error('Error fetching best sellers:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBestSellers()
   }, [])
+
+  if (loading) {
+    return <BestSellingsSkeleton />
+  }
 
   return (
     <section className="w-full bg-white py-8">

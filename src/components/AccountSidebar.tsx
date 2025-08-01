@@ -10,13 +10,6 @@ import { ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-// Mock user data
-const userData = {
-  firstName: "Md",
-  lastName: "Rimel",
-  email: "rimell111@gmail.com",
-}
-
 export default function AccountSidebar() {
   const pathname = usePathname()
   

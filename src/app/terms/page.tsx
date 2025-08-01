@@ -71,7 +71,7 @@ export default function TermsOfUsePage() {
               </CardHeader>
               <CardContent className="space-y-4 text-gray-700">
                 <p>
-                  These Terms of Use ("Terms") govern your use of the Eco-Site website and services. 
+                  These Terms of Use (&quot;Terms&quot;) govern your use of the Eco-Site website and services. 
                   By accessing or using our website, you agree to be bound by these Terms and all applicable laws and regulations.
                 </p>
                 <p>
@@ -90,14 +90,14 @@ export default function TermsOfUsePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-gray-700">
-                <p>Permission is granted to temporarily download one copy of the materials on Eco-Site's website for personal, non-commercial transitory viewing only.</p>
+                <p>Permission is granted to temporarily download one copy of the materials on Eco-Site&apos;s website for personal, non-commercial transitory viewing only.</p>
                 <p>This is the grant of a license, not a transfer of title, and under this license you may not:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Modify or copy the materials</li>
                   <li>Use the materials for any commercial purpose or for any public display</li>
                   <li>Attempt to reverse engineer any software contained on the website</li>
                   <li>Remove any copyright or other proprietary notations from the materials</li>
-                  <li>Transfer the materials to another person or "mirror" the materials on any other server</li>
+                  <li>Transfer the materials to another person or &quot;mirror&quot; the materials on any other server</li>
                 </ul>
               </CardContent>
             </Card>

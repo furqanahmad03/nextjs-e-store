@@ -117,7 +117,7 @@ const Contact = () => {
               Get in Touch
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
             </p>
           </div>
         </div>
@@ -134,7 +134,7 @@ const Contact = () => {
                   Send us a Message
                 </h2>
                 <p className="text-gray-600">
-                  Fill out the form below and we'll get back to you as soon as possible.
+                  Fill out the form below and we&apos;ll get back to you as soon as possible.
                 </p>
               </div>
 
@@ -193,7 +193,7 @@ const Contact = () => {
                           required
                           value={formData.subject}
                           onChange={handleInputChange}
-                          placeholder="What's this about?"
+                          placeholder="What&apos;s this about?"
                           className="pl-10"
                         />
                       </div>
@@ -352,7 +352,7 @@ const Contact = () => {
             Still Have Questions?
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Can't find what you're looking for? Our customer support team is here to help.
+            Can&apos;t find what you&apos;re looking for? Our customer support team is here to help.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-black text-white hover:bg-gray-800">

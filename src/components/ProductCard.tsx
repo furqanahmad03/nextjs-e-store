@@ -1,95 +1,170 @@
 "use client"
 
-import * as React from "react"
-import { Heart, Eye, Star } from "lucide-react"
+import React from "react"
+import { Product } from "@/types/Product"
+import { useCart } from "@/contexts/CartContext"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Heart, Star } from "lucide-react"
 import Image from "next/image"
-import { ProductCardProps } from "@/types/Product"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface Props {
-  product: ProductCardProps
-}
-
-const renderStars = (rating: number) => {
-  const stars = []
-  const fullStars = Math.floor(rating)
-  const hasHalfStar = rating % 1 !== 0
-
-  for (let i = 0; i < fullStars; i++) {
-    stars.push(<Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)
-  }
-
-  if (hasHalfStar) {
-    stars.push(<Star key="half" className="w-4 h-4 fill-yellow-400 text-yellow-400" />)
-  }
-
-  const emptyStars = 5 - Math.ceil(rating)
-  for (let i = 0; i < emptyStars; i++) {
-    stars.push(<Star key={`empty-${i}`} className="w-4 h-4 text-gray-300" />)
-  }
-
-  return stars
+  product: Product
 }
 
 export default function ProductCard({ product }: Props) {
-  return (
-    <div className="group relative p-3 h-full hover:shadow-lg rounded-sm transition-all duration-300 border border-gray-100 overflow-hidden">
-      {/* Product Image */}
-      <div className="relative mb-6 overflow-hidden">
-        <div className="relative w-full h-52 bg-gradient-to-br from-gray-50 to-gray-100 rounded-sm overflow-hidden">
-          <Image
-            src={product.image || '/iphone-banner.jpg'}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        </div>
-        
-        {/* Discount Badge */}
-        <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-          -{product.discount}%
-        </div>
-        
-        {/* Action Icons */}
-        <div className="absolute top-2 right-2 flex flex-col gap-2">
-          <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100">
-            <Heart className="w-4 h-4 text-gray-600" />
-          </button>
-          <Link href={"/products/1"} className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100">
-            <Eye className="w-4 h-4 text-gray-600" />
-          </Link>
-        </div>
+  const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart()
+  const [isAddingToCart, setIsAddingToCart] = React.useState(false)
+  const [isWishlistLoading, setIsWishlistLoading] = React.useState(false)
 
-        {/* Add To Cart Button - Slides up from bottom of image */}
+  const handleAddToCart = async () => {
+    try {
+      setIsAddingToCart(true)
+      await addToCart(product.id)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      toast.error('Failed to add item to cart. Please try again.')
+    } finally {
+      setIsAddingToCart(false)
+    }
+  }
+
+  const handleWishlistToggle = async () => {
+    try {
+      setIsWishlistLoading(true)
+      
+      if (isInWishlist(product.id)) {
+        removeFromWishlist(product.id)
+      } else {
+        addToWishlist({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          images: product.images || [product.image],
+          category: product.category,
+          subcategory: product.subcategory,
+          brand: product.brand,
+          rating: product.rating,
+          stock: product.stock,
+          isSale: product.isSale,
+        })
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error)
+      toast.error('Failed to update wishlist. Please try again.')
+    } finally {
+      setIsWishlistLoading(false)
+    }
+  }
+
+  return (
+    <div className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      {/* Product Image */}
+      <div className="aspect-square bg-gray-200 relative overflow-hidden">
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        
+        {/* Sale Badge */}
+        {product.isSale && (
+          <Badge className="absolute top-2 left-2 bg-red-500 text-white">
+            SALE
+          </Badge>
+        )}
+        
+        {/* Wishlist Button */}
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleWishlistToggle}
+          disabled={isWishlistLoading}
+          className={`absolute top-2 right-2 w-8 h-8 p-0 rounded-full transition-all duration-200 ${
+            isInWishlist(product.id)
+              ? 'bg-red-500 text-white hover:bg-red-600'
+              : 'bg-white text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          <Heart 
+            className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} 
+          />
+        </Button>
+        
+        {/* Stock Badge */}
+        {product.stock === 0 && (
+          <Badge className="absolute bottom-2 left-2 bg-gray-500 text-white">
+            Out of Stock
+          </Badge>
+        )}
+
+        {/* Add to Cart Button - Slides up from bottom of image */}
         <div className="absolute bottom-0 left-0 right-0 bg-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
-          <button className="w-full bg-black text-white font-bold py-3 px-4 uppercase tracking-wide hover:bg-gray-900 transition-colors duration-200">
-            Add To Cart
-          </button>
+          <Button 
+            onClick={handleAddToCart} 
+            disabled={isAddingToCart || product.stock === 0} 
+            className="w-full bg-black rounded-none text-white font-bold py-3 px-4 uppercase tracking-wide hover:bg-gray-900 transition-colors duration-200 disabled:opacity-50"
+          >
+            {isAddingToCart ? 'Adding...' : 'Add To Cart'}
+          </Button>
         </div>
       </div>
 
       {/* Product Info */}
-      <div className="space-y-3 px-2">
-        <h3 className="font-semibold text-gray-900 text-base leading-tight line-clamp-2">
-          {product.name}
-        </h3>
-        
-        {/* Price */}
-        <div className="flex items-center gap-3">
-          <span className="text-red-500 font-bold text-xl">${product.currentPrice}</span>
-          <span className="text-gray-400 line-through text-sm font-medium">${product.originalPrice}</span>
-        </div>
-        
-        {/* Rating */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            {renderStars(product.rating)}
+      <div className="p-4">
+        <div className="space-y-2">
+          {/* Category and Brand */}
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>{product.category}</span>
+            <span>{product.brand}</span>
           </div>
-          <span className="text-gray-500 text-sm font-medium">({product.reviews})</span>
+
+          {/* Product Name */}
+          <Link href={`/products/${product.id}`}>
+            <h3 className="font-medium text-gray-900 line-clamp-2 min-h-[2.5rem] hover:text-red-500 transition-colors duration-200">
+              {product.name}
+            </h3>
+          </Link>
+
+          {/* Rating */}
+          <div className="flex items-center gap-1">
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-3 h-3 ${
+                    i < Math.floor(product.rating)
+                      ? 'text-yellow-400 fill-current'
+                      : 'text-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-gray-600">({product.rating})</span>
+          </div>
+
+          {/* Price */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg text-gray-900">
+                ${(product.price || 0).toFixed(2)}
+              </span>
+              {product.isSale && (
+                <Badge variant="secondary" className="text-xs">
+                  SALE
+                </Badge>
+              )}
+            </div>
+            <span className="text-xs text-gray-500">
+              {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+            </span>
+          </div>
         </div>
       </div>
-
-
     </div>
   )
 } 

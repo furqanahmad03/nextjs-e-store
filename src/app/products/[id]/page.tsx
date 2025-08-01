@@ -19,18 +19,10 @@ import {
   RotateCcw,
   CheckCircle,
   MessageCircle,
-  Package,
-  Clock,
-  MapPin,
-  Phone,
-  Mail,
   Facebook,
   Twitter,
-  Instagram,
   Linkedin,
   Copy,
-  Eye,
-  EyeOff
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,14 +42,13 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
 } from "@/components/ui/accordion"
 import productsData from "@/app/api/products/products.json"
-import { Product, ProductCardProps } from "@/types/Product"
+import { Product } from "@/types/Product"
 import ProductCard from "@/components/ProductCard"
+import { useCart } from "@/contexts/CartContext"
+import { toast } from "sonner"
+import ProductDetailSkeleton from "@/components/skeletons/ProductDetailSkeleton"
 
 // Extended product interface for detail page
 interface ProductDetail extends Product {
@@ -83,15 +74,15 @@ export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const productId = parseInt(params.id as string)
+  const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart()
   
   const [product, setProduct] = useState<ProductDetail | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
-  const [isInWishlist, setIsInWishlist] = useState(false)
-  const [isInCart, setIsInCart] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
 
   useEffect(() => {
     document.title = `${product?.name} | Eco-Site`;
@@ -105,19 +96,13 @@ export default function ProductDetailPage() {
       // Add missing isInSale property
       const productWithSale: Product = {
         ...mockProduct,
-        isInSale: Math.random() > 0.5 // Randomly assign sale status
+        isSale: Math.random() > 0.5 // Randomly assign sale status
       }
       
       // Create extended product data
       const extendedProduct: ProductDetail = {
         ...productWithSale,
-        images: [
-          productWithSale.image,
-          "/iphone-banner.jpg",
-          "/summer-banner.jpg", 
-          "/electronics-banner.jpg",
-          "/women-collection.png"
-        ],
+        images: mockProduct.images || [mockProduct.image], // Use actual images array from product data
         specifications: {
           "Brand": mockProduct.brand,
           "Category": mockProduct.category,
@@ -176,21 +161,53 @@ export default function ProductDetailPage() {
   }, [productId])
 
   const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= product?.stock!) {
+    if (newQuantity >= 1 && newQuantity <= product!.stock) {
       setQuantity(newQuantity)
     }
   }
 
-  const addToCart = () => {
-    setIsInCart(true)
-    // TODO: Implement actual cart functionality
-    console.log(`Added ${quantity} of ${product?.name} to cart`)
+  const addToCartHandler = async () => {
+    if (!product) return
+    
+    try {
+      setIsAddingToCart(true)
+      await addToCart(product.id, quantity)
+      toast.success(`Added ${quantity} ${quantity === 1 ? 'item' : 'items'} to cart!`)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      toast.error('Failed to add item to cart. Please try again.')
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
-  const toggleWishlist = () => {
-    setIsInWishlist(!isInWishlist)
-    // TODO: Implement actual wishlist functionality
-    console.log(`${isInWishlist ? 'Removed from' : 'Added to'} wishlist: ${product?.name}`)
+  const toggleWishlist = async () => {
+    if (!product) return
+    
+    try {
+      if (isInWishlist(product.id)) {
+        removeFromWishlist(product.id)
+        toast.success('Removed from wishlist!')
+      } else {
+        addToWishlist({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          images: product.images || [product.image],
+          category: product.category,
+          subcategory: product.subcategory,
+          brand: product.brand,
+          rating: product.rating,
+          stock: product.stock,
+          isSale: product.isSale,
+        })
+        toast.success('Added to wishlist!')
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error)
+      toast.error('Failed to update wishlist. Please try again.')
+    }
   }
 
   const shareProduct = async (platform: string) => {
@@ -224,30 +241,8 @@ export default function ProductDetailPage() {
     setSelectedImage((prev) => (prev - 1 + product!.images.length) % product!.images.length)
   }
 
-  // Convert product to ProductCardProps format
-  const convertToProductCardProps = (product: Product): ProductCardProps => {
-    const discount = product.isInSale ? 15 : 0
-    const originalPrice = product.price
-    const currentPrice = originalPrice * (1 - discount / 100)
-    
-    return {
-      id: product.id,
-      name: product.name,
-      image: product.image,
-      currentPrice: Math.round(currentPrice * 100) / 100,
-      originalPrice: Math.round(originalPrice * 100) / 100,
-      discount,
-      rating: product.rating,
-      reviews: 50 + (product.id % 100) // Mock review count
-    }
-  }
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-500"></div>
-      </div>
-    )
+    return <ProductDetailSkeleton />
   }
 
   if (!product) {
@@ -264,7 +259,7 @@ export default function ProductDetailPage() {
   }
 
   const averageRating = product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
-  const discount = product.isInSale ? 15 : 0
+  const discount = product.isSale ? 15 : 0
   const discountedPrice = product.price * (1 - discount / 100)
 
   return (
@@ -332,7 +327,7 @@ export default function ProductDetailPage() {
               )}
 
               {/* Sale Badge */}
-              {product.isInSale && (
+              {product.isSale && (
                 <div className="absolute top-4 left-4">
                   <Badge className="bg-red-500 text-white">SALE {discount}% OFF</Badge>
                 </div>
@@ -400,12 +395,12 @@ export default function ProductDetailPage() {
                 <span className="text-3xl font-bold text-gray-900">
                   ${discountedPrice.toFixed(2)}
                 </span>
-                {product.isInSale && (
+                {product.isSale && (
                   <span className="text-xl text-gray-500 line-through">
                     ${product.price.toFixed(2)}
                   </span>
                 )}
-                {product.isInSale && (
+                {product.isSale && (
                   <Badge className="bg-red-500 text-white">
                     Save ${(product.price - discountedPrice).toFixed(2)}
                   </Badge>
@@ -459,12 +454,12 @@ export default function ProductDetailPage() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
-                onClick={addToCart}
-                disabled={product.stock === 0}
+                onClick={addToCartHandler}
+                disabled={product.stock === 0 || isAddingToCart}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 text-lg font-semibold"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                {isInCart ? 'Added to Cart' : 'Add to Cart'}
+                {isAddingToCart ? 'Adding...' : 'Add to Cart'}
               </Button>
               
               <Button
@@ -472,8 +467,8 @@ export default function ProductDetailPage() {
                 variant="outline"
                 className="px-6 border-gray-300 hover:bg-gray-50"
               >
-                <Heart className={`w-5 h-5 mr-2 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />
-                {isInWishlist ? 'Saved' : 'Wishlist'}
+                <Heart className={`w-5 h-5 mr-2 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                {isInWishlist(product.id) ? 'Saved' : 'Wishlist'}
               </Button>
 
               <div className="relative">
@@ -667,13 +662,13 @@ export default function ProductDetailPage() {
               // Add missing isInSale property for related products
               const relatedProductWithSale: Product = {
                 ...relatedProduct,
-                isInSale: Math.random() > 0.5
+                isSale: Math.random() > 0.5
               }
               
               return (
                 <ProductCard 
                   key={relatedId} 
-                  product={convertToProductCardProps(relatedProductWithSale)} 
+                  product={relatedProductWithSale} 
                 />
               )
             })}

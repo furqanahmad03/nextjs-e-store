@@ -1,9 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
 import { Package, Heart, CreditCard } from "lucide-react"
-import Link from "next/link"
 import AccountLayout from "@/components/AccountLayout"
 import { useEffect } from "react"
 

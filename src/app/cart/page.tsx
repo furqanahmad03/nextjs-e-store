@@ -1,9 +1,10 @@
 "use client"
 
-import * as React from "react"
-import { X, Minus, Plus } from "lucide-react"
+import React, { useState } from "react"
+import { useCart, CartItem } from "@/contexts/CartContext"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Trash2, Minus, Plus, ShoppingCart, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -14,118 +15,124 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { useEffect } from "react"
-
-// Mock cart data
-const cartItems = [
-  {
-    id: 1,
-    name: "LCD Monitor",
-    price: 650,
-    quantity: 1,
-    image: "/iphone-banner.jpg",
-  },
-  {
-    id: 2,
-    name: "H1 Gamepad",
-    price: 550,
-    quantity: 2,
-    image: "/iphone-banner.jpg",
-  },
-]
+import { toast } from "sonner"
 
 export default function CartPage() {
-  useEffect(() => {
-    document.title = "Cart | E-Store";
-  }, []);
+  const { items, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart()
+  const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set())
+  const [tempQuantities, setTempQuantities] = useState<Record<number, number | string>>({})
 
-  const [items, setItems] = React.useState(cartItems)
-  const [couponCode, setCouponCode] = React.useState("")
-  const [appliedCoupon, setAppliedCoupon] = React.useState<{ code: string; discount: number } | null>(null)
-  const [couponMessage, setCouponMessage] = React.useState("")
+  // Initialize temp quantities when items change
+  React.useEffect(() => {
+    console.log('Items changed, initializing tempQuantities:', items)
+    const initialQuantities: Record<number, number> = {}
+    items.forEach(item => {
+      initialQuantities[item.id] = item.quantity
+    })
+    console.log('Setting tempQuantities to:', initialQuantities)
+    setTempQuantities(initialQuantities)
+  }, [items])
 
-  // Sample coupon codes
-  const validCoupons = {
-    "SAVE10": 10, // 10% off
-    "SAVE20": 20, // 20% off
-    "FREESHIP": 0, // Free shipping (already free)
-    "WELCOME": 15, // 15% off
-    "FLASH50": 50, // 50% off (max $100)
+  const handleQuantityChange = async (productId: number, newQuantity: number) => {
+    try {
+      setUpdatingItems(prev => new Set(prev).add(productId))
+      await updateQuantity(productId, newQuantity)
+    } catch (error) {
+      console.error('Error updating quantity:', error)
+      toast.error('Failed to update quantity')
+    } finally {
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(productId)
+        return newSet
+      })
+    }
   }
 
-  // Calculate totals
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  const shipping = 0 // Free shipping
-  
-  // Calculate discount
-  const discount = appliedCoupon ? 
-    appliedCoupon.code === "FLASH50" ? 
-      Math.min(50, subtotal * 0.5) : // Max $100 for FLASH50
-      subtotal * (appliedCoupon.discount / 100) : 
-    0
-  
-  const total = subtotal + shipping - discount
-
-  // Update quantity
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return
-    setItems(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    )
-  }
-
-  // Remove item
-  const removeItem = (id: number) => {
-    setItems(prev => prev.filter(item => item.id !== id))
-  }
-
-  // Apply coupon
-  const applyCoupon = () => {
-    const code = couponCode.toUpperCase().trim()
+  const handleTempQuantityChange = (productId: number, value: string) => {
+    console.log('handleTempQuantityChange called:', { productId, value })
     
-    if (!code) {
-      setCouponMessage("Please enter a coupon code")
+    // Allow empty string for better UX
+    if (value === '') {
+      setTempQuantities(prev => ({
+        ...prev,
+        [productId]: ''
+      }))
       return
     }
 
-    if (appliedCoupon) {
-      setCouponMessage("A coupon is already applied. Remove it first to apply a new one.")
+    const numValue = parseInt(value)
+    if (isNaN(numValue)) {
+      console.log('Invalid number value:', value)
       return
     }
 
-    if (validCoupons[code as keyof typeof validCoupons] !== undefined) {
-      const discountPercent = validCoupons[code as keyof typeof validCoupons]
-      setAppliedCoupon({ code, discount: discountPercent })
-      setCouponMessage(`Coupon "${code}" applied successfully! ${discountPercent}% discount.`)
-      setCouponCode("")
-    } else {
-      setCouponMessage("Invalid coupon code. Please try again.")
+    const item = items.find(item => item.id === productId)
+    if (!item) {
+      console.log('Item not found for productId:', productId)
+      return
+    }
+
+    // Ensure the value doesn't exceed stock and is at least 1
+    const validQuantity = Math.min(Math.max(1, numValue), item.stock)
+    console.log('Setting valid quantity:', { productId, validQuantity, originalValue: numValue, stock: item.stock })
+    
+    setTempQuantities(prev => ({
+      ...prev,
+      [productId]: validQuantity
+    }))
+  }
+
+  const handleUpdateQuantity = async (productId: number) => {
+    const tempQty = tempQuantities[productId]
+    const newQuantity = typeof tempQty === 'string' ? 1 : (tempQty || 1)
+    const item = items.find(item => item.id === productId)
+    
+    console.log('handleUpdateQuantity called:', { productId, newQuantity, item })
+    
+    if (!item) {
+      console.log('Item not found')
+      return
+    }
+
+    // Validate against actual stock
+    if (newQuantity > item.stock) {
+      toast.error(`Maximum available quantity is ${item.stock}`)
+      // Reset to current quantity
+      setTempQuantities(prev => ({
+        ...prev,
+        [productId]: item.quantity
+      }))
+      return
+    }
+
+    if (newQuantity === item.quantity) {
+      toast.info('Quantity is already up to date')
+      return
+    }
+
+    console.log('Calling handleQuantityChange with:', { productId, newQuantity })
+    await handleQuantityChange(productId, newQuantity)
+  }
+
+  const handleRemoveItem = async (productId: number) => {
+    try {
+      await removeFromCart(productId)
+    } catch (error) {
+      console.error('Error removing item:', error)
     }
   }
 
-  // Remove coupon
-  const removeCoupon = () => {
-    setAppliedCoupon(null)
-    setCouponMessage("Coupon removed successfully!")
+  const handleClearCart = () => {
+    clearCart()
   }
 
+  if (items.length === 0) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-allowed mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-2 h-8 bg-red-500 rounded"></div>
-            <div>
-              <p className="text-sm text-red-600 font-medium">Cart</p>
-              <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-            </div>
-          </div>
-          
           {/* Breadcrumb */}
-          <Breadcrumb>
+          <Breadcrumb className="mb-8">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
@@ -134,214 +141,207 @@ export default function CartPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/account">My Account</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/account/orders">My Orders</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>My Cart</BreadcrumbPage>
+                <BreadcrumbPage>Cart</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+
+          {/* Empty Cart */}
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ShoppingCart className="w-12 h-12 text-gray-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
+            <p className="text-gray-600 mb-8">Looks like you haven&apos;t added any items to your cart yet.</p>
+            <Link href="/products">
+              <Button className="bg-red-500 hover:bg-red-600 text-white">
+                Start Shopping
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-allowed mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb className="mb-8">
+          <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                <Link href="/">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+              <BreadcrumbPage>Cart</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+            <p className="text-gray-600 mt-2">
+              {items.length} item{items.length !== 1 ? 's' : ''} in your cart
+            </p>
+          </div>
+          <Button
+            onClick={handleClearCart}
+            variant="outline"
+            className="text-red-600 border-red-600 hover:bg-red-50"
+          >
+            Clear Cart
+          </Button>
         </div>
 
-        {items.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                {/* Table Header */}
-                <div className="grid grid-cols-12 gap-4 p-6 border-b border-gray-200 font-semibold text-gray-900">
-                  <div className="col-span-6">Product</div>
-                  <div className="col-span-2 text-center">Price</div>
-                  <div className="col-span-2 text-center">Quantity</div>
-                  <div className="col-span-2 text-center">Subtotal</div>
-                </div>
-
-                {/* Cart Items */}
+              <div className="p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Cart Items</h2>
+                <div className="space-y-6">
                 {items.map((item) => (
-                  <div key={item.id} className="grid grid-cols-12 gap-4 p-6 border-b border-gray-100 items-center">
-                    {/* Product */}
-                    <div className="col-span-6 flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                    <div key={item.id} className="flex items-center gap-4 p-4 border border-gray-100 rounded-lg">
+                      {/* Product Image */}
+                      <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
                           className="object-cover"
                         />
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="absolute top-0 left-0 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <span className="font-medium text-gray-900">{item.name}</span>
                     </div>
 
-                    {/* Price */}
-                    <div className="col-span-2 text-center text-gray-600">
-                      ${item.price}
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
+                        <p className="text-gray-600 text-sm">${(item.price || 0).toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">Max available: {item.stock}</p>
                     </div>
 
-                    {/* Quantity */}
-                    <div className="col-span-2 flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const currentQty = tempQuantities[item.id] !== undefined ? tempQuantities[item.id] : item.quantity
+                            const currentQtyNum = typeof currentQty === 'string' ? item.quantity : currentQty
+                            const newQty = Math.max(1, currentQtyNum - 1)
+                            setTempQuantities(prev => ({ ...prev, [item.id]: newQty }))
+                          }}
+                          disabled={updatingItems.has(item.id)}
+                          className="w-8 h-8 p-0"
                       >
                         <Minus className="w-3 h-3" />
-                      </button>
+                        </Button>
                       <Input
                         type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                          value={tempQuantities[item.id] !== undefined && tempQuantities[item.id] !== '' ? tempQuantities[item.id] : item.quantity}
+                          onChange={(e) => handleTempQuantityChange(item.id, e.target.value)}
                         className="w-16 text-center"
                         min="1"
-                      />
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50"
+                          max={item.stock} 
+                          disabled={updatingItems.has(item.id)} 
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const currentQty = tempQuantities[item.id] !== undefined ? tempQuantities[item.id] : item.quantity
+                            const currentQtyNum = typeof currentQty === 'string' ? item.quantity : currentQty
+                            const newQty = Math.min(item.stock, currentQtyNum + 1)
+                            setTempQuantities(prev => ({ ...prev, [item.id]: newQty }))
+                          }}
+                          disabled={updatingItems.has(item.id)}
+                          className="w-8 h-8 p-0"
                       >
                         <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
-
-                    {/* Subtotal */}
-                    <div className="col-span-2 text-center font-semibold text-gray-900">
-                      ${item.price * item.quantity}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Cart Actions */}
-                <div className="p-6 flex justify-between items-center">
-                  <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-                    Return To Shop
-                  </Button>
-                  <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-                    Update Cart
+                        </Button>
+                        
+                        {/* Update Button */}
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateQuantity(item.id)}
+                          disabled={updatingItems.has(item.id) || (tempQuantities[item.id] !== undefined ? tempQuantities[item.id] : item.quantity) === item.quantity}
+                          className="ml-2 px-3"
+                        >
+                          {updatingItems.has(item.id) ? (
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                          ) : (
+                            'Update'
+                          )}
                   </Button>
                 </div>
-              </div>
 
-              {/* Coupon Section */}
-              <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Apply Coupon</h3>
-                
-                {/* Coupon Message */}
-                {couponMessage && (
-                  <div className={`mb-4 p-3 rounded-md text-sm ${
-                    couponMessage.includes("successfully") 
-                      ? "bg-green-100 text-green-700 border border-green-200" 
-                      : "bg-red-100 text-red-700 border border-red-200"
-                  }`}>
-                    {couponMessage}
-                  </div>
-                )}
-
-                {/* Applied Coupon Display */}
-                {appliedCoupon && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-medium text-green-800">Applied: {appliedCoupon.code}</span>
-                        <span className="text-green-600 ml-2">({appliedCoupon.discount}% off)</span>
+                      {/* Total Price */}
+                      <div className="text-right min-w-0">
+                        <p className="font-semibold text-gray-900">${(item.total || 0).toFixed(2)}</p>
                       </div>
-                      <button
-                        onClick={removeCoupon}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium"
+
+                      {/* Remove Button */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        Remove
-                      </button>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
-                  </div>
-                )}
-
-                <div className="flex gap-4">
-                  <Input
-                    type="text"
-                    placeholder="Coupon Code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1"
-                    disabled={!!appliedCoupon}
-                  />
-                  <Button 
-                    onClick={applyCoupon}
-                    className="bg-red-500 hover:bg-red-600 text-white"
-                    disabled={!!appliedCoupon}
-                  >
-                    Apply Coupon
-                  </Button>
+                  ))}
                 </div>
-
-                {/* Available Coupons Hint */}
-                <div className="mt-4 text-sm text-gray-500">
-                  <p className="font-medium mb-2">Available coupon codes:</p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <span>SAVE10 - 10% off</span>
-                    <span>SAVE20 - 20% off</span>
-                    <span>WELCOME - 15% off</span>
-                    <span>FLASH50 - 50% off (max $100)</span>
-                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Cart Total */}
+          {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Cart Total</h3>
-                
-                <div className="space-y-4 mb-6">
-                  <div className="flex justify-between text-gray-600">
-                    <span>Subtotal:</span>
-                    <span>${subtotal}</span>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
+              
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal ({items.length} items)</span>
+                  <span className="font-medium">${getCartTotal().toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Shipping:</span>
-                    <span className="text-green-600">Free</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-medium text-green-600">Free</span>
                   </div>
-                  {appliedCoupon && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount ({appliedCoupon.code}):</span>
-                      <span>-${discount.toFixed(2)}</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Tax</span>
+                  <span className="font-medium">${(getCartTotal() * 0.1).toFixed(2)}</span>
                     </div>
-                  )}
-                  <div className="border-t border-gray-200 pt-4 flex justify-between font-bold text-lg text-gray-900">
-                    <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+                <div className="border-t pt-3">
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total</span>
+                    <span>${(getCartTotal() * 1.1).toFixed(2)}</span>
+                  </div>
                   </div>
                 </div>
 
-                <Link href="/cart/checkout">
-                  <Button className="w-full bg-red-500 hover:bg-red-600 text-white py-3 text-lg font-semibold">
-                    Proceed to checkout
+              <div className="!space-y-3">
+                <Link href="/cart/checkout" className="w-full block !mb-3">
+                  <Button className="w-full bg-red-500 hover:bg-red-600 text-white">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
+                <Link href="/products" className="w-full">
+                  <Button variant="outline" className="w-full">
+                    Continue Shopping
                   </Button>
                 </Link>
               </div>
             </div>
           </div>
-        ) : (
-          /* Empty Cart */
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">🛒</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-            <p className="text-gray-600 mb-6">Looks like you haven't added any items to your cart yet.</p>
-            <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-              <Link href="/products">Continue Shopping</Link>
-            </Button>
           </div>
-        )}
       </div>
     </div>
   )

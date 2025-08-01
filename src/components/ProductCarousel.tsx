@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
 import {
   Carousel,
   CarouselContent,
@@ -10,9 +9,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import ProductCard from "./ProductCard"
-import productsData from "@/app/api/products/products.json"
-import { ProductCardProps } from "@/types/Product"
+import { Product } from "@/types/Product"
 import Link from "next/link"
+import ProductCarouselSkeleton from "./skeletons/ProductCarouselSkeleton"
 
 export default function ProductCarousel() {
   const [timeLeft, setTimeLeft] = React.useState({
@@ -22,24 +21,41 @@ export default function ProductCarousel() {
     seconds: 56,
   })
 
-  // Create flash sale products with discounts
-  const flashSaleProducts = React.useMemo(() => {
-    return productsData.slice(0, 8).map((product, index) => {
-      const discount = 20 + (product.id % 40) // 20-60% discount based on product ID
-      const originalPrice = product.price
-      const currentPrice = originalPrice * (1 - discount / 100)
-      
-      return {
-        id: product.id,
-        name: product.name,
-        image: product.image,
-        currentPrice: Math.round(currentPrice * 100) / 100,
-        originalPrice: Math.round(originalPrice * 100) / 100,
-        discount,
-        rating: product.rating,
-        reviews: 50 + (product.id % 100), // 50-150 reviews based on product ID
-      } as ProductCardProps
-    })
+  const [flashSaleProducts, setFlashSaleProducts] = React.useState<Product[]>([])
+  const [loading, setLoading] = React.useState(true)
+
+  // Fetch sale products from API
+  React.useEffect(() => {
+    const fetchSaleProducts = async () => {
+      try {
+        const response = await fetch('/api/products/sale')
+        const data = await response.json()
+        
+        // Transform the data to match Product format
+        const transformedProducts = data.map((product: Product) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          image: product.image,
+          images: product.images || [product.image], // Use images array or fallback to single image
+          category: product.category,
+          subcategory: product.subcategory,
+          brand: product.brand,
+          rating: product.rating || 4.0,
+          stock: product.stock || 10,
+          isSale: product.isSale || true, // Sale products are on sale
+        } as Product))
+        
+        setFlashSaleProducts(transformedProducts)
+      } catch (error) {
+        console.error('Error fetching sale products:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSaleProducts()
   }, [])
 
   React.useEffect(() => {
@@ -73,7 +89,9 @@ export default function ProductCarousel() {
     return () => clearInterval(timer)
   }, [])
 
-
+  if (loading) {
+    return <ProductCarouselSkeleton />
+  }
 
   return (
     <section className="w-full bg-white py-8 min-h-fit">
@@ -83,7 +101,7 @@ export default function ProductCarousel() {
           <div className="flex items-center gap-3">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-gray-600">Today's</p>
+              <p className="text-sm text-gray-600">Today&apos;s</p>
               <h2 className="text-2xl font-bold text-gray-900">Flash Sales</h2>
             </div>
           </div>

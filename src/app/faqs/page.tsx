@@ -170,7 +170,7 @@ export default function FAQsPage() {
             </h2>
             <p className="text-gray-600 mb-6">
               Find answers to the most common questions about shopping, shipping, returns, and more. 
-              Can't find what you're looking for? Contact our support team.
+              Can&apos;t find what you&apos;re looking for? Contact our support team.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="bg-red-500 hover:bg-red-600 text-white">

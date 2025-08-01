@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, Suspense } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
-import { Search, Heart, ShoppingCart, User, LogOut, Package, FileText, Star, Settings, CreditCard, MapPin } from "lucide-react"
+import { Search, Heart, ShoppingCart, User, LogOut, Package, Settings, CreditCard, MapPin } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,9 +16,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useCart } from "@/contexts/CartContext"
 
-export default function Navbar() {
+function NavbarContent() {
   const { data: session, status } = useSession()
+  const { getCartCount, getWishlistCount } = useCart()
   const [searchQuery, setSearchQuery] = useState("")
   const [isClient, setIsClient] = useState(false)
   const pathname = usePathname()
@@ -102,11 +104,11 @@ export default function Navbar() {
     return false
   }
 
-  // Check if user is on wishlist page
-  const isWishlistActive = pathname === "/account/wishlist"
-
   // Check if user is on cart page
   const isCartActive = pathname === "/cart"
+
+  const cartCount = getCartCount()
+  const wishlistCount = getWishlistCount()
 
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
@@ -170,39 +172,27 @@ export default function Navbar() {
             )}
 
             {/* Icons */}
-            <div className="flex items-center space-x-3">
-              {/* Favorites Icon */}
-              <Link
-                href="/account/wishlist"
-                className={`p-2 rounded-full transition-colors duration-300 ${isWishlistActive
-                  ? 'bg-red-100 hover:bg-red-200'
-                  : 'hover:bg-gray-100'
-                  }`}
-              >
-                <Heart
-                  className={`h-5 w-5 transition-colors duration-300 ${isWishlistActive
-                    ? 'text-red-600 fill-red-600'
-                    : 'text-gray-700'
-                    }`}
-                />
+            <div className="flex items-center gap-4">
+              {/* Wishlist Icon */}
+              <Link href="/account/wishlist" className={`relative p-2 rounded-full transition-colors duration-300 ${pathname === '/account/wishlist' ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-100'}`}>
+                <Heart className={`h-5 w-5 transition-colors duration-300 ${pathname === '/account/wishlist' ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                )}
               </Link>
-
+              
               {/* Cart Icon */}
-              <Link
-                href="/cart"
-                className={`p-2 rounded-full transition-colors duration-300 ${isCartActive
-                  ? 'bg-gray-100 hover:bg-gray-200'
-                  : 'hover:bg-gray-100'
-                  }`}
-              >
-                <ShoppingCart
-                  className={`h-5 w-5 transition-colors duration-300 ${isCartActive
-                    ? 'text-black fill-black'
-                    : 'text-gray-700'
-                    }`}
-                />
+              <Link href="/cart" className={`relative p-2 rounded-full transition-colors duration-300 ${isCartActive ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-100'}`}>
+                <ShoppingCart className={`h-5 w-5 transition-colors duration-300 ${isCartActive ? 'text-black fill-black' : 'text-gray-700'}`} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
               </Link>
-
+              
               {/* Profile Menu */}
               {!isClient ? (
                 // Show loading state during SSR to prevent hydration mismatch
@@ -359,5 +349,13 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+  )
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NavbarContent />
+    </Suspense>
   )
 }

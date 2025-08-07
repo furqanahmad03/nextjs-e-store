@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signIn, useSession } from "next-auth/react"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,11 +19,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-export default function SignInPage() {
+export default function SignInPage({ params }: { params: Promise<{ lang: string }> }) {
   const router = useRouter()
   const { data: session, status } = useSession()
+  const t = useTranslations('auth.signin')
+  const tNav = useTranslations('navigation')
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [lang, setLang] = React.useState<string>('')
   const [formData, setFormData] = React.useState({
     email: "",
     password: "",
@@ -30,12 +34,16 @@ export default function SignInPage() {
   })
   const [errors, setErrors] = React.useState<{[key: string]: string}>({})
 
+  React.useEffect(() => {
+    params.then(({ lang }) => setLang(lang))
+  }, [params])
+
   // Redirect if already signed in
   React.useEffect(() => {
-    if (status === "authenticated" && session) {
-      router.push("/")
+    if (status === "authenticated" && session && lang) {
+      router.push(`/${lang}`)
     }
-  }, [status, session, router])
+  }, [status, session, router, lang])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -53,15 +61,15 @@ export default function SignInPage() {
     const newErrors: {[key: string]: string} = {}
     
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      newErrors.email = t('errors.emailRequired')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email"
+      newErrors.email = t('errors.emailInvalid')
     }
     
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = t('errors.passwordRequired')
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = t('errors.passwordTooShort')
     }
 
     setErrors(newErrors)
@@ -83,12 +91,14 @@ export default function SignInPage() {
       })
 
       if (result?.error) {
-        setErrors({ general: "Invalid email or password" })
+        setErrors({ general: t('errors.invalidCredentials') })
       } else {
-        router.push("/")
+        if (lang) {
+          router.push(`/${lang}`)
+        }
       }
     } catch (error) {
-      setErrors({ general: "An error occurred. Please try again." })
+      setErrors({ general: t('errors.generalError') })
     } finally {
       setIsLoading(false)
     }
@@ -111,12 +121,12 @@ export default function SignInPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${lang}`}>{tNav('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Sign In</BreadcrumbPage>
+                <BreadcrumbPage>{tNav('signIn')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -131,8 +141,8 @@ export default function SignInPage() {
               <div className="max-w-md mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-                  <p className="text-gray-600">Sign in to your account to continue shopping</p>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
+                  <p className="text-gray-600">{t('subtitle')}</p>
                 </div>
 
                 {/* Form */}
@@ -140,7 +150,7 @@ export default function SignInPage() {
                   {/* Email Field */}
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                      Email Address
+                      {t('email')}
                     </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -148,7 +158,7 @@ export default function SignInPage() {
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder={t('emailPlaceholder')}
                         value={formData.email}
                         onChange={handleInputChange}
                         className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
@@ -162,7 +172,7 @@ export default function SignInPage() {
                   {/* Password Field */}
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                      Password
+                      {t('password')}
                     </Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -170,7 +180,7 @@ export default function SignInPage() {
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
+                        placeholder={t('passwordPlaceholder')}
                         value={formData.password}
                         onChange={handleInputChange}
                         className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
@@ -200,14 +210,14 @@ export default function SignInPage() {
                         }
                       />
                       <Label htmlFor="rememberMe" className="text-sm text-gray-600">
-                        Remember me
+                        {t('rememberMe')}
                       </Label>
                     </div>
                     <Link 
-                      href="/auth/forgot-password" 
+                      href={`/${lang}/auth/forgot-password`}
                       className="text-sm text-red-500 hover:text-red-600 hover:underline"
                     >
-                      Forgot password?
+                      {t('forgotPassword')}
                     </Link>
                   </div>
 
@@ -227,11 +237,11 @@ export default function SignInPage() {
                     {isLoading ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Signing in...
+                        {t('signingIn')}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        Sign In
+                        {t('signInButton')}
                         <ArrowRight className="w-4 h-4" />
                       </div>
                     )}
@@ -241,7 +251,7 @@ export default function SignInPage() {
                 {/* Divider */}
                 <div className="my-8 flex items-center">
                   <div className="flex-1 border-t border-gray-200"></div>
-                  <span className="px-4 text-sm text-gray-500">or continue with</span>
+                  <span className="px-4 text-sm text-gray-500">{t('orContinueWith')}</span>
                   <div className="flex-1 border-t border-gray-200"></div>
                 </div>
 
@@ -249,23 +259,23 @@ export default function SignInPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <Button variant="outline" className="flex items-center gap-2">
                     <Facebook className="w-4 h-4 text-blue-600" />
-                    Facebook
+                    {t('facebook')}
                   </Button>
                   <Button variant="outline" className="flex items-center gap-2">
                     <Twitter className="w-4 h-4 text-blue-400" />
-                    Twitter
+                    {t('twitter')}
                   </Button>
                 </div>
 
                 {/* Sign Up Link */}
                 <div className="text-center mt-8">
                   <p className="text-gray-600">
-                    Don&apos;t have an account?{" "}
+                    {t('noAccount')}{" "}
                     <Link 
-                      href="/auth/signup" 
+                      href={`/${lang}/auth/signup`}
                       className="text-red-500 hover:text-red-600 font-medium hover:underline"
                     >
-                      Sign up here
+                      {t('signUpHere')}
                     </Link>
                   </p>
                 </div>

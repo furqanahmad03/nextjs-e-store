@@ -1,11 +1,6 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
-import AuthProvider from "@/components/providers/session-provider"
-import { CartProvider } from "@/contexts/CartContext"
-import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -14,6 +9,7 @@ export const metadata: Metadata = {
   description: "Eco-Site is a platform for buying and selling products.",
 }
 
+// This is the root layout - it must have html and body tags
 export default function RootLayout({
   children,
 }: {
@@ -21,19 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <AuthProvider>
-          <CartProvider>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-          </CartProvider>
-        </AuthProvider>
-        <Toaster />
+      <body className={inter.className} suppressHydrationWarning>
+        {children}
       </body>
     </html>
   )

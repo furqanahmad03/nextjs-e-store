@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,12 +19,15 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-export default function SignUpPage() {
+export default function SignUpPage({ params }: { params: Promise<{ lang: string }> }) {
   const router = useRouter()
   const { data: session, status } = useSession()
+  const t = useTranslations('auth.signup')
+  const tNav = useTranslations('navigation')
   const [showPassword, setShowPassword] = React.useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [lang, setLang] = React.useState<string>('')
   const [formData, setFormData] = React.useState({
     firstName: "",
     lastName: "",
@@ -36,12 +40,16 @@ export default function SignUpPage() {
   })
   const [errors, setErrors] = React.useState<{[key: string]: string}>({})
 
+  React.useEffect(() => {
+    params.then(({ lang }) => setLang(lang))
+  }, [params])
+
   // Redirect if already signed in
   React.useEffect(() => {
-    if (status === "authenticated" && session) {
-      router.push("/")
+    if (status === "authenticated" && session && lang) {
+      router.push(`/${lang}`)
     }
-  }, [status, session, router])
+  }, [status, session, router, lang])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -59,39 +67,39 @@ export default function SignUpPage() {
     const newErrors: {[key: string]: string} = {}
     
     if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required"
+      newErrors.firstName = t('errors.firstNameRequired')
     }
     
     if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required"
+      newErrors.lastName = t('errors.lastNameRequired')
     }
     
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      newErrors.email = t('errors.emailRequired')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email"
+      newErrors.email = t('errors.emailInvalid')
     }
     
     if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required"
+      newErrors.phone = t('errors.phoneRequired')
     }
     
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = t('errors.passwordRequired')
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters"
+      newErrors.password = t('errors.passwordTooShort')
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      newErrors.password = t('errors.passwordWeak')
     }
     
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password"
+      newErrors.confirmPassword = t('errors.confirmPasswordRequired')
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
+      newErrors.confirmPassword = t('errors.passwordsDoNotMatch')
     }
     
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = "You must agree to the terms and conditions"
+      newErrors.agreeToTerms = t('errors.mustAgreeToTerms')
     }
 
     setErrors(newErrors)
@@ -106,7 +114,7 @@ export default function SignUpPage() {
     setIsLoading(true)
     
     try {
-      const response = await fetch('/api/signup', {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,13 +131,15 @@ export default function SignUpPage() {
 
       if (response.ok) {
         // Redirect to sign in page with success message
-        router.push('/auth/signin?message=Account created successfully! Please sign in.')
+        if (lang) {
+          router.push(`/${lang}/auth/signin?message=Account created successfully! Please sign in.`)
+        }
       } else {
-      const data = await response.json()
-        setErrors({ general: data.message || "Failed to create account" })
+        const data = await response.json()
+        setErrors({ general: data.message || t('errors.generalError') })
       }
     } catch (error) {
-      setErrors({ general: "An error occurred. Please try again." })
+      setErrors({ general: t('errors.generalError') })
     } finally {
       setIsLoading(false)
     }
@@ -152,12 +162,12 @@ export default function SignUpPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${lang}`}>{tNav('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Sign Up</BreadcrumbPage>
+                <BreadcrumbPage>{tNav('signUp')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -172,38 +182,38 @@ export default function SignUpPage() {
               <div className="max-w-md mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-                  <p className="text-gray-600">Join us and start your shopping journey</p>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
+                  <p className="text-gray-600">{t('subtitle')}</p>
                 </div>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Name Fields */}
                   <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+                    <div className="space-y-2">
                       <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                        First Name
+                        {t('firstName')}
                       </Label>
-              <div className="relative">
+                      <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
+                        <Input
                           id="firstName"
                           name="firstName"
-                  type="text"
-                          placeholder="First name"
+                          type="text"
+                          placeholder={t('firstNamePlaceholder')}
                           value={formData.firstName}
                           onChange={handleInputChange}
                           className={`pl-10 ${errors.firstName ? 'border-red-500' : ''}`}
-                />
-              </div>
+                        />
+                      </div>
                       {errors.firstName && (
                         <p className="text-sm text-red-500">{errors.firstName}</p>
                       )}
-            </div>
+                    </div>
 
-            <div className="space-y-2">
+                    <div className="space-y-2">
                       <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                        Last Name
+                        {t('lastName')}
                       </Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -211,7 +221,7 @@ export default function SignUpPage() {
                           id="lastName"
                           name="lastName"
                           type="text"
-                          placeholder="Last name"
+                          placeholder={t('lastNamePlaceholder')}
                           value={formData.lastName}
                           onChange={handleInputChange}
                           className={`pl-10 ${errors.lastName ? 'border-red-500' : ''}`}
@@ -226,15 +236,15 @@ export default function SignUpPage() {
                   {/* Email Field */}
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                      Email Address
+                      {t('email')}
                     </Label>
-              <div className="relative">
+                    <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="email"
+                      <Input
+                        id="email"
                         name="email"
-                  type="email"
-                  placeholder="Enter your email"
+                        type="email"
+                        placeholder={t('emailPlaceholder')}
                         value={formData.email}
                         onChange={handleInputChange}
                         className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
@@ -248,7 +258,7 @@ export default function SignUpPage() {
                   {/* Phone Field */}
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                      Phone Number
+                      {t('phone')}
                     </Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -256,70 +266,70 @@ export default function SignUpPage() {
                         id="phone"
                         name="phone"
                         type="tel"
-                        placeholder="Enter your phone number"
+                        placeholder={t('phonePlaceholder')}
                         value={formData.phone}
                         onChange={handleInputChange}
                         className={`pl-10 ${errors.phone ? 'border-red-500' : ''}`}
-                />
-              </div>
+                      />
+                    </div>
                     {errors.phone && (
                       <p className="text-sm text-red-500">{errors.phone}</p>
                     )}
-            </div>
+                  </div>
             
                   {/* Password Field */}
-            <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                      Password
+                      {t('password')}
                     </Label>
-              <div className="relative">
+                    <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="password"
+                      <Input
+                        id="password"
                         name="password"
-                  type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder={t('passwordPlaceholder')}
                         value={formData.password}
                         onChange={handleInputChange}
                         className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
+                      >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+                      </button>
+                    </div>
                     {errors.password && (
                       <p className="text-sm text-red-500">{errors.password}</p>
                     )}
-            </div>
+                  </div>
 
                   {/* Confirm Password Field */}
-            <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-                      Confirm Password
+                      {t('confirmPassword')}
                     </Label>
-              <div className="relative">
+                    <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="confirmPassword"
+                      <Input
+                        id="confirmPassword"
                         name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder={t('confirmPasswordPlaceholder')}
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
+                      >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
+                      </button>
+                    </div>
                     {errors.confirmPassword && (
                       <p className="text-sm text-red-500">{errors.confirmPassword}</p>
                     )}
@@ -339,13 +349,13 @@ export default function SignUpPage() {
                       />
                       <div className="space-y-1">
                         <Label htmlFor="agreeToTerms" className="text-sm text-gray-600">
-                          I agree to the{" "}
-                          <Link href="/terms" className="text-red-500 hover:text-red-600 underline">
-                            Terms of Use
+                          {t('agreeToTerms')}{" "}
+                          <Link href={`/${lang}/terms`} className="text-red-500 hover:text-red-600 underline">
+                            {t('termsOfUse')}
                           </Link>{" "}
-                          and{" "}
-                          <Link href="/privacy" className="text-red-500 hover:text-red-600 underline">
-                            Privacy Policy
+                          {t('and')}{" "}
+                          <Link href={`/${lang}/privacy`} className="text-red-500 hover:text-red-600 underline">
+                            {t('privacyPolicy')}
                           </Link>
                         </Label>
                         {errors.agreeToTerms && (
@@ -364,10 +374,10 @@ export default function SignUpPage() {
                         }
                       />
                       <Label htmlFor="subscribeToNewsletter" className="text-sm text-gray-600">
-                        Subscribe to our newsletter for updates and offers
+                        {t('subscribeNewsletter')}
                       </Label>
                     </div>
-            </div>
+                  </div>
 
                   {/* General Error */}
                   {errors.general && (
@@ -377,29 +387,29 @@ export default function SignUpPage() {
                   )}
 
                   {/* Sign Up Button */}
-            <Button
-              type="submit"
-              disabled={isLoading}
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
                     className="w-full bg-red-500 hover:bg-red-600 text-white py-3 text-base font-medium"
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Creating account...
+                        {t('creatingAccount')}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        Create Account
+                        {t('createAccountButton')}
                         <ArrowRight className="w-4 h-4" />
                       </div>
                     )}
-            </Button>
-          </form>
+                  </Button>
+                </form>
 
                 {/* Divider */}
                 <div className="my-8 flex items-center">
                   <div className="flex-1 border-t border-gray-200"></div>
-                  <span className="px-4 text-sm text-gray-500">or sign up with</span>
+                  <span className="px-4 text-sm text-gray-500">{t('orSignUpWith')}</span>
                   <div className="flex-1 border-t border-gray-200"></div>
                 </div>
 
@@ -407,23 +417,23 @@ export default function SignUpPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <Button variant="outline" className="flex items-center gap-2">
                     <Facebook className="w-4 h-4 text-blue-600" />
-                    Facebook
+                    {t('facebook')}
                   </Button>
                   <Button variant="outline" className="flex items-center gap-2">
                     <Twitter className="w-4 h-4 text-blue-400" />
-                    Twitter
+                    {t('twitter')}
                   </Button>
                 </div>
 
                 {/* Sign In Link */}
                 <div className="text-center mt-8">
                   <p className="text-gray-600">
-              Already have an account?{" "}
+                    {t('alreadyHaveAccount')}{" "}
                     <Link 
-                      href="/auth/signin" 
+                      href={`/${lang}/auth/signin`}
                       className="text-red-500 hover:text-red-600 font-medium hover:underline"
                     >
-                      Sign in here
+                      {t('signInHere')}
                     </Link>
                   </p>
                 </div>

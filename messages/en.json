@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "signin": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account to continue shopping",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signInButton": "Sign In",
+      "signingIn": "Signing in...",
+      "orContinueWith": "or continue with",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "noAccount": "Don't have an account?",
+      "signUpHere": "Sign up here",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email",
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "Password must be at least 6 characters",
+        "invalidCredentials": "Invalid email or password",
+        "generalError": "An error occurred. Please try again."
+      }
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Join us and start your shopping journey",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "First name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Last name",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Enter your phone number",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "agreeToTerms": "I agree to the",
+      "termsOfUse": "Terms of Use",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "subscribeNewsletter": "Subscribe to our newsletter for updates and offers",
+      "createAccountButton": "Create Account",
+      "creatingAccount": "Creating account...",
+      "orSignUpWith": "or sign up with",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "alreadyHaveAccount": "Already have an account?",
+      "signInHere": "Sign in here",
+      "errors": {
+        "firstNameRequired": "First name is required",
+        "lastNameRequired": "Last name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email",
+        "phoneRequired": "Phone number is required",
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "passwordWeak": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "mustAgreeToTerms": "You must agree to the terms and conditions",
+        "generalError": "An error occurred. Please try again."
+      }
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
+  }
+} 

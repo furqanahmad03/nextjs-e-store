@@ -17,15 +17,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useCart } from "@/contexts/CartContext"
+import LanguageSelector from "@/components/LanguageSelector"
 
 function NavbarContent() {
   const { data: session, status } = useSession()
-  const { getCartCount, getWishlistCount } = useCart()
+  const { getCartCount, getWishlistCount, isHydrated } = useCart()
   const [searchQuery, setSearchQuery] = useState("")
-  const [isClient, setIsClient] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   // Debounced search using useRef
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -44,14 +47,10 @@ function NavbarContent() {
           params.delete('search')
         }
         params.delete('page') // Reset to first page when searching
-        router.push(`/products?${params.toString()}`)
+        router.push(`/${currentLang}/products?${params.toString()}`)
       }
     }, 300) // 300ms delay
   }
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
 
   // Set search query from URL when on products page
   useEffect(() => {
@@ -82,7 +81,7 @@ function NavbarContent() {
     e.preventDefault()
     // Keep the form submission for accessibility and enter key support
     if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(`/${currentLang}/products?search=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
@@ -95,17 +94,18 @@ function NavbarContent() {
   }
 
   const handleLogout = () => {
-    signOut({ callbackUrl: "/" })
+    signOut({ callbackUrl: `/${currentLang}` })
   }
 
   const isActive = (path: string) => {
-    if (path === "/" && pathname === "/") return true
-    if (path !== "/" && pathname.startsWith(path)) return true
+    const localizedPath = `/${currentLang}${path === "/" ? "" : path}`
+    if (path === "/" && pathname === `/${currentLang}`) return true
+    if (path !== "/" && pathname.startsWith(localizedPath)) return true
     return false
   }
 
   // Check if user is on cart page
-  const isCartActive = pathname === "/cart"
+  const isCartActive = pathname === `/${currentLang}/cart`
 
   const cartCount = getCartCount()
   const wishlistCount = getWishlistCount()
@@ -117,28 +117,28 @@ function NavbarContent() {
           {/* Left side - Logo and Navigation Links */}
           <div className="flex items-center space-x-8">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href={`/${currentLang}`} className="flex items-center">
               <span className="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">Eco-Site</span>
             </Link>
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-1">
               <Link
-                href="/"
+                href={`/${currentLang}`}
                 className={`nav-link ${isActive("/") ? "nav-link-active" : "nav-link-inactive"}`}
               >
                 Home
                 {isActive("/") && <div className="nav-link-dot"></div>}
               </Link>
               <Link
-                href="/contact"
+                href={`/${currentLang}/contact`}
                 className={`nav-link ${isActive("/contact") ? "nav-link-active" : "nav-link-inactive"}`}
               >
                 Contact
                 {isActive("/contact") && <div className="nav-link-dot"></div>}
               </Link>
               <Link
-                href="/about"
+                href={`/${currentLang}/about`}
                 className={`nav-link ${isActive("/about") ? "nav-link-active" : "nav-link-inactive"}`}
               >
                 About
@@ -171,11 +171,14 @@ function NavbarContent() {
               </form>
             )}
 
+            {/* Language Selector */}
+            <LanguageSelector />
+
             {/* Icons */}
             <div className="flex items-center gap-4">
               {/* Wishlist Icon */}
-              <Link href="/account/wishlist" className={`relative p-2 rounded-full transition-colors duration-300 ${pathname === '/account/wishlist' ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-100'}`}>
-                <Heart className={`h-5 w-5 transition-colors duration-300 ${pathname === '/account/wishlist' ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+              <Link href={`/${currentLang}/account/wishlist`} className={`relative p-2 rounded-full transition-colors duration-300 ${pathname === `/${currentLang}/account/wishlist` ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-100'}`}>
+                <Heart className={`h-5 w-5 transition-colors duration-300 ${pathname === `/${currentLang}/account/wishlist` ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
                     {wishlistCount > 99 ? '99+' : wishlistCount}
@@ -184,7 +187,7 @@ function NavbarContent() {
               </Link>
               
               {/* Cart Icon */}
-              <Link href="/cart" className={`relative p-2 rounded-full transition-colors duration-300 ${isCartActive ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-100'}`}>
+              <Link href={`/${currentLang}/cart`} className={`relative p-2 rounded-full transition-colors duration-300 ${isCartActive ? 'bg-gray-100 hover:bg-gray-200' : 'hover:bg-gray-100'}`}>
                 <ShoppingCart className={`h-5 w-5 transition-colors duration-300 ${isCartActive ? 'text-black fill-black' : 'text-gray-700'}`} />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
@@ -194,12 +197,12 @@ function NavbarContent() {
               </Link>
               
               {/* Profile Menu */}
-              {!isClient ? (
+              {!isHydrated ? (
                 // Show loading state during SSR to prevent hydration mismatch
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
               ) : status === "loading" ? (
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-              ) : !session ? (
+              ) : session ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="!bg-transparent hover:!bg-transparent outline-none border-none">
                     <Button
@@ -239,7 +242,7 @@ function NavbarContent() {
                     {/* Quick Actions */}
                     <div className="px-1">
                       <DropdownMenuItem asChild className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <Link href="/account" className="flex items-center w-full">
+                        <Link href={`/${currentLang}/account`} className="flex items-center w-full">
                           <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                             <User className="h-4 w-4 text-blue-600" />
                           </div>
@@ -251,7 +254,7 @@ function NavbarContent() {
                       </DropdownMenuItem>
 
                       <DropdownMenuItem asChild className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <Link href="/account/orders" className="flex items-center w-full">
+                        <Link href={`/${currentLang}/account/orders`} className="flex items-center w-full">
                           <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                             <Package className="h-4 w-4 text-green-600" />
                           </div>
@@ -263,7 +266,7 @@ function NavbarContent() {
                       </DropdownMenuItem>
 
                       <DropdownMenuItem asChild className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <Link href="/account/wishlist" className="flex items-center w-full">
+                        <Link href={`/${currentLang}/account/wishlist`} className="flex items-center w-full">
                           <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
                             <Heart className="h-4 w-4 text-pink-600" />
                           </div>
@@ -275,7 +278,7 @@ function NavbarContent() {
                       </DropdownMenuItem>
 
                       <DropdownMenuItem asChild className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <Link href="/account/address" className="flex items-center w-full">
+                        <Link href={`/${currentLang}/account/address`} className="flex items-center w-full">
                           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                             <MapPin className="h-4 w-4 text-purple-600" />
                           </div>
@@ -287,7 +290,7 @@ function NavbarContent() {
                       </DropdownMenuItem>
 
                       <DropdownMenuItem asChild className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <Link href="/account/payment" className="flex items-center w-full">
+                        <Link href={`/${currentLang}/account/payment`} className="flex items-center w-full">
                           <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
                             <CreditCard className="h-4 w-4 text-orange-600" />
                           </div>
@@ -304,7 +307,7 @@ function NavbarContent() {
                     {/* Settings and Logout */}
                     <div className="px-1">
                       <DropdownMenuItem asChild className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <Link href="/account/profile" className="flex items-center w-full">
+                        <Link href={`/${currentLang}/account/profile`} className="flex items-center w-full">
                           <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
                             <Settings className="h-4 w-4 text-gray-600" />
                           </div>
@@ -332,12 +335,12 @@ function NavbarContent() {
                 </DropdownMenu>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <Link href="/auth/signin">
+                  <Link href={`/${currentLang}/auth/signin`}>
                     <Button variant="ghost" size="sm">
                       Sign In
                     </Button>
                   </Link>
-                  <Link href="/auth/signup">
+                  <Link href={`/${currentLang}/auth/signup`}>
                     <Button size="sm">
                       Sign Up
                     </Button>

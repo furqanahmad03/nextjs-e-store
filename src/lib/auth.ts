@@ -88,7 +88,8 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  pages: {
-    signIn: "/auth/signin",
-  },
+  // Remove the pages configuration to prevent redirect conflicts
+  // pages: {
+  //   signIn: "/auth/signin",
+  // },
 } 

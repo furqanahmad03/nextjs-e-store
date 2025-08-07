@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "signin": {
+      "title": "Bienvenido de Vuelta",
+      "subtitle": "Inicia sesión en tu cuenta para continuar comprando",
+      "email": "Dirección de Correo Electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste la contraseña?",
+      "signInButton": "Iniciar Sesión",
+      "signingIn": "Iniciando sesión...",
+      "orContinueWith": "o continúa con",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpHere": "Regístrate aquí",
+      "errors": {
+        "emailRequired": "El correo electrónico es obligatorio",
+        "emailInvalid": "Por favor, ingresa un correo electrónico válido",
+        "passwordRequired": "La contraseña es obligatoria",
+        "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+        "invalidCredentials": "Correo electrónico o contraseña inválidos",
+        "generalError": "Ocurrió un error. Por favor, inténtalo de nuevo."
+      }
+    },
+    "signup": {
+      "title": "Crear Cuenta",
+      "subtitle": "Únete a nosotros y comienza tu viaje de compras",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Nombre",
+      "lastName": "Apellido",
+      "lastNamePlaceholder": "Apellido",
+      "email": "Dirección de Correo Electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "phone": "Número de Teléfono",
+      "phonePlaceholder": "Ingresa tu número de teléfono",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Crea una contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "agreeToTerms": "Acepto los",
+      "termsOfUse": "Términos de Uso",
+      "and": "y",
+      "privacyPolicy": "Política de Privacidad",
+      "subscribeNewsletter": "Suscríbete a nuestro boletín para actualizaciones y ofertas",
+      "createAccountButton": "Crear Cuenta",
+      "creatingAccount": "Creando cuenta...",
+      "orSignUpWith": "o regístrate con",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "signInHere": "Inicia sesión aquí",
+      "errors": {
+        "firstNameRequired": "El nombre es obligatorio",
+        "lastNameRequired": "El apellido es obligatorio",
+        "emailRequired": "El correo electrónico es obligatorio",
+        "emailInvalid": "Por favor, ingresa un correo electrónico válido",
+        "phoneRequired": "El número de teléfono es obligatorio",
+        "passwordRequired": "La contraseña es obligatoria",
+        "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+        "passwordWeak": "La contraseña debe contener al menos una letra mayúscula, una minúscula y un número",
+        "confirmPasswordRequired": "Por favor, confirma tu contraseña",
+        "passwordsDoNotMatch": "Las contraseñas no coinciden",
+        "mustAgreeToTerms": "Debes aceptar los términos y condiciones",
+        "generalError": "Ocurrió un error. Por favor, inténtalo de nuevo."
+      }
+    }
+  },
+  "navigation": {
+    "home": "Inicio",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse"
+  }
+} 

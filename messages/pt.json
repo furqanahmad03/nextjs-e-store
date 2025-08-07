@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "signin": {
+      "title": "Bem-vindo de Volta",
+      "subtitle": "Faça login na sua conta para continuar comprando",
+      "email": "Endereço de E-mail",
+      "emailPlaceholder": "Digite seu e-mail",
+      "password": "Senha",
+      "passwordPlaceholder": "Digite sua senha",
+      "rememberMe": "Lembrar de mim",
+      "forgotPassword": "Esqueceu a senha?",
+      "signInButton": "Entrar",
+      "signingIn": "Entrando...",
+      "orContinueWith": "ou continue com",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "noAccount": "Não tem uma conta?",
+      "signUpHere": "Cadastre-se aqui",
+      "errors": {
+        "emailRequired": "E-mail é obrigatório",
+        "emailInvalid": "Por favor, digite um e-mail válido",
+        "passwordRequired": "Senha é obrigatória",
+        "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+        "invalidCredentials": "E-mail ou senha inválidos",
+        "generalError": "Ocorreu um erro. Tente novamente."
+      }
+    },
+    "signup": {
+      "title": "Criar Conta",
+      "subtitle": "Junte-se a nós e comece sua jornada de compras",
+      "firstName": "Nome",
+      "firstNamePlaceholder": "Nome",
+      "lastName": "Sobrenome",
+      "lastNamePlaceholder": "Sobrenome",
+      "email": "Endereço de E-mail",
+      "emailPlaceholder": "Digite seu e-mail",
+      "phone": "Número de Telefone",
+      "phonePlaceholder": "Digite seu número de telefone",
+      "password": "Senha",
+      "passwordPlaceholder": "Crie uma senha",
+      "confirmPassword": "Confirmar Senha",
+      "confirmPasswordPlaceholder": "Confirme sua senha",
+      "agreeToTerms": "Eu concordo com os",
+      "termsOfUse": "Termos de Uso",
+      "and": "e",
+      "privacyPolicy": "Política de Privacidade",
+      "subscribeNewsletter": "Inscreva-se na nossa newsletter para atualizações e ofertas",
+      "createAccountButton": "Criar Conta",
+      "creatingAccount": "Criando conta...",
+      "orSignUpWith": "ou cadastre-se com",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "signInHere": "Faça login aqui",
+      "errors": {
+        "firstNameRequired": "Nome é obrigatório",
+        "lastNameRequired": "Sobrenome é obrigatório",
+        "emailRequired": "E-mail é obrigatório",
+        "emailInvalid": "Por favor, digite um e-mail válido",
+        "phoneRequired": "Número de telefone é obrigatório",
+        "passwordRequired": "Senha é obrigatória",
+        "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+        "passwordWeak": "A senha deve conter pelo menos uma letra maiúscula, uma minúscula e um número",
+        "confirmPasswordRequired": "Por favor, confirme sua senha",
+        "passwordsDoNotMatch": "As senhas não coincidem",
+        "mustAgreeToTerms": "Você deve concordar com os termos e condições",
+        "generalError": "Ocorreu um erro. Tente novamente."
+      }
+    }
+  },
+  "navigation": {
+    "home": "Início",
+    "signIn": "Entrar",
+    "signUp": "Cadastrar"
+  }
+} 

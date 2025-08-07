@@ -90,6 +90,7 @@ interface CartContextType {
   removeFromWishlist: (productId: number) => void
   isInWishlist: (productId: number) => boolean
   getWishlistCount: () => number
+  isHydrated: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -98,6 +99,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [orders, setOrders] = useState<Order[]>([])
   const [wishlist, setWishlist] = useState<WishlistItem[]>([])
+  const [isHydrated, setIsHydrated] = useState(false)
 
   // Load cart, orders, and wishlist from session storage on mount
   useEffect(() => {
@@ -134,6 +136,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         console.error('Error loading wishlist from session storage:', error)
       }
     }
+    
+    setIsHydrated(true)
   }, [])
 
   // Save cart, orders, and wishlist to session storage whenever they change
@@ -312,6 +316,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getCartCount = () => {
+    if (!isHydrated) return 0
     return items.reduce((count, item) => count + item.quantity, 0)
   }
 
@@ -389,6 +394,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getWishlistCount = () => {
+    if (!isHydrated) return 0
     return wishlist.length;
   };
 
@@ -410,6 +416,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     removeFromWishlist,
     isInWishlist,
     getWishlistCount,
+    isHydrated,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

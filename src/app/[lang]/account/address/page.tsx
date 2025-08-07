@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Edit, Trash2, Plus } from "lucide-react"
 import AccountLayout from "@/components/AccountLayout"
 import { useEffect } from "react"
+import { useTranslations } from "next-intl"
 
 // Mock addresses data
 const addresses = [
@@ -36,22 +37,24 @@ const addresses = [
 ]
 
 export default function AddressPage() {
+  const t = useTranslations('accountPages.address')
+
   useEffect(() => {
-    document.title = "Address Book | E-Store";
-  }, []);
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
 
   return (
     <AccountLayout 
-      title="Address Book"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "Address Book", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-red-500">Address Book</h2>
+        <h2 className="text-xl font-bold text-red-500">{t('title')}</h2>
         <Button className="bg-red-500 hover:bg-red-600 text-white">
           <Plus className="w-4 h-4 mr-2" />
-          Add New Address
+          {t('addNewAddress')}
         </Button>
       </div>
       
@@ -71,7 +74,7 @@ export default function AddressPage() {
                     </Badge>
                     {address.isDefault && (
                       <Badge className="bg-green-100 text-green-800">
-                        Default
+                        {t('defaultAddress')}
                       </Badge>
                     )}
                   </div>
@@ -82,11 +85,11 @@ export default function AddressPage() {
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="border-gray-300">
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit
+                  {t('editAddress')}
                 </Button>
                 <Button variant="outline" size="sm" className="border-red-300 text-red-600 hover:bg-red-50">
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Trash
+                  {t('deleteAddress')}
                 </Button>
               </div>
             </div>
@@ -99,7 +102,7 @@ export default function AddressPage() {
         <div className="text-center py-12">
           <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Addresses Yet</h3>
-          <p className="text-gray-600 mb-6">You haven&apos;t added any addresses yet.</p>
+          <p className="text-gray-600 mb-6">{t('noAddresses')}</p>
           <Button className="bg-red-500 hover:bg-red-600 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Add Your First Address

@@ -26,6 +26,8 @@ import { Product } from "@/types/Product"
 import HeroSection from "@/components/HeroSection"
 import Link from "next/link"
 import { useEffect, Suspense } from "react"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 function ProductsPageContent() {
   const searchParams = useSearchParams()
@@ -36,10 +38,15 @@ function ProductsPageContent() {
   const sort = searchParams.get('sort') || 'featured'
   const page = parseInt(searchParams.get('page') || '1')
   const productsPerPage = 20
+  const t = useTranslations('products')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   useEffect(() => {
-    document.title = "Products | Eco-Site";
-  }, []);
+    document.title = `${t('title')} | Eco-Site`;
+  }, [t]);
 
 
 
@@ -134,19 +141,19 @@ function ProductsPageContent() {
     if (isSaleItems) params.set('sale', isSaleItems)
     if (sort && sort !== 'featured') params.set('sort', sort)
     if (pageNumber > 1) params.set('page', pageNumber.toString())
-    return `/products${params.toString() ? `?${params.toString()}` : ''}`
+    return `/${currentLang}/products${params.toString() ? `?${params.toString()}` : ''}`
   }
 
   // Generate page title based on filters
   const getPageTitle = () => {
     if (search) {
-      return `Search Results for "${search}"`
+      return `${t('searchResults')} "${search}"`
     } else if (category && subcategory) {
       return `${category} - ${subcategory}`
     } else if (category) {
       return category
     } else {
-      return "All Products"
+      return t('allProducts')
     }
   }
 
@@ -158,7 +165,7 @@ function ProductsPageContent() {
     if (search) params.set('search', search)
     if (isSaleItems) params.set('sale', isSaleItems)
     if (sortValue !== 'featured') params.set('sort', sortValue)
-    return `/products${params.toString() ? `?${params.toString()}` : ''}`
+    return `/${currentLang}/products${params.toString() ? `?${params.toString()}` : ''}`
   }
 
 
@@ -174,7 +181,7 @@ function ProductsPageContent() {
           <div className="flex items-center gap-3 mb-4">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-red-600 font-medium">Products</p>
+              <p className="text-sm text-red-600 font-medium">{t('title')}</p>
               <h1 className="text-3xl font-bold text-gray-900">{getPageTitle()}</h1>
             </div>
           </div>
@@ -184,13 +191,13 @@ function ProductsPageContent() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/products">Products</Link>
+                  <Link href={`/${currentLang}/products`}>{t('products')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {category && (
@@ -213,7 +220,7 @@ function ProductsPageContent() {
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Search: &quot;{search}&quot;</BreadcrumbPage>
+                    <BreadcrumbPage>{t('searchResults')}: &quot;{search}&quot;</BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
@@ -225,20 +232,20 @@ function ProductsPageContent() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <p className="text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
-              {category && ` in ${category}`}
+              {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} {t('of')} {filteredProducts.length} {filteredProducts.length !== 1 ? t('products') : t('product')}
+              {category && ` ${t('in')} ${category}`}
               {subcategory && ` - ${subcategory}`}
             </p>
             
             {/* Search Results Summary */}
             {search && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Search results for:</span>
+                <span className="text-sm text-gray-500">{t('searchResultsFor')}</span>
                 <span className="text-sm font-medium text-gray-900 bg-gray-100 px-2 py-1 rounded">
                   &quot;{search}&quot;
                 </span>
                 <Link 
-                  href={`/products${(() => {
+                  href={`/${currentLang}/products${(() => {
                     const params = new URLSearchParams()
                     if (category) params.set('category', category)
                     if (subcategory) params.set('subCategory', subcategory)
@@ -251,7 +258,7 @@ function ProductsPageContent() {
                     window.dispatchEvent(new CustomEvent('clearSearch'))
                   }}
                 >
-                  Clear search
+                  {t('clearSearch')}
                 </Link>
               </div>
             )}
@@ -259,14 +266,14 @@ function ProductsPageContent() {
 
           {/* Sort Options */}
           <div className="flex items-center gap-4">
-            <span className="text-gray-600 text-sm">Sort by:</span>
+            <span className="text-gray-600 text-sm">{t('sortBy')}</span>
             <Button 
               asChild
               variant={sort === 'featured' ? 'default' : 'outline'} 
               size="sm" 
               className="text-sm"
             >
-              <Link href={generateSortUrl('featured')}>Featured</Link>
+              <Link href={generateSortUrl('featured')}>{t('featured')}</Link>
             </Button>
             <Button 
               asChild
@@ -274,7 +281,7 @@ function ProductsPageContent() {
               size="sm" 
               className="text-sm"
             >
-              <Link href={generateSortUrl('price-low-high')}>Price: Low to High</Link>
+              <Link href={generateSortUrl('price-low-high')}>{t('priceLowToHigh')}</Link>
             </Button>
             <Button 
               asChild
@@ -282,7 +289,7 @@ function ProductsPageContent() {
               size="sm" 
               className="text-sm"
             >
-              <Link href={generateSortUrl('price-high-low')}>Price: High to Low</Link>
+              <Link href={generateSortUrl('price-high-low')}>{t('priceHighToLow')}</Link>
             </Button>
             <Button 
               asChild
@@ -290,7 +297,7 @@ function ProductsPageContent() {
               size="sm" 
               className="text-sm"
             >
-              <Link href={generateSortUrl('rating')}>Top Rated</Link>
+              <Link href={generateSortUrl('rating')}>{t('topRated')}</Link>
             </Button>
             <Button 
               asChild
@@ -298,7 +305,7 @@ function ProductsPageContent() {
               size="sm" 
               className="text-sm"
             >
-              <Link href={generateSortUrl('newest')}>Newest</Link>
+              <Link href={generateSortUrl('newest')}>{t('newest')}</Link>
             </Button>
           </div>
         </div>
@@ -314,22 +321,22 @@ function ProductsPageContent() {
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {search ? "No search results found" : "No products found"}
+              {search ? t('noSearchResults') : t('noProductsFound')}
             </h3>
             <p className="text-gray-600 mb-6">
               {search
-                ? `No products found for "${search}". Try different keywords or browse all products.`
+                ? `${t('noSearchResultsMessage')} "${search}". ${t('tryDifferentKeywords')}`
                 : category && subcategory
-                  ? `No products found in ${category} - ${subcategory}`
+                  ? `${t('noProductsInCategory')} ${category} - ${subcategory}`
                   : category
-                    ? `No products found in ${category}`
-                    : "No products available at the moment"
+                    ? `${t('noProductsInCategory')} ${category}`
+                    : t('noProductsAvailable')
               }
             </p>
             <div className="flex gap-4 justify-center">
               {search && (
                 <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-                  <Link href="/products">Browse All Products</Link>
+                  <Link href={`/${currentLang}/products`}>{t('browseAllProducts')}</Link>
                 </Button>
               )}
               <Button
@@ -337,7 +344,7 @@ function ProductsPageContent() {
                 variant="outline"
                 className="border-gray-300"
               >
-                Go Back
+                {t('goBack')}
               </Button>
             </div>
           </div>

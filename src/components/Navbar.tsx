@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { Search, Heart, ShoppingCart, User, LogOut, Package, Settings, CreditCard, MapPin } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,6 +27,7 @@ function NavbarContent() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('navigation')
   
   // Extract current language from pathname
   const currentLang = pathname.split('/')[1] || 'en'
@@ -127,21 +129,21 @@ function NavbarContent() {
                 href={`/${currentLang}`}
                 className={`nav-link ${isActive("/") ? "nav-link-active" : "nav-link-inactive"}`}
               >
-                Home
+                {t('home')}
                 {isActive("/") && <div className="nav-link-dot"></div>}
               </Link>
               <Link
                 href={`/${currentLang}/contact`}
                 className={`nav-link ${isActive("/contact") ? "nav-link-active" : "nav-link-inactive"}`}
               >
-                Contact
+                {t('contact')}
                 {isActive("/contact") && <div className="nav-link-dot"></div>}
               </Link>
               <Link
                 href={`/${currentLang}/about`}
                 className={`nav-link ${isActive("/about") ? "nav-link-active" : "nav-link-inactive"}`}
               >
-                About
+                {t('about')}
                 {isActive("/about") && <div className="nav-link-dot"></div>}
               </Link>
             </div>
@@ -155,7 +157,7 @@ function NavbarContent() {
                 <div className="relative">
                   <Input
                     type="text"
-                    placeholder="What are you looking for?"
+                    placeholder={t('searchPlaceholder')}
                     value={searchQuery}
                     onChange={handleSearchChange}
                     className="w-64 pr-10"
@@ -202,7 +204,7 @@ function NavbarContent() {
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
               ) : status === "loading" ? (
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-              ) : session ? (
+              ) : !session ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="!bg-transparent hover:!bg-transparent outline-none border-none">
                     <Button
@@ -233,7 +235,7 @@ function NavbarContent() {
                           </p>
                           <div className="flex items-center mt-1">
                             <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                            <span className="text-xs text-green-600 font-medium">Online</span>
+                            <span className="text-xs text-green-600 font-medium">{t('online')}</span>
                           </div>
                         </div>
                       </div>
@@ -247,8 +249,8 @@ function NavbarContent() {
                             <User className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-gray-900">My Account</p>
-                            <p className="text-xs text-gray-500">Manage your profile</p>
+                            <p className="text-sm font-medium text-gray-900">{t('myAccount')}</p>
+                            <p className="text-xs text-gray-500">{t('manageProfile')}</p>
                           </div>
                         </Link>
                       </DropdownMenuItem>
@@ -259,8 +261,8 @@ function NavbarContent() {
                             <Package className="h-4 w-4 text-green-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-gray-900">My Orders</p>
-                            <p className="text-xs text-gray-500">Track your purchases</p>
+                            <p className="text-sm font-medium text-gray-900">{t('myOrders')}</p>
+                            <p className="text-xs text-gray-500">{t('trackPurchases')}</p>
                           </div>
                         </Link>
                       </DropdownMenuItem>
@@ -271,8 +273,8 @@ function NavbarContent() {
                             <Heart className="h-4 w-4 text-pink-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-gray-900">My Wishlist</p>
-                            <p className="text-xs text-gray-500">Saved items</p>
+                            <p className="text-sm font-medium text-gray-900">{t('myWishlist')}</p>
+                            <p className="text-xs text-gray-500">{t('savedItems')}</p>
                           </div>
                         </Link>
                       </DropdownMenuItem>
@@ -283,8 +285,8 @@ function NavbarContent() {
                             <MapPin className="h-4 w-4 text-purple-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-gray-900">Addresses</p>
-                            <p className="text-xs text-gray-500">Manage delivery addresses</p>
+                            <p className="text-sm font-medium text-gray-900">{t('addresses')}</p>
+                            <p className="text-xs text-gray-500">{t('manageDelivery')}</p>
                           </div>
                         </Link>
                       </DropdownMenuItem>
@@ -295,8 +297,8 @@ function NavbarContent() {
                             <CreditCard className="h-4 w-4 text-orange-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-gray-900">Payment Methods</p>
-                            <p className="text-xs text-gray-500">Manage your cards</p>
+                            <p className="text-sm font-medium text-gray-900">{t('paymentMethods')}</p>
+                            <p className="text-xs text-gray-500">{t('manageCards')}</p>
                           </div>
                         </Link>
                       </DropdownMenuItem>
@@ -312,8 +314,8 @@ function NavbarContent() {
                             <Settings className="h-4 w-4 text-gray-600" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-medium text-gray-900">Settings</p>
-                            <p className="text-xs text-gray-500">Account preferences</p>
+                            <p className="text-sm font-medium text-gray-900">{t('settings')}</p>
+                            <p className="text-xs text-gray-500">{t('accountPreferences')}</p>
                           </div>
                         </Link>
                       </DropdownMenuItem>
@@ -326,8 +328,8 @@ function NavbarContent() {
                           <LogOut className="h-4 w-4 text-red-600" />
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-medium">Sign Out</p>
-                          <p className="text-xs text-red-500">Log out of your account</p>
+                          <p className="text-sm font-medium">{t('signOut')}</p>
+                          <p className="text-xs text-red-500">{t('logoutAccount')}</p>
                         </div>
                       </DropdownMenuItem>
                     </div>
@@ -337,12 +339,12 @@ function NavbarContent() {
                 <div className="flex items-center space-x-2">
                   <Link href={`/${currentLang}/auth/signin`}>
                     <Button variant="ghost" size="sm">
-                      Sign In
+                      {t('signIn')}
                     </Button>
                   </Link>
                   <Link href={`/${currentLang}/auth/signup`}>
                     <Button size="sm">
-                      Sign Up
+                      {t('signUp')}
                     </Button>
                   </Link>
                 </div>

@@ -12,53 +12,61 @@ import {
 } from "lucide-react"
 import { SearchCategory } from "@/types/SearchCategory"
 import Link from "next/link"
-
-const categories: SearchCategory[] = [
-  {
-    id: 1,
-    link: "/products?category=electronics",
-    name: "Electronics",
-    icon: <Smartphone className="w-8 h-8" />,
-  },
-  {
-    id: 2,
-    link: "/products?category=home-lifestyle",
-    name: "Home & Lifestyle",
-    icon: <Home className="w-8 h-8" />,
-  },
-  {
-    id: 3,
-    link: "/products?category=medicine",
-    name: "Medicine",
-    icon: <Pill className="w-8 h-8" />,
-  },
-  {
-    id: 4,
-    link: "/products?category=sports-outdoor",
-    name: "Sports & Outdoor",
-    icon: <Dumbbell className="w-8 h-8" />,
-  },
-  {
-    id: 5,
-    link: "/products?category=babies-toys",
-    name: "Babies & Toys",
-    icon: <Baby className="w-8 h-8" />,
-  },
-  {
-    id: 6,
-    link: "/products?category=groceries-pets",
-    name: "Groceries & Pets",
-    icon: <ShoppingBag className="w-8 h-8" />,
-  },
-  {
-    id: 7,
-    link: "/products?category=health-beauty",
-    name: "Health & Beauty",
-    icon: <Heart className="w-8 h-8" />,
-  },
-]
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function CategorySection() {
+  const t = useTranslations('categories')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
+  const categories: SearchCategory[] = [
+    {
+      id: 1,
+      link: `/${currentLang}/products?category=electronics`,
+      name: t('electronics'),
+      icon: <Smartphone className="w-8 h-8" />,
+    },
+    {
+      id: 2,
+      link: `/${currentLang}/products?category=home-lifestyle`,
+      name: t('homeLifestyle'),
+      icon: <Home className="w-8 h-8" />,
+    },
+    {
+      id: 3,
+      link: `/${currentLang}/products?category=medicine`,
+      name: t('medicine'),
+      icon: <Pill className="w-8 h-8" />,
+    },
+    {
+      id: 4,
+      link: `/${currentLang}/products?category=sports-outdoor`,
+      name: t('sportsOutdoor'),
+      icon: <Dumbbell className="w-8 h-8" />,
+    },
+    {
+      id: 5,
+      link: `/${currentLang}/products?category=babies-toys`,
+      name: t('babiesToys'),
+      icon: <Baby className="w-8 h-8" />,
+    },
+    {
+      id: 6,
+      link: `/${currentLang}/products?category=groceries-pets`,
+      name: t('groceriesPets'),
+      icon: <ShoppingBag className="w-8 h-8" />,
+    },
+    {
+      id: 7,
+      link: `/${currentLang}/products?category=health-beauty`,
+      name: t('healthBeauty'),
+      icon: <Heart className="w-8 h-8" />,
+    },
+  ]
+
   return (
     <section className="w-full bg-white py-8">
       <div className="max-w-allowed mx-auto px-4">
@@ -67,8 +75,8 @@ export default function CategorySection() {
           <div className="flex items-center gap-3">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-red-700 font-medium">Categories</p>
-              <h2 className="text-2xl font-bold text-gray-900">Browse By Category</h2>
+              <p className="text-sm text-red-700 font-medium">{t('categories')}</p>
+              <h2 className="text-2xl font-bold text-gray-900">{t('browseByCategory')}</h2>
             </div>
           </div>
         </div>

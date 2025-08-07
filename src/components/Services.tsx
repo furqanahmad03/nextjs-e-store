@@ -2,29 +2,32 @@
 
 import * as React from "react"
 import { Truck, Headphones, Shield } from "lucide-react"
-
-const services = [
-  {
-    id: 1,
-    icon: Truck,
-    title: "FREE AND FAST DELIVERY",
-    description: "Free delivery for all orders over $140"
-  },
-  {
-    id: 2,
-    icon: Headphones,
-    title: "24/7 CUSTOMER SERVICE",
-    description: "Friendly 24/7 customer support"
-  },
-  {
-    id: 3,
-    icon: Shield,
-    title: "MONEY BACK GUARANTEE",
-    description: "We return money within 30 days"
-  }
-]
+import { useTranslations } from "next-intl"
 
 export default function Services() {
+  const t = useTranslations('services')
+
+  const services = [
+    {
+      id: 1,
+      icon: Truck,
+      title: t('freeShipping'),
+      description: t('freeShippingDesc')
+    },
+    {
+      id: 2,
+      icon: Headphones,
+      title: t('support'),
+      description: t('supportDesc')
+    },
+    {
+      id: 3,
+      icon: Shield,
+      title: t('easyReturns'),
+      description: t('easyReturnsDesc')
+    }
+  ]
+
   return (
     <section className="w-full bg-white">
       <div className="max-w-allowed mx-auto px-4 border-t border-b border-gray-300 py-12 px-6 my-12">

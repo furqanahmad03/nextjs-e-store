@@ -9,6 +9,8 @@ import { Heart, Star } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 interface Props {
   product: Product
@@ -18,6 +20,11 @@ export default function ProductCard({ product }: Props) {
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart()
   const [isAddingToCart, setIsAddingToCart] = React.useState(false)
   const [isWishlistLoading, setIsWishlistLoading] = React.useState(false)
+  const t = useTranslations('products')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   const handleAddToCart = async () => {
     try {
@@ -74,7 +81,7 @@ export default function ProductCard({ product }: Props) {
         {/* Sale Badge */}
         {product.isSale && (
           <Badge className="absolute top-2 left-2 bg-red-500 text-white">
-            SALE
+            {t('discount')}
           </Badge>
         )}
         
@@ -98,7 +105,7 @@ export default function ProductCard({ product }: Props) {
         {/* Stock Badge */}
         {product.stock === 0 && (
           <Badge className="absolute bottom-2 left-2 bg-gray-500 text-white">
-            Out of Stock
+            {t('outOfStock')}
           </Badge>
         )}
 
@@ -109,7 +116,7 @@ export default function ProductCard({ product }: Props) {
             disabled={isAddingToCart || product.stock === 0} 
             className="w-full bg-black rounded-none text-white font-bold py-3 px-4 uppercase tracking-wide hover:bg-gray-900 transition-colors duration-200 disabled:opacity-50"
           >
-            {isAddingToCart ? 'Adding...' : 'Add To Cart'}
+            {isAddingToCart ? 'Adding...' : t('addToCart')}
           </Button>
         </div>
       </div>
@@ -124,7 +131,7 @@ export default function ProductCard({ product }: Props) {
           </div>
 
           {/* Product Name */}
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/${currentLang}/products/${product.id}`}>
             <h3 className="font-medium text-gray-900 line-clamp-2 min-h-[2.5rem] hover:text-red-500 transition-colors duration-200">
               {product.name}
             </h3>
@@ -155,12 +162,12 @@ export default function ProductCard({ product }: Props) {
               </span>
               {product.isSale && (
                 <Badge variant="secondary" className="text-xs">
-                  SALE
+                  {t('discount')}
                 </Badge>
               )}
             </div>
             <span className="text-xs text-gray-500">
-              {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+              {product.stock > 0 ? `${product.stock} ${t('inStock')}` : t('outOfStock')}
             </span>
           </div>
         </div>

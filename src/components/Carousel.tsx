@@ -11,41 +11,44 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-
-const bannerSlides = [
-  {
-    id: 1,
-    title: "iPhone 14 Series",
-    subtitle: "Up to 10% off Voucher",
-    cta: "Shop Now",
-    image: "/iphone-banner.jpg",
-    bgColor: "bg-black",
-    textColor: "text-white",
-    borderColor: "border-blue-500",
-  },
-  {
-    id: 2,
-    title: "Summer Collection",
-    subtitle: "New Arrivals - Up to 50% Off",
-    cta: "Explore Now",
-    image: "/summer-banner.jpg",
-    bgColor: "bg-gradient-to-r from-pink-400 to-purple-500",
-    textColor: "text-white",
-    borderColor: "border-pink-300",
-  },
-  {
-    id: 3,
-    title: "Electronics Sale",
-    subtitle: "Tech Deals - Save Big",
-    cta: "Shop Electronics",
-    image: "/electronics-banner.jpg",
-    bgColor: "bg-gradient-to-r from-blue-600 to-indigo-700",
-    textColor: "text-white",
-    borderColor: "border-blue-400",
-  },
-]
+import { useTranslations } from "next-intl"
 
 export default function HeroCarousel() {
+  const t = useTranslations('carousel')
+
+  const bannerSlides = [
+    {
+      id: 1,
+      title: t('iphone14.title'),
+      subtitle: t('iphone14.subtitle'),
+      cta: t('shopNow'),
+      image: "/iphone-banner.jpg",
+      bgColor: "bg-black",
+      textColor: "text-white",
+      borderColor: "border-blue-500",
+    },
+    {
+      id: 2,
+      title: t('summer.title'),
+      subtitle: t('summer.subtitle'),
+      cta: t('exploreNow'),
+      image: "/summer-banner.jpg",
+      bgColor: "bg-gradient-to-r from-pink-400 to-purple-500",
+      textColor: "text-white",
+      borderColor: "border-pink-300",
+    },
+    {
+      id: 3,
+      title: t('electronics.title'),
+      subtitle: t('electronics.subtitle'),
+      cta: t('shopElectronics'),
+      image: "/electronics-banner.jpg",
+      bgColor: "bg-gradient-to-r from-blue-600 to-indigo-700",
+      textColor: "text-white",
+      borderColor: "border-blue-400",
+    },
+  ]
+
   return (
     <div className="w-full">
       <Carousel

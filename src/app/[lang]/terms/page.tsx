@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import Link from "next/link"
 import {
@@ -10,14 +12,21 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Shield, CreditCard, Truck, AlertTriangle, Calendar, Users } from "lucide-react"
-import { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "Terms of Use",
-  description: "Read our terms of use and conditions for using Eco-Site. Understand your rights and responsibilities as a user.",
-}
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 export default function TermsOfUsePage() {
+  const t = useTranslations('terms')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
+  useEffect(() => {
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-allowed mx-auto px-4 py-8">
@@ -26,8 +35,8 @@ export default function TermsOfUsePage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-red-600 font-medium">Legal</p>
-              <h1 className="text-3xl font-bold text-gray-900">Terms of Use</h1>
+              <p className="text-sm text-red-600 font-medium">{t('legal')}</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('termsOfUse')}</h1>
             </div>
           </div>
 
@@ -36,12 +45,12 @@ export default function TermsOfUsePage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Terms of Use</BreadcrumbPage>
+                <BreadcrumbPage>{t('termsOfUse')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -52,7 +61,7 @@ export default function TermsOfUsePage() {
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-600" />
             <p className="text-blue-800">
-              <span className="font-semibold">Last Updated:</span> December 15, 2024
+              <span className="font-semibold">{t('lastUpdated')}</span> {t('lastUpdatedDate')}
             </p>
           </div>
         </div>

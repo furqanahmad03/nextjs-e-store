@@ -4,10 +4,12 @@ import * as React from "react"
 import ProductCard from "./ProductCard"
 import { Product } from "@/types/Product"
 import BestSellingsSkeleton from "./skeletons/BestSellingsSkeleton"
+import { useTranslations } from "next-intl"
 
 export default function BestSellings() {
   const [bestSellingProducts, setBestSellingProducts] = React.useState<Product[]>([])
   const [loading, setLoading] = React.useState(true)
+  const t = useTranslations('products')
 
   // Fetch best selling products from API
   React.useEffect(() => {
@@ -55,8 +57,8 @@ export default function BestSellings() {
           <div className="flex items-center gap-3">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-red-600 font-medium">This Month</p>
-              <h2 className="text-2xl font-bold text-gray-900">Best Selling Products</h2>
+              <p className="text-sm text-red-600 font-medium">{t('bestSellingThisMonth')}</p>
+              <h2 className="text-2xl font-bold text-gray-900">{t('bestSellingProducts')}</h2>
             </div>
           </div>
         </div>

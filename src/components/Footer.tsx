@@ -5,8 +5,16 @@ import { Send, Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function Footer() {
+  const t = useTranslations('footer')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
   return (
     <footer className="w-full bg-black text-white">
       {/* Main Footer Content */}
@@ -15,14 +23,14 @@ export default function Footer() {
           
           {/* Column 1: Exclusive */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">Exclusive</h3>
+            <h3 className="text-xl font-bold">{t('exclusive')}</h3>
             <div>
-              <h4 className="font-bold mb-2">Subscribe</h4>
-              <p className="text-gray-300 mb-4 text-sm">Get 10% off your first order</p>
+              <h4 className="font-bold mb-2">{t('subscribe')}</h4>
+              <p className="text-gray-300 mb-4 text-sm">{t('subscribeText')}</p>
               <div className="relative">
                 <Input
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('emailPlaceholder')}
                   className="bg-transparent border-gray-500 text-white placeholder-gray-400 pr-12"
                 />
                 <Button
@@ -37,41 +45,41 @@ export default function Footer() {
 
           {/* Column 2: Support */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">Support</h3>
+            <h3 className="text-xl font-bold">{t('support')}</h3>
             <div className="space-y-2 text-gray-300 text-sm">
-              <p>111 Bijoy sarani, Dhaka, DH 1515, Bangladesh.</p>
-              <p><Link href="mailto:exclusive@gmail.com">exclusive@gmail.com</Link></p>
-              <p><Link href="tel:+88015-88888-9999">+88015-88888-9999</Link></p>
+              <p>{t('supportAddress')}</p>
+              <p><Link href="mailto:exclusive@gmail.com">{t('supportEmail')}</Link></p>
+              <p><Link href="tel:+88015-88888-9999">{t('supportPhone')}</Link></p>
             </div>
           </div>
 
           {/* Column 3: Account */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">Account</h3>
+            <h3 className="text-xl font-bold">{t('account')}</h3>
             <div className="space-y-2 text-sm">
-              <Link href="/account" className="block text-gray-300 hover:text-white transition-colors">My Account</Link>
-              <Link href="/auth/sign-in" className="block text-gray-300 hover:text-white transition-colors">Login / Register</Link>
-              <Link href="/cart" className="block text-gray-300 hover:text-white transition-colors">Cart</Link>
-              <Link href="/account/wishlist" className="block text-gray-300 hover:text-white transition-colors">Wishlist</Link>
-              <Link href="/products" className="block text-gray-300 hover:text-white transition-colors">Shop</Link>
+              <Link href={`/${currentLang}/account`} className="block text-gray-300 hover:text-white transition-colors">{t('myAccount')}</Link>
+              <Link href={`/${currentLang}/auth/signin`} className="block text-gray-300 hover:text-white transition-colors">{t('loginRegister')}</Link>
+              <Link href={`/${currentLang}/cart`} className="block text-gray-300 hover:text-white transition-colors">{t('cart')}</Link>
+              <Link href={`/${currentLang}/account/wishlist`} className="block text-gray-300 hover:text-white transition-colors">{t('wishlist')}</Link>
+              <Link href={`/${currentLang}/products`} className="block text-gray-300 hover:text-white transition-colors">{t('shop')}</Link>
             </div>
           </div>
 
           {/* Column 4: Quick Link */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">Quick Link</h3>
+            <h3 className="text-xl font-bold">{t('quickLink')}</h3>
             <div className="space-y-2 text-sm">
-              <Link href="/privacy" className="block text-gray-300 hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="block text-gray-300 hover:text-white transition-colors">Terms Of Use</Link>
-              <Link href="/faqs" className="block text-gray-300 hover:text-white transition-colors">FAQs</Link>
-              <Link href="/contact" className="block text-gray-300 hover:text-white transition-colors">Contact</Link>
+              <Link href={`/${currentLang}/privacy`} className="block text-gray-300 hover:text-white transition-colors">{t('privacyPolicy')}</Link>
+              <Link href={`/${currentLang}/terms`} className="block text-gray-300 hover:text-white transition-colors">{t('termsOfUse')}</Link>
+              <Link href={`/${currentLang}/faqs`} className="block text-gray-300 hover:text-white transition-colors">{t('faqs')}</Link>
+              <Link href={`/${currentLang}/contact`} className="block text-gray-300 hover:text-white transition-colors">{t('contact')}</Link>
             </div>
           </div>
 
           {/* Column 5: Download App */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold">Download App</h3>
-            <p className="text-gray-300 mb-4 text-sm">Save $3 with App New User Only</p>
+            <h3 className="text-xl font-bold">{t('downloadApp')}</h3>
+            <p className="text-gray-300 mb-4 text-sm">{t('downloadAppText')}</p>
           </div>
         </div>
       </div>
@@ -82,7 +90,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
             <p className="text-gray-400 text-sm">
-              © Copyright Rimel 2022. All right reserved
+              {t('copyright')}
             </p>
             
             {/* Social Media Icons */}

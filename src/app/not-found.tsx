@@ -5,9 +5,16 @@ import Link from "next/link"
 import { Home, ArrowLeft, ShoppingBag } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function NotFound() {
   const router = useRouter()
+  const t = useTranslations('notFound')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   const handleGoBack = () => {
     router.back()
@@ -20,17 +27,17 @@ export default function NotFound() {
         <div className="mb-8">
           <h1 className="text-9xl font-bold text-gray-300 select-none">404</h1>
           <div className="relative -mt-20">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">Page Not Found</h2>
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">{t('pageNotFoundTitle')}</h2>
           </div>
         </div>
 
         {/* Main Message */}
         <div className="mb-8">
           <p className="text-xl text-gray-600 mb-4">
-            Oops! The page you&apos;re looking for doesn&apos;t exist.
+            {t('pageNotFoundMessage')}
           </p>
           <p className="text-gray-500">
-            It might have been moved, deleted, or you entered the wrong URL.
+            {t('pageNotFoundSubMessage')}
           </p>
         </div>
 
@@ -43,41 +50,41 @@ export default function NotFound() {
             className="inline-flex items-center justify-center gap-2 min-w-[140px] px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
           >
             <ArrowLeft className="w-4 h-4" />
-            Go Back
+            {t('goBackButton')}
           </Button>
           
           <Link 
-            href="/"
+            href={`/${currentLang}`}
             className="inline-flex items-center justify-center gap-2 min-w-[140px] px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors duration-200"
           >
             <Home className="w-4 h-4" />
-            Homepage
+            {t('homepageButton')}
           </Link>
           
           <Link 
-            href="/products"
+            href={`/${currentLang}/products`}
             className="inline-flex items-center justify-center gap-2 min-w-[140px] px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
           >
             <ShoppingBag className="w-4 h-4" />
-            Browse Products
+            {t('browseProductsButton')}
           </Link>
         </div>
 
         {/* Quick Links */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <h4 className="text-sm font-medium text-gray-600 mb-4">Quick Links</h4>
+          <h4 className="text-sm font-medium text-gray-600 mb-4">{t('quickLinksTitle')}</h4>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link href="/products" className="text-red-500 hover:text-red-600 hover:underline">
-              All Products
+            <Link href={`/${currentLang}/products`} className="text-red-500 hover:text-red-600 hover:underline">
+              {t('allProductsLink')}
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-800 hover:underline">
-              About Us
+            <Link href={`/${currentLang}/about`} className="text-gray-600 hover:text-gray-800 hover:underline">
+              {t('aboutUsLink')}
             </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-gray-800 hover:underline">
-              Contact
+            <Link href={`/${currentLang}/contact`} className="text-gray-600 hover:text-gray-800 hover:underline">
+              {t('contactLink')}
             </Link>
-            <Link href="/cart" className="text-gray-600 hover:text-gray-800 hover:underline">
-              Cart
+            <Link href={`/${currentLang}/cart`} className="text-gray-600 hover:text-gray-800 hover:underline">
+              {t('cartLink')}
             </Link>
           </div>
         </div>

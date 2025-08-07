@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import AccountSidebar from "./AccountSidebar"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 // Mock user data
 const userData = {
@@ -30,6 +32,13 @@ interface AccountLayoutProps {
 }
 
 export default function AccountLayout({ children, title, breadcrumbItems = [] }: AccountLayoutProps) {
+  const t = useTranslations('account')
+  const tNav = useTranslations('navigation')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-allowed mx-auto px-4 py-8">
@@ -39,12 +48,12 @@ export default function AccountLayout({ children, title, breadcrumbItems = [] }:
             <div className="flex items-center gap-3">
               <div className="w-2 h-8 bg-red-500 rounded"></div>
               <div>
-                <p className="text-sm text-red-600 font-medium">Account</p>
-                <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
+                <p className="text-sm text-red-600 font-medium">{t('account')}</p>
+                <h1 className="text-3xl font-bold text-gray-900">{t('myAccount')}</h1>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">Welcome!</p>
+              <p className="text-sm text-gray-600">{t('welcome')}</p>
               <p className="font-semibold text-gray-900">{userData.firstName} {userData.lastName}</p>
             </div>
           </div>
@@ -54,13 +63,13 @@ export default function AccountLayout({ children, title, breadcrumbItems = [] }:
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{tNav('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/account">My Account</Link>
+                  <Link href={`/${currentLang}/account`}>{t('myAccount')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {breadcrumbItems.map((item, index) => (

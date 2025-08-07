@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import Link from "next/link"
 import {
@@ -10,14 +12,21 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, Eye, Lock, Users, FileText, Calendar } from "lucide-react"
-import { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "Learn how we protect your privacy and handle your personal information at Eco-Site. Read our comprehensive privacy policy.",
-}
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 export default function PrivacyPolicyPage() {
+  const t = useTranslations('privacy')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
+  useEffect(() => {
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-allowed mx-auto px-4 py-8">
@@ -26,8 +35,8 @@ export default function PrivacyPolicyPage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-red-600 font-medium">Legal</p>
-              <h1 className="text-3xl font-bold text-gray-900">Privacy Policy</h1>
+              <p className="text-sm text-red-600 font-medium">{t('legal')}</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('privacyPolicy')}</h1>
             </div>
           </div>
 
@@ -36,12 +45,12 @@ export default function PrivacyPolicyPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Privacy Policy</BreadcrumbPage>
+                <BreadcrumbPage>{t('privacyPolicy')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -52,7 +61,7 @@ export default function PrivacyPolicyPage() {
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-600" />
             <p className="text-blue-800">
-              <span className="font-semibold">Last Updated:</span> December 15, 2024
+              <span className="font-semibold">{t('lastUpdated')}</span> {t('lastUpdatedDate')}
             </p>
           </div>
         </div>
@@ -66,18 +75,15 @@ export default function PrivacyPolicyPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-red-500" />
-                  Introduction
+                  {t('introduction')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-gray-700">
                 <p>
-                  At Eco-Site, we are committed to protecting your privacy and ensuring the security of your personal information. 
-                  This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website 
-                  or make purchases from our online store.
+                  {t('introductionText1')}
                 </p>
                 <p>
-                  By using our services, you agree to the collection and use of information in accordance with this policy. 
-                  If you do not agree with our policies and practices, please do not use our website.
+                  {t('introductionText2')}
                 </p>
               </CardContent>
             </Card>
@@ -87,27 +93,24 @@ export default function PrivacyPolicyPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Eye className="w-5 h-5 text-red-500" />
-                  Information We Collect
+                  {t('informationWeCollect')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Personal Information</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('personalInformation')}</h4>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                    <li>Name and contact information (email, phone number)</li>
-                    <li>Billing and shipping addresses</li>
-                    <li>Payment information (processed securely through our payment partners)</li>
-                    <li>Account credentials and preferences</li>
+                    {t.raw('personalInfoItems').map((item: string, index: number) => (
+                      <li key={index}>{item}</li>
+                    ))}
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Usage Information</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('usageInformation')}</h4>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                    <li>Browser type and version</li>
-                    <li>Operating system</li>
-                    <li>IP address and location data</li>
-                    <li>Pages visited and time spent on our website</li>
-                    <li>Search queries and product interactions</li>
+                    {t.raw('usageInfoItems').map((item: string, index: number) => (
+                      <li key={index}>{item}</li>
+                    ))}
                   </ul>
                 </div>
               </CardContent>

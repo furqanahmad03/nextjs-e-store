@@ -12,6 +12,8 @@ import ProductCard from "./ProductCard"
 import { Product } from "@/types/Product"
 import Link from "next/link"
 import ProductCarouselSkeleton from "./skeletons/ProductCarouselSkeleton"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function ProductCarousel() {
   const [timeLeft, setTimeLeft] = React.useState({
@@ -23,6 +25,11 @@ export default function ProductCarousel() {
 
   const [flashSaleProducts, setFlashSaleProducts] = React.useState<Product[]>([])
   const [loading, setLoading] = React.useState(true)
+  const t = useTranslations('productCarousel')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   // Fetch sale products from API
   React.useEffect(() => {
@@ -101,30 +108,30 @@ export default function ProductCarousel() {
           <div className="flex items-center gap-3">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-gray-600">Today&apos;s</p>
-              <h2 className="text-2xl font-bold text-gray-900">Flash Sales</h2>
+              <p className="text-sm text-gray-600">{t('todays')}</p>
+              <h2 className="text-2xl font-bold text-gray-900">{t('flashSales')}</h2>
             </div>
           </div>
 
           {/* Countdown Timer */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-600">Days</span>
+              <span className="text-sm text-gray-600">{t('days')}</span>
               <span className="text-2xl font-bold text-gray-900">{timeLeft.days.toString().padStart(2, '0')}</span>
             </div>
             <span className="text-2xl font-bold text-red-500">:</span>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-600">Hours</span>
+              <span className="text-sm text-gray-600">{t('hours')}</span>
               <span className="text-2xl font-bold text-gray-900">{timeLeft.hours.toString().padStart(2, '0')}</span>
             </div>
             <span className="text-2xl font-bold text-red-500">:</span>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-600">Minutes</span>
+              <span className="text-sm text-gray-600">{t('minutes')}</span>
               <span className="text-2xl font-bold text-gray-900">{timeLeft.minutes.toString().padStart(2, '0')}</span>
             </div>
             <span className="text-2xl font-bold text-red-500">:</span>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-600">Seconds</span>
+              <span className="text-sm text-gray-600">{t('seconds')}</span>
               <span className="text-2xl font-bold text-gray-900">{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
           </div>
@@ -159,7 +166,7 @@ export default function ProductCarousel() {
         
         {/* View All Button */}
         <div className="flex justify-center mt-8">
-            <Link href="/products?sale=true" className="text-sm border border-gray-600 text-black hover:text-white hover:bg-black transition-colors duration-300 px-4 py-2 rounded-sm">View All Products</Link>
+            <Link href={`/${currentLang}/products?sale=true`} className="text-sm border border-gray-600 text-black hover:text-white hover:bg-black transition-colors duration-300 px-4 py-2 rounded-sm">{t('viewAllProducts')}</Link>
         </div>
       </div>
     </section>

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { CreditCard, Edit, Trash2, Plus } from "lucide-react"
 import AccountLayout from "@/components/AccountLayout"
 import { useEffect } from "react"
+import { useTranslations } from "next-intl"
 
 // Mock payment methods data
 const paymentMethods = [
@@ -36,22 +37,24 @@ const paymentMethods = [
 ]
 
 export default function PaymentPage() {
+  const t = useTranslations('accountPages.payment')
+
   useEffect(() => {
-    document.title = "My Payment Options | E-Store";
-  }, []);
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
 
   return (
     <AccountLayout 
-      title="My Payment Options"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "My Payment Options", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-red-500">My Payment Options</h2>
+        <h2 className="text-xl font-bold text-red-500">{t('title')}</h2>
         <Button className="bg-red-500 hover:bg-red-600 text-white">
           <Plus className="w-4 h-4 mr-2" />
-          Add Payment Method
+          {t('addNewCard')}
         </Button>
       </div>
       
@@ -68,7 +71,7 @@ export default function PaymentPage() {
                     <h3 className="font-semibold text-gray-900">{method.type}</h3>
                     {method.isDefault && (
                       <Badge className="bg-green-100 text-green-800">
-                        Default
+                        {t('defaultPayment')}
                       </Badge>
                     )}
                   </div>
@@ -79,11 +82,11 @@ export default function PaymentPage() {
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="border-gray-300">
                   <Edit className="w-4 h-4 mr-2" />
-                  Edit
+                  {t('editCard')}
                 </Button>
                 <Button variant="outline" size="sm" className="border-red-300 text-red-600 hover:bg-red-50">
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Trash
+                  {t('deleteCard')}
                 </Button>
               </div>
             </div>
@@ -96,7 +99,7 @@ export default function PaymentPage() {
         <div className="text-center py-12">
           <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Payment Methods Yet</h3>
-          <p className="text-gray-600 mb-6">You haven&apos;t added any payment methods yet.</p>
+          <p className="text-gray-600 mb-6">{t('noCards')}</p>
           <Button className="bg-red-500 hover:bg-red-600 text-white">
             <Plus className="w-4 h-4 mr-2" />
             Add Your First Payment Method

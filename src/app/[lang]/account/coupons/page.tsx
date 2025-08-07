@@ -8,6 +8,8 @@ import { Copy, CheckCircle, AlertCircle, Info } from "lucide-react"
 import AccountLayout from "@/components/AccountLayout"
 import Link from "next/link"
 import { useEffect } from "react"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 // Available coupon codes
 const availableCoupons = [
@@ -101,9 +103,15 @@ const getCategoryColor = (category: string) => {
 }
 
 export default function CouponsPage() {
+  const t = useTranslations('accountPages.coupons')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
   useEffect(() => {
-    document.title = "Available Coupons | E-Store";
-  }, []);
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
 
   const [copiedCode, setCopiedCode] = React.useState<string | null>(null)
 
@@ -119,25 +127,25 @@ export default function CouponsPage() {
 
   return (
     <AccountLayout 
-      title="Available Coupons"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "Available Coupons", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
-      <h2 className="text-xl font-bold text-red-500 mb-6">Available Coupon Codes</h2>
+      <h2 className="text-xl font-bold text-red-500 mb-6">{t('availableCouponsTitle')}</h2>
 
       {/* Info Section */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-600 mt-0.5" />
           <div>
-            <h3 className="font-medium text-blue-900 mb-1">How to Use Coupon Codes</h3>
+            <h3 className="font-medium text-blue-900 mb-1">{t('howToUseCouponCodeTitle')}</h3>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Add items to your cart and proceed to checkout</li>
-              <li>• Enter the coupon code in the &quot;Coupon Code&quot; field</li>
-              <li>• Click &quot;Apply Coupon&quot; to activate the discount</li>
-              <li>• The discount will be automatically applied to your total</li>
-              <li>• Each coupon can only be used once per customer unless stated otherwise</li>
+              <li>• {t('howToUseCouponCodeStep1')}</li>
+              <li>• {t('howToUseCouponCodeStep2')}</li>
+              <li>• {t('howToUseCouponCodeStep3')}</li>
+              <li>• {t('howToUseCouponCodeStep4')}</li>
+              <li>• {t('howToUseCouponCodeStep5')}</li>
             </ul>
           </div>
         </div>
@@ -182,32 +190,32 @@ export default function CouponsPage() {
                     </Button>
                   </div>
                   {copiedCode === coupon.code && (
-                    <p className="text-xs text-green-600 mt-1">Copied to clipboard!</p>
+                    <p className="text-xs text-green-600 mt-1">{t('copiedToClipboard')}</p>
                   )}
                 </div>
 
                 {/* Coupon Details */}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Discount:</span>
+                    <span className="text-gray-600">{t('discount')}:</span>
                     <span className="font-semibold text-green-600">{coupon.discount}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Min. Order:</span>
+                    <span className="text-gray-600">{t('minOrder')}:</span>
                     <span className="font-medium">{coupon.minOrder}</span>
                   </div>
                   {coupon.maxDiscount !== "No limit" && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Max. Discount:</span>
+                      <span className="text-gray-600">{t('maxDiscount')}:</span>
                       <span className="font-medium">{coupon.maxDiscount}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Valid Until:</span>
+                    <span className="text-gray-600">{t('validUntil')}:</span>
                     <span className="font-medium">{coupon.validUntil}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Usage:</span>
+                    <span className="text-gray-600">{t('usage')}:</span>
                     <span className="font-medium">{coupon.usage}</span>
                   </div>
                 </div>
@@ -217,12 +225,12 @@ export default function CouponsPage() {
                   {coupon.isActive ? (
                     <>
                       <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-green-600 font-medium">Active</span>
+                      <span className="text-sm text-green-600 font-medium">{t('active')}</span>
                     </>
                   ) : (
                     <>
                       <AlertCircle className="w-4 h-4 text-red-600" />
-                      <span className="text-sm text-red-600 font-medium">Expired</span>
+                      <span className="text-sm text-red-600 font-medium">{t('expired')}</span>
                     </>
                   )}
                 </div>
@@ -235,7 +243,7 @@ export default function CouponsPage() {
       {/* Quick Actions */}
       <div className="mt-8 text-center">
         <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-          <Link href="/checkout">Go to Checkout</Link>
+          <Link href="/checkout">{t('goToCheckout')}</Link>
         </Button>
       </div>
     </AccountLayout>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Facebook, Twitter } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,14 +29,11 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
   const [isLoading, setIsLoading] = React.useState(false)
   const [lang, setLang] = React.useState<string>('')
   const [formData, setFormData] = React.useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
-    agreeToTerms: false,
-    subscribeToNewsletter: false
+    agreeToTerms: false
   })
   const [errors, setErrors] = React.useState<{[key: string]: string}>({})
 
@@ -66,42 +63,32 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {}
     
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = t('errors.firstNameRequired')
-    }
-    
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = t('errors.lastNameRequired')
+    if (!formData.name.trim()) {
+      newErrors.name = t('errors.nameRequired')
     }
     
     if (!formData.email) {
       newErrors.email = t('errors.emailRequired')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('errors.emailInvalid')
-    }
-    
-    if (!formData.phone.trim()) {
-      newErrors.phone = t('errors.phoneRequired')
+      newErrors.email = t('errors.invalidEmail')
     }
     
     if (!formData.password) {
       newErrors.password = t('errors.passwordRequired')
-    } else if (formData.password.length < 8) {
-      newErrors.password = t('errors.passwordTooShort')
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = t('errors.passwordWeak')
+    } else if (formData.password.length < 6) {
+      newErrors.password = t('errors.passwordMinLength')
     }
     
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = t('errors.confirmPasswordRequired')
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t('errors.passwordsDoNotMatch')
+      newErrors.confirmPassword = t('errors.passwordsNotMatch')
     }
     
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = t('errors.mustAgreeToTerms')
+      newErrors.agreeToTerms = t('errors.termsRequired')
     }
-
+    
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -109,23 +96,23 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!validateForm()) return
+    if (!validateForm()) {
+      return
+    }
 
     setIsLoading(true)
-    
+    setErrors({})
+
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch('/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          name: formData.name,
           email: formData.email,
-          phone: formData.phone,
           password: formData.password,
-          subscribeToNewsletter: formData.subscribeToNewsletter
         }),
       })
 
@@ -136,7 +123,11 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
         }
       } else {
         const data = await response.json()
-        setErrors({ general: data.message || t('errors.generalError') })
+        if (data.error === 'EMAIL_EXISTS') {
+          setErrors({ email: t('errors.emailExists') })
+        } else {
+          setErrors({ general: t('errors.generalError') })
+        }
       }
     } catch (error) {
       setErrors({ general: t('errors.generalError') })
@@ -188,49 +179,26 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Name Fields */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                        {t('firstName')}
-                      </Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                          id="firstName"
-                          name="firstName"
-                          type="text"
-                          placeholder={t('firstNamePlaceholder')}
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          className={`pl-10 ${errors.firstName ? 'border-red-500' : ''}`}
-                        />
-                      </div>
-                      {errors.firstName && (
-                        <p className="text-sm text-red-500">{errors.firstName}</p>
-                      )}
+                  {/* Name Field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                      {t('name')}
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        id="name"
+                        name="name"
+                        type="text"
+                        placeholder={t('namePlaceholder')}
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className={`pl-10 ${errors.name ? 'border-red-500' : ''}`}
+                      />
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                        {t('lastName')}
-                      </Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                          id="lastName"
-                          name="lastName"
-                          type="text"
-                          placeholder={t('lastNamePlaceholder')}
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          className={`pl-10 ${errors.lastName ? 'border-red-500' : ''}`}
-                        />
-                      </div>
-                      {errors.lastName && (
-                        <p className="text-sm text-red-500">{errors.lastName}</p>
-                      )}
-                    </div>
+                    {errors.name && (
+                      <p className="text-sm text-red-500">{errors.name}</p>
+                    )}
                   </div>
 
                   {/* Email Field */}
@@ -255,28 +223,6 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
                     )}
                   </div>
 
-                  {/* Phone Field */}
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                      {t('phone')}
-                    </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        placeholder={t('phonePlaceholder')}
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className={`pl-10 ${errors.phone ? 'border-red-500' : ''}`}
-                      />
-                    </div>
-                    {errors.phone && (
-                      <p className="text-sm text-red-500">{errors.phone}</p>
-                    )}
-                  </div>
-            
                   {/* Password Field */}
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm font-medium text-gray-700">
@@ -335,9 +281,9 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
                     )}
                   </div>
 
-                  {/* Checkboxes */}
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-2">
+                  {/* Terms and Conditions */}
+                  <div className="space-y-2">
+                    <div className="flex items-start space-x-3">
                       <Checkbox
                         id="agreeToTerms"
                         name="agreeToTerms"
@@ -345,122 +291,82 @@ export default function SignUpPage({ params }: { params: Promise<{ lang: string 
                         onCheckedChange={(checked) => 
                           setFormData(prev => ({ ...prev, agreeToTerms: checked as boolean }))
                         }
-                        className="mt-1"
                       />
-                      <div className="space-y-1">
-                        <Label htmlFor="agreeToTerms" className="text-sm text-gray-600">
-                          {t('agreeToTerms')}{" "}
-                          <Link href={`/${lang}/terms`} className="text-red-500 hover:text-red-600 underline">
-                            {t('termsOfUse')}
-                          </Link>{" "}
-                          {t('and')}{" "}
-                          <Link href={`/${lang}/privacy`} className="text-red-500 hover:text-red-600 underline">
-                            {t('privacyPolicy')}
-                          </Link>
-                        </Label>
-                        {errors.agreeToTerms && (
-                          <p className="text-sm text-red-500">{errors.agreeToTerms}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="subscribeToNewsletter"
-                        name="subscribeToNewsletter"
-                        checked={formData.subscribeToNewsletter}
-                        onCheckedChange={(checked) => 
-                          setFormData(prev => ({ ...prev, subscribeToNewsletter: checked as boolean }))
-                        }
-                      />
-                      <Label htmlFor="subscribeToNewsletter" className="text-sm text-gray-600">
-                        {t('subscribeNewsletter')}
+                      <Label htmlFor="agreeToTerms" className="text-sm text-gray-600 leading-relaxed">
+                        {t('agreeTerms')}
                       </Label>
                     </div>
+                    {errors.agreeToTerms && (
+                      <p className="text-sm text-red-500">{errors.agreeToTerms}</p>
+                    )}
                   </div>
 
                   {/* General Error */}
                   {errors.general && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                       <p className="text-sm text-red-600">{errors.general}</p>
                     </div>
                   )}
 
-                  {/* Sign Up Button */}
+                  {/* Submit Button */}
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-red-500 hover:bg-red-600 text-white py-3 text-base font-medium"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors"
                   >
                     {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        {t('creatingAccount')}
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        {t('signUpButton')}{" "}
+                        <span className="ml-2">...</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2">
-                        {t('createAccountButton')}
-                        <ArrowRight className="w-4 h-4" />
-                      </div>
+                      t('signUpButton')
                     )}
                   </Button>
                 </form>
 
-                {/* Divider */}
-                <div className="my-8 flex items-center">
-                  <div className="flex-1 border-t border-gray-200"></div>
-                  <span className="px-4 text-sm text-gray-500">{t('orSignUpWith')}</span>
-                  <div className="flex-1 border-t border-gray-200"></div>
-                </div>
-
-                {/* Social Sign Up */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Facebook className="w-4 h-4 text-blue-600" />
-                    {t('facebook')}
-                  </Button>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Twitter className="w-4 h-4 text-blue-400" />
-                    {t('twitter')}
-                  </Button>
-                </div>
-
                 {/* Sign In Link */}
-                <div className="text-center mt-8">
+                <div className="mt-6 text-center">
                   <p className="text-gray-600">
-                    {t('alreadyHaveAccount')}{" "}
-                    <Link 
-                      href={`/${lang}/auth/signin`}
-                      className="text-red-500 hover:text-red-600 font-medium hover:underline"
-                    >
-                      {t('signInHere')}
+                    {t('alreadyAccount')}{' '}
+                    <Link href={`/${lang}/auth/signin`} className="text-red-600 hover:text-red-700 font-medium">
+                      {t('signInLink')}
                     </Link>
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Side - Image Space */}
+            {/* Right Side - Image/Illustration */}
             <div className="hidden lg:block">
-              <div className="relative h-[700px] bg-gradient-to-br from-red-50 to-red-100 rounded-2xl overflow-hidden">
-                {/* Placeholder for image */}
-                <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-700 rounded-3xl transform rotate-3"></div>
+                <div className="relative bg-white rounded-3xl p-12 shadow-2xl transform -rotate-1">
                   <div className="text-center">
-                    <div className="w-32 h-32 bg-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-16 h-16 text-red-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
+                    <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <User className="w-12 h-12 text-red-600" />
                     </div>
-                    <p className="text-red-600 font-medium">Image Space</p>
-                    <p className="text-red-500 text-sm mt-1">Add your sign-up image here</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('joinCommunity')}</h3>
+                    <p className="text-gray-600 mb-6">
+                      {t('joinCommunityDesc')}
+                    </p>
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>
+                        {t('freeShipping')}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>
+                        {t('securePayment')}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>
+                        {t('support')}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                {/* Decorative elements */}
-                <div className="absolute top-8 right-8 w-20 h-20 bg-red-200 rounded-full opacity-50"></div>
-                <div className="absolute bottom-8 left-8 w-16 h-16 bg-red-300 rounded-full opacity-30"></div>
-                <div className="absolute top-1/2 left-8 w-12 h-12 bg-red-400 rounded-full opacity-20"></div>
-                <div className="absolute top-1/3 right-4 w-8 h-8 bg-red-300 rounded-full opacity-40"></div>
               </div>
             </div>
           </div>

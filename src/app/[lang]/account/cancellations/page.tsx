@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import AccountLayout from "@/components/AccountLayout"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
   switch (method) {
@@ -31,6 +33,11 @@ const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
 
 export default function CancellationsPage() {
   const { orders } = useCart()
+  const t = useTranslations('accountPages.cancellations')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
   
   // Filter only cancelled orders
   const cancelledOrders = orders.filter(order => order.status === 'cancelled')
@@ -38,19 +45,19 @@ export default function CancellationsPage() {
   if (cancelledOrders.length === 0) {
     return (
       <AccountLayout 
-        title="Cancellations"
+        title={t('title')}
         breadcrumbItems={[
-          { label: "Cancellations", isCurrent: true }
+          { label: t('title'), isCurrent: true }
         ]}
       >
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
             <XCircle className="w-12 h-12 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Cancelled Orders</h3>
-          <p className="text-gray-600 mb-6">You haven&apos;t cancelled any orders yet.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noCancellations')}</h3>
+          <p className="text-gray-600 mb-6">{t('noCancellations')}</p>
           <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-            <a href="/account/orders">View All Orders</a>
+            <a href={`/${currentLang}/account/orders`}>{t('viewAllOrders')}</a>
           </Button>
         </div>
       </AccountLayout>
@@ -59,9 +66,9 @@ export default function CancellationsPage() {
 
   return (
     <AccountLayout 
-      title="Cancellations"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "Cancellations", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
       <div className="space-y-4">
@@ -75,13 +82,13 @@ export default function CancellationsPage() {
                     <div className="flex items-center gap-2">
                       <XCircle className="w-4 h-4 text-red-500" />
                       <Badge className="bg-red-100 text-red-800">
-                        Cancelled
+                        {t('status.cancelled')}
                       </Badge>
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Order #{order.id}</p>
+                      <p className="font-medium text-gray-900">{t('cancellationNumber')}{order.id}</p>
                       <p className="text-sm text-gray-600">
-                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • ${order.total.toFixed(2)}
+                        {order.items.length} {order.items.length === 1 ? t('item') : t('items')} • ${order.total.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -101,12 +108,12 @@ export default function CancellationsPage() {
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
                       <div>
-                        <h5 className="font-medium text-red-900">Cancellation Details</h5>
+                        <h5 className="font-medium text-red-900">{t('cancellationDetails')}</h5>
                         <p className="text-sm text-red-700 mt-1">
-                          {order.cancellationReason || 'No reason provided'}
+                          {order.cancellationReason || t('noReasonProvided')}
                         </p>
                         <p className="text-xs text-red-600 mt-2">
-                          Cancelled on: {order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}
+                          {t('cancelledOn')}: {order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -117,24 +124,24 @@ export default function CancellationsPage() {
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                         <Package className="w-4 h-4" />
-                        Order Summary
+                        {t('orderSummary')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p><span className="font-medium">Items:</span> {order.items.length} {order.items.length === 1 ? 'item' : 'items'}</p>
-                        <p><span className="font-medium">Total:</span> ${order.total.toFixed(2)}</p>
-                        <p><span className="font-medium">Order Date:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
-                        <p><span className="font-medium">Order Time:</span> {new Date(order.orderDate).toLocaleTimeString()}</p>
+                        <p><span className="font-medium">{t('items')}:</span> {order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
+                        <p><span className="font-medium">{t('total')}:</span> ${order.total.toFixed(2)}</p>
+                        <p><span className="font-medium">{t('orderDate')}:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
+                        <p><span className="font-medium">{t('orderTime')}:</span> {new Date(order.orderDate).toLocaleTimeString()}</p>
                       </div>
                     </div>
                     
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                         {getPaymentMethodIcon(order.paymentMethod)}
-                        Payment Details
+                        {t('paymentDetails')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p className="capitalize">{order.paymentMethod.replace('cod', 'Cash on Delivery')}</p>
-                        <p>Status: <span className="font-medium text-gray-600">
+                        <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
+                        <p>{t('status')}: <span className="font-medium text-gray-600">
                           {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                         </span></p>
                       </div>
@@ -145,7 +152,7 @@ export default function CancellationsPage() {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      Shipping Address
+                      {t('shippingAddress')}
                     </h4>
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
@@ -163,12 +170,12 @@ export default function CancellationsPage() {
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
                           <Eye className="w-4 h-4 mr-2" />
-                          View Full Details
+                          {t('viewFullDetails')}
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Cancelled Order Details - #{order.id}</DialogTitle>
+                          <DialogTitle>{t('cancelledOrderDetails')} - #{order.id}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                           {/* Cancellation Info */}

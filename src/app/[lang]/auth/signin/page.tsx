@@ -63,13 +63,11 @@ export default function SignInPage({ params }: { params: Promise<{ lang: string 
     if (!formData.email) {
       newErrors.email = t('errors.emailRequired')
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('errors.emailInvalid')
+      newErrors.email = t('errors.invalidEmail')
     }
     
     if (!formData.password) {
       newErrors.password = t('errors.passwordRequired')
-    } else if (formData.password.length < 6) {
-      newErrors.password = t('errors.passwordTooShort')
     }
 
     setErrors(newErrors)
@@ -293,8 +291,8 @@ export default function SignInPage({ params }: { params: Promise<{ lang: string 
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                       </svg>
                     </div>
-                    <p className="text-red-600 font-medium">Image Space</p>
-                    <p className="text-red-500 text-sm mt-1">Add your sign-in image here</p>
+                    <p className="text-red-600 font-medium">{t('imageSpace')}</p>
+                    <p className="text-red-500 text-sm mt-1">{t('addSignInImage')}</p>
                   </div>
                 </div>
                 

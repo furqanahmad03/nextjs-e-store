@@ -25,6 +25,8 @@ import Image from "next/image"
 import AccountLayout from "@/components/AccountLayout"
 import { toast } from "sonner"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 const getStatusIcon = (status: Order['status']) => {
   switch (status) {
@@ -81,16 +83,22 @@ export default function OrdersPage() {
   const [returnReason, setReturnReason] = useState("")
   const [isCancelling, setIsCancelling] = useState(false)
   const [isReturning, setIsReturning] = useState(false)
+  const t = useTranslations('accountPages.orders')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   const handleCancelOrder = async (orderId: string) => {
     if (!cancelReason.trim()) {
-      toast.error('Please provide a reason for cancellation')
+      toast.error(t('orderDetails.provideCancellationReason'))
       return
     }
 
     setIsCancelling(true)
     try {
       cancelOrder(orderId, cancelReason)
+      toast.success(t('orderCancelledSuccess'))
       setCancelReason("")
     } catch (error) {
       toast.error('Failed to cancel order')
@@ -101,13 +109,14 @@ export default function OrdersPage() {
 
   const handleReturnOrder = async (orderId: string) => {
     if (!returnReason.trim()) {
-      toast.error('Please provide a reason for return')
+      toast.error(t('orderDetails.provideReturnReason'))
       return
     }
 
     setIsReturning(true)
     try {
       returnOrder(orderId, returnReason)
+      toast.success('Return request submitted successfully')
       setReturnReason("")
     } catch (error) {
       toast.error('Failed to submit return request')
@@ -127,19 +136,19 @@ export default function OrdersPage() {
   if (orders.length === 0) {
     return (
       <AccountLayout 
-        title="My Orders"
+        title={t('title')}
         breadcrumbItems={[
-          { label: "My Orders", isCurrent: true }
+          { label: t('title'), isCurrent: true }
         ]}
       >
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
             <Package className="w-12 h-12 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3>
-          <p className="text-gray-600 mb-6">You haven&apos;t placed any orders yet.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noOrders')}</h3>
+          <p className="text-gray-600 mb-6">{t('noOrders')}</p>
           <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-            <Link href="/products">Start Shopping</Link>
+            <Link href={`/${currentLang}/products`}>{t('startShopping')}</Link>
           </Button>
         </div>
       </AccountLayout>
@@ -148,9 +157,9 @@ export default function OrdersPage() {
 
   return (
     <AccountLayout 
-      title="My Orders"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "My Orders", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
       <div className="space-y-4">
@@ -164,11 +173,11 @@ export default function OrdersPage() {
                     <div className="flex items-center gap-2">
                       {getStatusIcon(order.status)}
                       <Badge className={getStatusColor(order.status)}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        {t(`status.${order.status}`)}
                       </Badge>
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Order #{order.id}</p>
+                      <p className="font-medium text-gray-900">{t('orderNumber')}{order.id}</p>
                       <p className="text-sm text-gray-600">
                         {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • ${order.total.toFixed(2)}
                       </p>
@@ -190,14 +199,14 @@ export default function OrdersPage() {
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                         <Package className="w-4 h-4" />
-                        Order Summary
+                        {t('orderDetails.orderSummary')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p><span className="font-medium">Items:</span> {order.items.length} {order.items.length === 1 ? 'item' : 'items'}</p>
-                        <p><span className="font-medium">Total:</span> ${order.total.toFixed(2)}</p>
-                        <p><span className="font-medium">Order Date:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
+                        <p><span className="font-medium">{t('orderDetails.items')}</span> {order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
+                        <p><span className="font-medium">{t('orderDetails.total')}</span> ${order.total.toFixed(2)}</p>
+                        <p><span className="font-medium">{t('orderDetails.orderDate')}</span> {new Date(order.orderDate).toLocaleDateString()}</p>
                         {order.estimatedDelivery && (
-                          <p><span className="font-medium">Estimated Delivery:</span> {new Date(order.estimatedDelivery).toLocaleDateString()}</p>
+                          <p><span className="font-medium">{t('orderDetails.estimatedDelivery')}</span> {new Date(order.estimatedDelivery).toLocaleDateString()}</p>
                         )}
                       </div>
                     </div>
@@ -205,11 +214,11 @@ export default function OrdersPage() {
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                         {getPaymentMethodIcon(order.paymentMethod)}
-                        Payment Details
+                        {t('orderDetails.paymentDetails')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p className="capitalize">{order.paymentMethod.replace('cod', 'Cash on Delivery')}</p>
-                        <p>Status: <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
+                        <p className="capitalize">{order.paymentMethod.replace('cod', t('orderDetails.cashOnDelivery'))}</p>
+                        <p>{t('orderDetails.status')} <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
                           {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                         </span></p>
                       </div>
@@ -220,7 +229,7 @@ export default function OrdersPage() {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      Shipping Address
+                      {t('orderDetails.shippingAddress')}
                     </h4>
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
@@ -260,7 +269,7 @@ export default function OrdersPage() {
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
                           <Eye className="w-4 h-4 mr-2" />
-                          View Full Details
+                          {t('orderDetails.viewFullDetails')}
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -270,43 +279,43 @@ export default function OrdersPage() {
                         <div className="space-y-4">
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="font-medium">Order Date:</span>
+                              <span className="font-medium">{t('orderDetails.orderDate')}</span>
                               <p>{new Date(order.orderDate).toLocaleString()}</p>
                             </div>
                             <div>
-                              <span className="font-medium">Estimated Delivery:</span>
+                              <span className="font-medium">{t('orderDetails.estimatedDelivery')}</span>
                               <p>{new Date(order.estimatedDelivery).toLocaleDateString()}</p>
-              </div>
-            </div>
+                            </div>
+                          </div>
 
-            {/* Order Items */}
+                          {/* Order Items */}
                           <div className="space-y-3">
-                            <h4 className="font-medium text-gray-900">Order Items</h4>
-              {order.items.map((item) => (
+                            <h4 className="font-medium text-gray-900">{t('orderDetails.orderItems')}</h4>
+                            {order.items.map((item) => (
                               <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <div className="relative w-16 h-16 bg-white rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
+                                  <Image
+                                    src={item.image}
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1">
                                   <h5 className="font-medium text-gray-900">{item.name}</h5>
-                    <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                  </div>
-                  <div className="text-right">
+                                  <p className="text-sm text-gray-600">{t('orderDetails.quantity')} {item.quantity}</p>
+                                </div>
+                                <div className="text-right">
                                   <p className="font-semibold text-gray-900">${item.total.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
 
                           {/* Shipping Address in Dialog */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Shipping Address</h4>
+                              <h4 className="font-medium text-gray-900 mb-2">{t('orderDetails.shippingAddress')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
                                 <p>{order.shippingAddress.address}</p>
@@ -318,13 +327,13 @@ export default function OrdersPage() {
                             </div>
                             
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Payment Details</h4>
+                              <h4 className="font-medium text-gray-900 mb-2">{t('orderDetails.paymentDetails')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
-                                <p className="capitalize">{order.paymentMethod.replace('cod', 'Cash on Delivery')}</p>
-                                <p>Status: <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
+                                <p className="capitalize">{order.paymentMethod.replace('cod', t('orderDetails.cashOnDelivery'))}</p>
+                                <p>{t('orderDetails.status')} <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
                                   {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                                 </span></p>
-                                <p>Total: <span className="font-semibold">${order.total.toFixed(2)}</span></p>
+                                <p>{t('orderDetails.total')} <span className="font-semibold">${order.total.toFixed(2)}</span></p>
                               </div>
                             </div>
                           </div>
@@ -337,21 +346,21 @@ export default function OrdersPage() {
                         <DialogTrigger asChild>
                           <Button variant="outline" size="sm" className="text-red-600 border-red-600 hover:bg-red-50">
                             <XCircle className="w-4 h-4 mr-2" />
-                            Cancel Order
+                            {t('orderDetails.cancelOrder')}
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Cancel Order #{order.id}</DialogTitle>
+                            <DialogTitle>{t('orderDetails.cancelOrder')} #{order.id}</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
-                              <Label htmlFor="cancelReason">Reason for cancellation</Label>
+                              <Label htmlFor="cancelReason">{t('orderDetails.reasonForCancellation')}</Label>
                               <Textarea
                                 id="cancelReason"
                                 value={cancelReason}
                                 onChange={(e) => setCancelReason(e.target.value)}
-                                placeholder="Please provide a reason for cancelling this order..."
+                                placeholder={t('orderDetails.cancellationReasonPlaceholder')}
                                 rows={3}
                               />
                             </div>
@@ -361,7 +370,7 @@ export default function OrdersPage() {
                                 disabled={isCancelling}
                                 className="bg-red-500 hover:bg-red-600"
                               >
-                                {isCancelling ? 'Cancelling...' : 'Cancel Order'}
+                                {isCancelling ? t('orderDetails.cancelling') : t('orderDetails.cancelOrder')}
                               </Button>
                               <Button variant="outline" onClick={() => setCancelReason("")}>
                                 Cancel
@@ -377,37 +386,37 @@ export default function OrdersPage() {
                         <DialogTrigger asChild>
                           <Button variant="outline" size="sm" className="text-orange-600 border-orange-600 hover:bg-orange-50">
                             <RotateCcw className="w-4 h-4 mr-2" />
-                            Return Order
+                            {t('orderDetails.returnOrder')}
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Return Order #{order.id}</DialogTitle>
+                            <DialogTitle>{t('orderDetails.returnOrder')} #{order.id}</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
-                <div>
-                              <Label htmlFor="returnReason">Reason for return</Label>
+                            <div>
+                              <Label htmlFor="returnReason">{t('orderDetails.reasonForReturn')}</Label>
                               <Textarea
                                 id="returnReason"
                                 value={returnReason}
                                 onChange={(e) => setReturnReason(e.target.value)}
-                                placeholder="Please provide a reason for returning this order..."
+                                placeholder={t('orderDetails.returnReasonPlaceholder')}
                                 rows={3}
                               />
-                </div>
-                <div className="flex gap-3">
+                            </div>
+                            <div className="flex gap-3">
                               <Button
                                 onClick={() => handleReturnOrder(order.id)}
                                 disabled={isReturning}
                                 className="bg-orange-500 hover:bg-orange-600"
                               >
-                                {isReturning ? 'Submitting...' : 'Submit Return'}
-                  </Button>
+                                {isReturning ? t('orderDetails.returning') : t('orderDetails.returnOrder')}
+                              </Button>
                               <Button variant="outline" onClick={() => setReturnReason("")}>
                                 Cancel
-                  </Button>
-                </div>
-              </div>
+                              </Button>
+                            </div>
+                          </div>
                         </DialogContent>
                       </Dialog>
                     )}

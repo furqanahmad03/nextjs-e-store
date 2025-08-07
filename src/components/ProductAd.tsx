@@ -3,6 +3,8 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 interface ProductAdProps {
   category: string
@@ -19,7 +21,11 @@ export default function ProductAd({
   image, 
   productLink 
 }: ProductAdProps) {
-
+  const t = useTranslations('productAd')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   return (
     <section className="w-full bg-white py-12">
@@ -45,7 +51,7 @@ export default function ProductAd({
             )}
 
             {/* Buy Now Button */}
-            <Link href={productLink} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">Buy Now!</Link>
+            <Link href={productLink} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">{t('buyNow')}</Link>
           </div>
 
           {/* Right Section - Product Image */}

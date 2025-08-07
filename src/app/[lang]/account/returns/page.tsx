@@ -18,6 +18,8 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import AccountLayout from "@/components/AccountLayout"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
   switch (method) {
@@ -32,6 +34,11 @@ const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
 
 export default function ReturnsPage() {
   const { orders } = useCart()
+  const t = useTranslations('accountPages.returns')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
   
   // Filter only returned orders
   const returnedOrders = orders.filter(order => order.status === 'returned')
@@ -39,19 +46,19 @@ export default function ReturnsPage() {
   if (returnedOrders.length === 0) {
     return (
       <AccountLayout 
-        title="Returns"
+        title={t('title')}
         breadcrumbItems={[
-          { label: "Returns", isCurrent: true }
+          { label: t('title'), isCurrent: true }
         ]}
       >
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
             <RotateCcw className="w-12 h-12 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Returned Orders</h3>
-          <p className="text-gray-600 mb-6">You haven&apos;t returned any orders yet.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noReturns')}</h3>
+          <p className="text-gray-600 mb-6">{t('noReturns')}</p>
           <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-            <Link href="/account/orders">View All Orders</Link>
+            <Link href={`/${currentLang}/account/orders`}>{t('viewAllOrders')}</Link>
           </Button>
         </div>
       </AccountLayout>
@@ -60,9 +67,9 @@ export default function ReturnsPage() {
 
   return (
     <AccountLayout 
-      title="Returns"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "Returns", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
       <div className="space-y-4">
@@ -76,13 +83,13 @@ export default function ReturnsPage() {
                     <div className="flex items-center gap-2">
                       <RotateCcw className="w-4 h-4 text-orange-500" />
                       <Badge className="bg-orange-100 text-orange-800">
-                        Returned
+                        {t('status.returned')}
                       </Badge>
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Order #{order.id}</p>
+                      <p className="font-medium text-gray-900">{t('returnNumber')}{order.id}</p>
                       <p className="text-sm text-gray-600">
-                        {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • ${order.total.toFixed(2)}
+                        {order.items.length} {order.items.length === 1 ? t('item') : t('items')} • ${order.total.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -102,12 +109,12 @@ export default function ReturnsPage() {
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
                 <div>
-                        <h5 className="font-medium text-orange-900">Return Details</h5>
+                        <h5 className="font-medium text-orange-900">{t('returnDetails')}</h5>
                         <p className="text-sm text-orange-700 mt-1">
-                          {order.returnReason || 'No reason provided'}
+                          {order.returnReason || t('noReasonProvided')}
                         </p>
                         <p className="text-xs text-orange-600 mt-2">
-                          Returned on: {order.returnDate ? new Date(order.returnDate).toLocaleString() : 'N/A'}
+                          {t('returnedOn')}: {order.returnDate ? new Date(order.returnDate).toLocaleString() : 'N/A'}
                         </p>
                       </div>
                 </div>
@@ -118,27 +125,27 @@ export default function ReturnsPage() {
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                         <Package className="w-4 h-4" />
-                        Order Summary
+                        {t('orderSummary')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p><span className="font-medium">Items:</span> {order.items.length} {order.items.length === 1 ? 'item' : 'items'}</p>
-                        <p><span className="font-medium">Total:</span> ${order.total.toFixed(2)}</p>
-                        <p><span className="font-medium">Order Date:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
-                        <p><span className="font-medium">Order Time:</span> {new Date(order.orderDate).toLocaleTimeString()}</p>
+                        <p><span className="font-medium">{t('items')}:</span> {order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
+                        <p><span className="font-medium">{t('total')}:</span> ${order.total.toFixed(2)}</p>
+                        <p><span className="font-medium">{t('orderDate')}:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
+                        <p><span className="font-medium">{t('orderTime')}:</span> {new Date(order.orderDate).toLocaleTimeString()}</p>
                         {order.estimatedDelivery && (
-                          <p><span className="font-medium">Original Delivery:</span> {new Date(order.estimatedDelivery).toLocaleDateString()}</p>
+                          <p><span className="font-medium">{t('originalDelivery')}:</span> {new Date(order.estimatedDelivery).toLocaleDateString()}</p>
                         )}
-              </div>
+                      </div>
             </div>
 
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                         {getPaymentMethodIcon(order.paymentMethod)}
-                        Payment Details
+                        {t('paymentDetails')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p className="capitalize">{order.paymentMethod.replace('cod', 'Cash on Delivery')}</p>
-                        <p>Status: <span className="font-medium text-gray-600">
+                        <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
+                        <p>{t('status')}: <span className="font-medium text-gray-600">
                           {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                         </span></p>
                       </div>
@@ -149,7 +156,7 @@ export default function ReturnsPage() {
                   <div>
                     <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      Shipping Address
+                      {t('shippingAddress')}
                     </h4>
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
@@ -167,7 +174,7 @@ export default function ReturnsPage() {
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
                           <Eye className="w-4 h-4 mr-2" />
-                          View Full Details
+                          {t('viewFullDetails')}
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

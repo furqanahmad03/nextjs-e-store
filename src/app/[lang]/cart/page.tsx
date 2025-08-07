@@ -16,11 +16,18 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart()
   const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set())
   const [tempQuantities, setTempQuantities] = useState<Record<number, number | string>>({})
+  const t = useTranslations('cart')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   // Initialize temp quantities when items change
   React.useEffect(() => {
@@ -39,7 +46,7 @@ export default function CartPage() {
       await updateQuantity(productId, newQuantity)
     } catch (error) {
       console.error('Error updating quantity:', error)
-      toast.error('Failed to update quantity')
+      toast.error(t('failedToUpdateQuantity'))
     } finally {
       setUpdatingItems(prev => {
         const newSet = new Set(prev)
@@ -97,7 +104,7 @@ export default function CartPage() {
 
     // Validate against actual stock
     if (newQuantity > item.stock) {
-      toast.error(`Maximum available quantity is ${item.stock}`)
+      toast.error(`${t('maxAvailableQuantity')} ${item.stock}`)
       // Reset to current quantity
       setTempQuantities(prev => ({
         ...prev,
@@ -107,7 +114,7 @@ export default function CartPage() {
     }
 
     if (newQuantity === item.quantity) {
-      toast.info('Quantity is already up to date')
+      toast.info(t('quantityAlreadyUpToDate'))
       return
     }
 
@@ -136,12 +143,12 @@ export default function CartPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Cart</BreadcrumbPage>
+                <BreadcrumbPage>{t('cart')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -151,11 +158,11 @@ export default function CartPage() {
             <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-12 h-12 text-gray-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-            <p className="text-gray-600 mb-8">Looks like you haven&apos;t added any items to your cart yet.</p>
-            <Link href="/products">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('yourCartIsEmpty')}</h2>
+            <p className="text-gray-600 mb-8">{t('emptyCartMessage')}</p>
+            <Link href={`/${currentLang}/products`}>
               <Button className="bg-red-500 hover:bg-red-600 text-white">
-                Start Shopping
+                {t('startShopping')}
               </Button>
             </Link>
           </div>
@@ -172,12 +179,12 @@ export default function CartPage() {
           <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                <Link href="/">Home</Link>
+                <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-              <BreadcrumbPage>Cart</BreadcrumbPage>
+              <BreadcrumbPage>{t('cart')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -185,9 +192,9 @@ export default function CartPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('shoppingCart')}</h1>
             <p className="text-gray-600 mt-2">
-              {items.length} item{items.length !== 1 ? 's' : ''} in your cart
+              {items.length} {items.length !== 1 ? t('itemsInCart') : t('itemInCart')}
             </p>
           </div>
           <Button
@@ -195,7 +202,7 @@ export default function CartPage() {
             variant="outline"
             className="text-red-600 border-red-600 hover:bg-red-50"
           >
-            Clear Cart
+            {t('clearCart')}
           </Button>
         </div>
 
@@ -204,7 +211,7 @@ export default function CartPage() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Cart Items</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('cartItems')}</h2>
                 <div className="space-y-6">
                 {items.map((item) => (
                     <div key={item.id} className="flex items-center gap-4 p-4 border border-gray-100 rounded-lg">
@@ -222,7 +229,7 @@ export default function CartPage() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
                         <p className="text-gray-600 text-sm">${(item.price || 0).toFixed(2)}</p>
-                        <p className="text-xs text-gray-500 mt-1">Max available: {item.stock}</p>
+                        <p className="text-xs text-gray-500 mt-1">{t('maxAvailable')}: {item.stock}</p>
                     </div>
 
                       {/* Quantity Controls */}
@@ -275,7 +282,7 @@ export default function CartPage() {
                           {updatingItems.has(item.id) ? (
                             <RefreshCw className="w-3 h-3 animate-spin" />
                           ) : (
-                            'Update'
+                            t('update')
                           )}
                   </Button>
                 </div>
@@ -304,38 +311,38 @@ export default function CartPage() {
           {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('orderSummary')}</h2>
               
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal ({items.length} items)</span>
+                  <span className="text-gray-600">{t('subtotal')} ({items.length} items)</span>
                   <span className="font-medium">${getCartTotal().toFixed(2)}</span>
                   </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-medium text-green-600">Free</span>
+                  <span className="text-gray-600">{t('shipping')}</span>
+                  <span className="font-medium text-green-600">{t('free')}</span>
                   </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax</span>
+                  <span className="text-gray-600">{t('tax')}</span>
                   <span className="font-medium">${(getCartTotal() * 0.1).toFixed(2)}</span>
                     </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between text-lg font-semibold">
-                    <span>Total</span>
+                    <span>{t('total')}</span>
                     <span>${(getCartTotal() * 1.1).toFixed(2)}</span>
                   </div>
                   </div>
                 </div>
 
               <div className="!space-y-3">
-                <Link href="/cart/checkout" className="w-full block !mb-3">
+                <Link href={`/${currentLang}/cart/checkout`} className="w-full block !mb-3">
                   <Button className="w-full bg-red-500 hover:bg-red-600 text-white">
-                    Proceed to Checkout
+                    {t('proceedToCheckout')}
                   </Button>
                 </Link>
-                <Link href="/products" className="w-full">
+                <Link href={`/${currentLang}/products`} className="w-full">
                   <Button variant="outline" className="w-full">
-                    Continue Shopping
+                    {t('continueShopping')}
                   </Button>
                 </Link>
               </div>

@@ -70,6 +70,7 @@ export interface WishlistItem {
   stock: number
   isSale: boolean
   dateAdded: string
+  description?: string
 }
 
 interface CartContextType {

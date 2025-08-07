@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { toast } from "sonner"
 import Image from "next/image"
+import { useTranslations } from "next-intl"
+import { usePathname, useRouter } from "next/navigation"
 
 interface CheckoutForm {
   // Shipping Information
@@ -54,6 +56,12 @@ interface CheckoutForm {
 export default function CheckoutPage() {
   const { items, getCartTotal, createOrder } = useCart()
   const [isProcessing, setIsProcessing] = useState(false)
+  const t = useTranslations('checkout')
+  const pathname = usePathname()
+  const router = useRouter()
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+  
   const [formData, setFormData] = useState<CheckoutForm>({
     firstName: "",
     lastName: "",
@@ -197,7 +205,8 @@ export default function CheckoutPage() {
       createOrder(orderData)
       
       // Redirect to orders page
-      window.location.href = '/account/orders'
+      // window.location.href = `/${currentLang}/account/orders`
+      router.push(`/${currentLang}/account/orders`);
     } catch (error) {
       toast.error('Failed to process order. Please try again.')
     } finally {
@@ -213,28 +222,28 @@ export default function CheckoutPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/cart">Cart</Link>
+                  <Link href={`/${currentLang}/cart`}>{t('cart')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Checkout</BreadcrumbPage>
+                <BreadcrumbPage>{t('title')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-            <p className="text-gray-600 mb-8">Please add items to your cart before checkout.</p>
-            <Link href="/products">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('yourCartIsEmpty')}</h2>
+            <p className="text-gray-600 mb-8">{t('addItemsToCart')}</p>
+            <Link href={`/${currentLang}/products`}>
               <Button className="bg-red-500 hover:bg-red-600 text-white">
-                Continue Shopping
+                {t('continueShopping')}
               </Button>
             </Link>
           </div>
@@ -257,33 +266,33 @@ export default function CheckoutPage() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/">Home</Link>
+                <Link href={`/${currentLang}`}>{t('home')}</Link>
               </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                <Link href="/cart">Cart</Link>
+                <Link href={`/${currentLang}/cart`}>{t('cart')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Checkout</BreadcrumbPage>
+                <BreadcrumbPage>{t('title')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/cart">
+          <Link href={`/${currentLang}/cart`}>
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Cart
+              {t('backToCart')}
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
-            <p className="text-gray-600 mt-1">Complete your purchase</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+            <p className="text-gray-600 mt-1">{t('description')}</p>
           </div>
         </div>
 
@@ -295,13 +304,13 @@ export default function CheckoutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Truck className="w-5 h-5" />
-                  Shipping Information
+                  {t('shippingInformation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                    <Label htmlFor="firstName">First Name *</Label>
+                    <Label htmlFor="firstName">{t('firstName')} *</Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
@@ -310,7 +319,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Label htmlFor="lastName">{t('lastName')} *</Label>
                     <Input
                       id="lastName"
                       value={formData.lastName}
@@ -322,7 +331,7 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="email">{t('email')} *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -332,7 +341,7 @@ export default function CheckoutPage() {
                     />
                   </div>
               <div>
-                    <Label htmlFor="phone">Phone *</Label>
+                    <Label htmlFor="phone">{t('phone')} *</Label>
                 <Input
                       id="phone"
                       type="tel"
@@ -344,7 +353,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                  <Label htmlFor="address">Address *</Label>
+                  <Label htmlFor="address">{t('address')} *</Label>
                 <Input
                     id="address"
                     value={formData.address}
@@ -355,7 +364,7 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                    <Label htmlFor="city">City *</Label>
+                    <Label htmlFor="city">{t('city')} *</Label>
                 <Input
                       id="city"
                       value={formData.city}
@@ -364,7 +373,7 @@ export default function CheckoutPage() {
                 />
               </div>
               <div>
-                    <Label htmlFor="state">State *</Label>
+                    <Label htmlFor="state">{t('state')} *</Label>
                 <Input
                       id="state"
                       value={formData.state}
@@ -373,7 +382,7 @@ export default function CheckoutPage() {
                 />
               </div>
               <div>
-                    <Label htmlFor="zipCode">ZIP Code *</Label>
+                    <Label htmlFor="zipCode">{t('zipCode')} *</Label>
                 <Input
                       id="zipCode"
                       value={formData.zipCode}
@@ -384,7 +393,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                  <Label htmlFor="country">Country *</Label>
+                  <Label htmlFor="country">{t('country')} *</Label>
                 <Input
                     id="country"
                     value={formData.country}
@@ -392,15 +401,15 @@ export default function CheckoutPage() {
                   required
                 />
               </div>
-              </CardContent>
-            </Card>
+            </CardContent>
+          </Card>
 
             {/* Billing Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5" />
-                  Billing Information
+                  {t('billingInformation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -410,14 +419,14 @@ export default function CheckoutPage() {
                     checked={formData.sameAsShipping}
                     onCheckedChange={(checked) => handleInputChange('sameAsShipping', checked as boolean)}
                   />
-                  <Label htmlFor="sameAsShipping">Same as shipping address</Label>
+                  <Label htmlFor="sameAsShipping">{t('sameAsShipping')}</Label>
                 </div>
 
                 {!formData.sameAsShipping && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="billingFirstName">First Name *</Label>
+                        <Label htmlFor="billingFirstName">{t('billingFirstName')} *</Label>
                         <Input
                           id="billingFirstName"
                           value={formData.billingFirstName}
@@ -426,7 +435,7 @@ export default function CheckoutPage() {
                         />
               </div>
                       <div>
-                        <Label htmlFor="billingLastName">Last Name *</Label>
+                        <Label htmlFor="billingLastName">{t('billingLastName')} *</Label>
                         <Input
                           id="billingLastName"
                           value={formData.billingLastName}
@@ -437,7 +446,7 @@ export default function CheckoutPage() {
           </div>
 
                     <div>
-                      <Label htmlFor="billingAddress">Address *</Label>
+                      <Label htmlFor="billingAddress">{t('billingAddress')} *</Label>
                       <Input
                         id="billingAddress"
                         value={formData.billingAddress}
@@ -448,7 +457,7 @@ export default function CheckoutPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <Label htmlFor="billingCity">City *</Label>
+                        <Label htmlFor="billingCity">{t('billingCity')} *</Label>
                         <Input
                           id="billingCity"
                           value={formData.billingCity}
@@ -457,7 +466,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="billingState">State *</Label>
+                        <Label htmlFor="billingState">{t('billingState')} *</Label>
                         <Input
                           id="billingState"
                           value={formData.billingState}
@@ -466,7 +475,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="billingZipCode">ZIP Code *</Label>
+                        <Label htmlFor="billingZipCode">{t('billingZipCode')} *</Label>
                         <Input
                           id="billingZipCode"
                           value={formData.billingZipCode}
@@ -477,7 +486,7 @@ export default function CheckoutPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="billingCountry">Country *</Label>
+                      <Label htmlFor="billingCountry">{t('billingCountry')} *</Label>
                       <Input
                         id="billingCountry"
                         value={formData.billingCountry}
@@ -495,13 +504,13 @@ export default function CheckoutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="w-5 h-5" />
-                  Payment Method
+                  {t('paymentMethod')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Payment Method Selection */}
                 <div className="space-y-4">
-                  <Label className="text-base font-medium">Select Payment Method</Label>
+                  <Label className="text-base font-medium">{t('paymentMethod')}</Label>
                   
                   {/* Credit Card Option */}
                   <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
@@ -524,7 +533,7 @@ export default function CheckoutPage() {
                           <CreditCard className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <Label htmlFor="card" className="font-medium cursor-pointer">Credit / Debit Card</Label>
+                          <Label htmlFor="card" className="font-medium cursor-pointer">{t('creditCard')}</Label>
                           <p className="text-sm text-gray-500">Visa, Mastercard, American Express</p>
                         </div>
                       </div>
@@ -557,7 +566,7 @@ export default function CheckoutPage() {
                           <span className="text-white font-bold text-xs">PayPal</span>
                         </div>
                         <div>
-                          <Label htmlFor="paypal" className="font-medium cursor-pointer">PayPal</Label>
+                          <Label htmlFor="paypal" className="font-medium cursor-pointer">{t('paypal')}</Label>
                           <p className="text-sm text-gray-500">Pay with your PayPal account</p>
                         </div>
                       </div>
@@ -585,7 +594,7 @@ export default function CheckoutPage() {
                           <span className="text-white font-bold text-xs">COD</span>
                         </div>
                         <div>
-                          <Label htmlFor="cod" className="font-medium cursor-pointer">Cash on Delivery</Label>
+                          <Label htmlFor="cod" className="font-medium cursor-pointer">{t('cashOnDelivery')}</Label>
                           <p className="text-sm text-gray-500">Pay when you receive your order</p>
                         </div>
                       </div>
@@ -702,9 +711,9 @@ export default function CheckoutPage() {
               <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50 p-6 border-b border-gray-200">
                 <CardTitle className="flex items-center gap-2 text-gray-800">
                   <ShoppingBag className="w-5 h-5 text-red-500" />
-                  Order Summary
+                  {t('orderSummary')}
                   <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                    {items.length} {items.length === 1 ? 'item' : 'items'}
+                    {items.length} {items.length === 1 ? t('item') : t('items')}
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -749,7 +758,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2 text-gray-600">
                         <Receipt className="w-4 h-4" />
-                        Subtotal
+                        {t('subtotal')}
                       </span>
                       <span className="font-medium">${subtotal.toFixed(2)}</span>
                     </div>
@@ -757,18 +766,18 @@ export default function CheckoutPage() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2 text-gray-600">
                         <Truck className="w-4 h-4 text-green-500" />
-                        Shipping
+                        {t('shipping')}
                       </span>
                       <span className="font-medium text-green-600 flex items-center gap-1">
                         <CheckCircle className="w-4 h-4" />
-                        Free
+                        {t('free')}
                       </span>
                     </div>
                     
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2 text-gray-600">
                         <Package className="w-4 h-4" />
-                        Tax
+                        {t('tax')}
                       </span>
                       <span className="font-medium">${tax.toFixed(2)}</span>
                     </div>
@@ -777,7 +786,7 @@ export default function CheckoutPage() {
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-2 text-gray-600">
                           <Shield className="w-4 h-4 text-green-500" />
-                          Cash on Delivery Fee
+                          {t('codFee')}
                         </span>
                         <span className="font-medium">${codFee.toFixed(2)}</span>
                       </div>
@@ -787,7 +796,7 @@ export default function CheckoutPage() {
                       <div className="flex items-center justify-between text-lg font-bold text-gray-900">
                         <span className="flex items-center gap-2">
                           <Shield className="w-5 h-5 text-red-500" />
-                          Total
+                          {t('total')}
                         </span>
                         <span className="text-xl">${total.toFixed(2)}</span>
                       </div>
@@ -803,8 +812,8 @@ export default function CheckoutPage() {
                         <Shield className="w-4 h-4 text-green-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">Secure Payment</p>
-                        <p className="text-xs text-gray-500">256-bit SSL encryption</p>
+                        <p className="font-medium text-gray-800">{t('secureCheckout')}</p>
+                        <p className="text-xs text-gray-500">{t('secureCheckoutDescription')}</p>
                       </div>
                     </div>
                     
@@ -813,8 +822,8 @@ export default function CheckoutPage() {
                         <Clock className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">Fast Delivery</p>
-                        <p className="text-xs text-gray-500">2-5 business days</p>
+                        <p className="font-medium text-gray-800">{t('orderConfirmation')}</p>
+                        <p className="text-xs text-gray-500">{t('orderConfirmationDescription')}</p>
                       </div>
                     </div>
                     
@@ -823,8 +832,8 @@ export default function CheckoutPage() {
                         <CheckCircle className="w-4 h-4 text-purple-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">Easy Returns</p>
-                        <p className="text-xs text-gray-500">30-day return policy</p>
+                        <p className="font-medium text-gray-800">{t('needHelp')}</p>
+                        <p className="text-xs text-gray-500">{t('contactSupportDescription')}</p>
                       </div>
                 </div>
               </div>
@@ -840,24 +849,24 @@ export default function CheckoutPage() {
                     {isProcessing ? (
                       <div className="flex items-center gap-2">
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Processing...
+                        {t('processing')}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <CreditCard className="w-5 h-5" />
-                        Place Order - ${total.toFixed(2)}
+                        {t('placeOrder')} - ${total.toFixed(2)}
                       </div>
                     )}
             </Button>
                   
                   <p className="text-xs text-gray-500 text-center mt-3">
-                    By placing your order, you agree to our{' '}
-                    <Link href="/terms" className="text-red-500 hover:text-red-600 underline">
-                      Terms of Service
+                    {t('agreementText')}{' '}
+                    <Link href={`/${currentLang}/terms`} className="text-red-500 hover:text-red-600 underline">
+                      {t('termsOfService')}
                     </Link>
-                    {' '}and{' '}
-                    <Link href="/privacy" className="text-red-500 hover:text-red-600 underline">
-                      Privacy Policy
+                    {' '}{t('and')}{' '}
+                    <Link href={`/${currentLang}/privacy`} className="text-red-500 hover:text-red-600 underline">
+                      {t('privacyPolicy')}
                     </Link>
                   </p>
                 </div>

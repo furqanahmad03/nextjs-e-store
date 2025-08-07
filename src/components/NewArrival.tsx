@@ -4,10 +4,18 @@ import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Product } from "@/types/Product"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function NewArrival() {
   const [newArrivalProducts, setNewArrivalProducts] = React.useState<Product[]>([])
   const [loading, setLoading] = React.useState(true)
+  const t = useTranslations('products')
+  const tHero = useTranslations('hero')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   // Fetch new arrival products from API
   React.useEffect(() => {
@@ -49,9 +57,9 @@ export default function NewArrival() {
         <div className="max-w-allowed mx-auto px-4">
           <div className="flex items-center gap-3 mb-8">
             <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-              Featured
+              {t('featured')}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">New Arrival</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('newArrivals')}</h2>
           </div>
           <div className="flex items-center justify-center h-64">
             <p>Loading new arrival products...</p>
@@ -67,9 +75,9 @@ export default function NewArrival() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-            Featured
+            {t('featured')}
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">New Arrival</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('newArrivals')}</h2>
         </div>
 
         {/* Product Grid Layout */}
@@ -89,7 +97,7 @@ export default function NewArrival() {
                 <p className="text-gray-300 mb-4 max-w-xs text-sm">
                   {newArrivalProducts[0]?.description || "Black and White version of the PS5 coming out on sale."}
                 </p>
-                <Link href={`/products/${newArrivalProducts[0]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">Shop Now</Link>
+                <Link href={`/${currentLang}/products/${newArrivalProducts[0]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">{tHero('shopNow')}</Link>
               </div>
             </div>
           </div>
@@ -104,7 +112,7 @@ export default function NewArrival() {
                   <p className="text-gray-300 text-sm mb-3 max-w-xs">
                     {newArrivalProducts[1]?.description || "Featured woman collections that give you another vibe."}
                   </p>
-                  <Link href={`/products/${newArrivalProducts[1]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">Shop Now</Link>
+                  <Link href={`/${currentLang}/products/${newArrivalProducts[1]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">{tHero('shopNow')}</Link>
                 </div>
               </div>
               <div className="w-1/2 h-full relative">
@@ -132,7 +140,7 @@ export default function NewArrival() {
                   <p className="text-gray-300 text-sm mb-3 max-w-xs">
                     {newArrivalProducts[2]?.description || "Amazon wireless speakers"}
                   </p>
-                  <Link href={`/products/${newArrivalProducts[2]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">Shop Now</Link>
+                  <Link href={`/${currentLang}/products/${newArrivalProducts[2]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">{tHero('shopNow')}</Link>
                 </div>
               </div>
 
@@ -149,7 +157,7 @@ export default function NewArrival() {
                   <p className="text-gray-300 text-sm mb-3 max-w-xs">
                     {newArrivalProducts[3]?.description || "GUCCI INTENSE OUD EDP"}
                   </p>
-                  <Link href={`/products/${newArrivalProducts[3]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">Shop Now</Link>
+                  <Link href={`/${currentLang}/products/${newArrivalProducts[3]?.id || 1}`} className="text-sm border border-white text-white font-medium hover:text-black hover:bg-white transition-colors duration-300 px-4 py-2 rounded-sm">{tHero('shopNow')}</Link>
                 </div>
               </div>
             </div>

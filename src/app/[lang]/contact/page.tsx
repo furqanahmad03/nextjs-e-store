@@ -8,12 +8,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Clock, Send, MessageSquare, User, Mail as MailIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
+const Contact = ({ params }: { params: Promise<{ lang: string }> }) => {
+  const t = useTranslations('contact');
+  const pathname = usePathname();
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en';
 
-const Contact = () => {
   useEffect(() => {
-    document.title = "Contact Us | E-Store";
-  }, []);
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,7 +48,7 @@ const Contact = () => {
     // Here you would typically send the data to your API
     console.log("Form submitted:", formData);
     
-    toast.success("Message sent successfully! We'll get back to you soon.");
+    toast.success(t('messageSentSuccess'));
     setFormData({ name: "", email: "", subject: "", message: "" });
     setIsSubmitting(false);
   };
@@ -49,50 +56,50 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Mail,
-      title: "Email Us",
-      details: ["support@estore.com", "info@estore.com"],
-      description: "We'll respond within 24 hours",
+      title: t('emailUs'),
+      details: [t('contactInfo.email.support'), t('contactInfo.email.info')],
+      description: t('emailResponse'),
       action: "mailto:support@estore.com"
     },
     {
       icon: Phone,
-      title: "Call Us",
-      details: ["+1 (555) 123-4567", "+1 (555) 987-6543"],
-      description: "Mon-Fri from 8am to 6pm",
+      title: t('callUs'),
+      details: [t('contactInfo.phone.primary'), t('contactInfo.phone.secondary')],
+      description: t('callHours'),
       action: "tel:+15551234567"
     },
     {
       icon: MapPin,
-      title: "Visit Us",
-      details: ["123 Commerce St", "New York, NY 10001"],
-      description: "Come say hello at our office",
+      title: t('visitUs'),
+      details: [t('contactInfo.address.street'), t('contactInfo.address.city')],
+      description: t('visitDescription'),
       action: "#"
     },
     {
       icon: Clock,
-      title: "Business Hours",
-      details: ["Monday - Friday: 9AM - 6PM", "Saturday: 10AM - 4PM"],
-      description: "Sunday: Closed",
+      title: t('businessHours'),
+      details: [t('businessHoursDetails'), t('saturdayHours')],
+      description: t('sundayClosed'),
       action: "#"
     }
   ];
 
   const faqItems = [
     {
-      question: "How long does shipping take?",
-      answer: "Standard shipping takes 3-5 business days. Express shipping is available for 1-2 business days."
+      question: t('faq.shippingTime.question'),
+      answer: t('faq.shippingTime.answer')
     },
     {
-      question: "What's your return policy?",
-      answer: "We offer a 30-day return policy for most items. Some restrictions apply to electronics and personal care items."
+      question: t('faq.returnPolicy.question'),
+      answer: t('faq.returnPolicy.answer')
     },
     {
-      question: "Do you ship internationally?",
-      answer: "Yes, we ship to most countries worldwide. Shipping costs and delivery times vary by location."
+      question: t('faq.internationalShipping.question'),
+      answer: t('faq.internationalShipping.answer')
     },
     {
-      question: "How can I track my order?",
-      answer: "You'll receive a tracking number via email once your order ships. You can also track it in your account dashboard."
+      question: t('faq.orderTracking.question'),
+      answer: t('faq.orderTracking.answer')
     }
   ];
 
@@ -101,11 +108,11 @@ const Contact = () => {
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center space-x-2 text-sm text-gray-600">
-          <Link href="/" className="hover:text-black transition-colors">
-            Home
+          <Link href={`/${currentLang}`} className="hover:text-black transition-colors">
+            {t('home')}
           </Link>
           <span>/</span>
-          <span className="text-black font-medium">Contact</span>
+          <span className="text-black font-medium">{t('contact')}</span>
         </nav>
       </div>
 
@@ -114,10 +121,10 @@ const Contact = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold text-black mb-6">
-              Get in Touch
+              {t('heroTitle')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+              {t('heroDescription')}
             </p>
           </div>
         </div>
@@ -131,10 +138,10 @@ const Contact = () => {
             <div className="space-y-6">
               <div>
                 <h2 className="text-3xl font-bold text-black mb-4">
-                  Send us a Message
+                  {t('sendMessage')}
                 </h2>
                 <p className="text-gray-600">
-                  Fill out the form below and we&apos;ll get back to you as soon as possible.
+                  {t('formDescription')}
                 </p>
               </div>
 
@@ -144,7 +151,7 @@ const Contact = () => {
                     <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                          Full Name *
+                          {t('fullName')}
                         </label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -155,14 +162,14 @@ const Contact = () => {
                             required
                             value={formData.name}
                             onChange={handleInputChange}
-                            placeholder="Enter your full name"
+                            placeholder={t('fullNamePlaceholder')}
                             className="pl-10"
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                          Email Address *
+                          {t('emailAddress')}
                         </label>
                         <div className="relative">
                           <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -173,7 +180,7 @@ const Contact = () => {
                             required
                             value={formData.email}
                             onChange={handleInputChange}
-                            placeholder="Enter your email"
+                            placeholder={t('emailPlaceholder')}
                             className="pl-10"
                           />
                         </div>
@@ -182,7 +189,7 @@ const Contact = () => {
 
                     <div className="space-y-2">
                       <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
-                        Subject *
+                        {t('subject')}
                       </label>
                       <div className="relative">
                         <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -193,7 +200,7 @@ const Contact = () => {
                           required
                           value={formData.subject}
                           onChange={handleInputChange}
-                          placeholder="What&apos;s this about?"
+                          placeholder={t('subjectPlaceholder')}
                           className="pl-10"
                         />
                       </div>
@@ -201,7 +208,7 @@ const Contact = () => {
 
                     <div className="space-y-2">
                       <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-                        Message *
+                        {t('message')}
                       </label>
                       <Textarea
                         id="message"
@@ -209,7 +216,7 @@ const Contact = () => {
                         required
                         value={formData.message}
                         onChange={handleInputChange}
-                        placeholder="Tell us more about your inquiry..."
+                        placeholder={t('messagePlaceholder')}
                         rows={6}
                         className="resize-none"
                       />
@@ -223,12 +230,12 @@ const Contact = () => {
                       {isSubmitting ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          Sending...
+                          {t('sending')}
                         </>
                       ) : (
                         <>
                           <Send className="h-4 w-4" />
-                          Send Message
+                          {t('sendMessageButton')}
                         </>
                       )}
                     </Button>
@@ -241,7 +248,7 @@ const Contact = () => {
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-black">
-                  Frequently Asked Questions
+                  {t('frequentlyAskedQuestions')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -263,10 +270,10 @@ const Contact = () => {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl font-bold text-black mb-4">
-                Contact Information
+                {t('contactInformation')}
               </h2>
               <p className="text-gray-600">
-                Reach out to us through any of these channels.
+                {t('contactDescription')}
               </p>
             </div>
 
@@ -302,9 +309,9 @@ const Contact = () => {
                             asChild
                           >
                             <Link href={info.action}>
-                              {info.title === "Email Us" ? "Send Email" : 
-                               info.title === "Call Us" ? "Call Now" : 
-                               "Get Directions"}
+                              {info.title === t('emailUs') ? t('sendEmail') : 
+                               info.title === t('callUs') ? t('callNow') : 
+                               t('getDirections')}
                             </Link>
                           </Button>
                         )}
@@ -319,25 +326,25 @@ const Contact = () => {
             <Card className="border border-gray-200 shadow-sm">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-black mb-4">
-                  Why Choose Us?
+                  {t('whyChooseUs')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-600 text-sm">
-                      Fast response times - we typically respond within 2-4 hours during business hours
+                      {t('fastResponse')}
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-600 text-sm">
-                      Expert support team with deep knowledge of our products and services
+                      {t('expertSupport')}
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-gray-600 text-sm">
-                      Multiple contact channels to suit your preferred communication style
+                      {t('multipleChannels')}
                     </p>
                   </div>
                 </div>
@@ -349,19 +356,19 @@ const Contact = () => {
         {/* CTA Section */}
         <div className="mt-20 bg-gray-50 rounded-lg p-12 text-center">
           <h2 className="text-3xl font-bold text-black mb-4">
-            Still Have Questions?
+            {t('stillHaveQuestions')}
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Can&apos;t find what you&apos;re looking for? Our customer support team is here to help.
+            {t('ctaDescription')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-black text-white hover:bg-gray-800">
               <Phone className="mr-2 h-4 w-4" />
-              Call Support
+              {t('callSupport')}
             </Button>
             <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
               <Mail className="mr-2 h-4 w-4" />
-              Email Support
+              {t('emailSupport')}
             </Button>
           </div>
         </div>

@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -19,19 +21,25 @@ import {
 } from "@/components/ui/carousel";
 import Link from "next/link";
 import Services from "@/components/Services";
-import { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
-export const metadata: Metadata = {
-  title: "About Us",
-  description: "Discover our journey, mission, and the passionate team behind your favorite online shopping destination.",
-};
+const About = ({ params }: { params: Promise<{ lang: string }> }) => {
+  const t = useTranslations('about');
+  const pathname = usePathname();
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en';
 
-const About = () => {
+  useEffect(() => {
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
 
   const team = [
     {
-      name: "Tom Cruise",
-      position: "Founder & Chairman",
+      name: t('team.tomCruise.name'),
+      position: t('team.tomCruise.position'),
       image: "/team/tom-cruise.jpg",
       social: {
         twitter: "#",
@@ -40,8 +48,8 @@ const About = () => {
       }
     },
     {
-      name: "Emma Watson",
-      position: "Managing Director",
+      name: t('team.emmaWatson.name'),
+      position: t('team.emmaWatson.position'),
       image: "/team/emma-watson.jpg",
       social: {
         twitter: "#",
@@ -50,8 +58,8 @@ const About = () => {
       }
     },
     {
-      name: "Will Smith",
-      position: "Product Designer",
+      name: t('team.willSmith.name'),
+      position: t('team.willSmith.position'),
       image: "/team/will-smith.jpg",
       social: {
         twitter: "#",
@@ -60,8 +68,8 @@ const About = () => {
       }
     },
     {
-      name: "Sarah Johnson",
-      position: "Head of Marketing",
+      name: t('team.sarahJohnson.name'),
+      position: t('team.sarahJohnson.position'),
       image: "/team/sarah-johnson.jpg",
       social: {
         twitter: "#",
@@ -70,8 +78,8 @@ const About = () => {
       }
     },
     {
-      name: "Michael Chen",
-      position: "CTO",
+      name: t('team.michaelChen.name'),
+      position: t('team.michaelChen.position'),
       image: "/team/michael-chen.jpg",
       social: {
         twitter: "#",
@@ -80,8 +88,8 @@ const About = () => {
       }
     },
     {
-      name: "Lisa Rodriguez",
-      position: "Head of Operations",
+      name: t('team.lisaRodriguez.name'),
+      position: t('team.lisaRodriguez.position'),
       image: "/team/lisa-rodriguez.jpg",
       social: {
         twitter: "#",
@@ -94,18 +102,18 @@ const About = () => {
   const values = [
     {
       icon: Target,
-      title: "Our Mission",
-      description: "To provide the best online shopping experience with quality products and exceptional customer service."
+      title: t('ourMission'),
+      description: t('missionDescription')
     },
     {
       icon: Heart,
-      title: "Our Values",
-      description: "Integrity, innovation, customer focus, and continuous improvement drive everything we do."
+      title: t('ourValues'),
+      description: t('valuesDescription2')
     },
     {
       icon: Award,
-      title: "Our Vision",
-      description: "To become the leading e-commerce platform trusted by millions of customers worldwide."
+      title: t('ourVision'),
+      description: t('visionDescription')
     }
   ];
 
@@ -114,11 +122,11 @@ const About = () => {
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center space-x-2 text-sm text-gray-600">
-          <Link href="/" className="hover:text-black transition-colors">
-            Home
+          <Link href={`/${currentLang}`} className="hover:text-black transition-colors">
+            {t('home')}
           </Link>
           <span>/</span>
-          <span className="text-black font-medium">About</span>
+          <span className="text-black font-medium">{t('about')}</span>
         </nav>
       </div>
 
@@ -127,10 +135,10 @@ const About = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold text-black mb-6">
-              About Us
+              {t('heroTitle')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Discover our journey, mission, and the passionate team behind your favorite online shopping destination.
+              {t('heroDescription')}
             </p>
           </div>
         </div>
@@ -141,23 +149,23 @@ const About = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
           <div className="space-y-6">
             <h2 className="text-4xl font-bold text-black">
-              Our Story
+              {t('ourStory')}
             </h2>
             <div className="space-y-4 text-gray-700 leading-relaxed">
               <p>
-                Launched in 2015, Exclusive is South Asia&apos;s premier online shopping marketplace with an active presence in Bangladesh. Supported by wide range of tailored marketing, data and service solutions, Exclusive has 10,500 sellers and 300 brands and serves 3 millions customers across the region.
+                {t('storyText1')}
               </p>
               <p>
-                Exclusive has more than 1 Million products to offer, growing at a very fast. Exclusive offers a diverse assortment in categories ranging from consumer electronics to fashion, home & living, beauty, and more.
+                {t('storyText2')}
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
               <Button className="bg-black hover:bg-gray-800 text-white">
-                Learn More
+                {t('learnMore')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                Download Brochure
+                {t('downloadBrochure')}
               </Button>
             </div>
           </div>
@@ -165,8 +173,8 @@ const About = () => {
             <div className="bg-gray-800 rounded-lg p-8 h-96 flex items-center justify-center">
               <div className="text-center text-white">
                 <Users className="h-24 w-24 mx-auto mb-4 opacity-90" />
-                <p className="text-xl font-semibold">Our Community</p>
-                <p className="text-gray-300">Millions of happy customers</p>
+                <p className="text-xl font-semibold">{t('ourCommunity')}</p>
+                <p className="text-gray-300">{t('millionsOfCustomers')}</p>
               </div>
             </div>
           </div>
@@ -176,10 +184,10 @@ const About = () => {
         <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-black mb-4">
-              What Drives Us
+              {t('whatDrivesUs')}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Our core values guide every decision we make and every action we take.
+              {t('valuesDescription')}
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -208,10 +216,10 @@ const About = () => {
         <div className="mt-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-black mb-4">
-              Meet Our Team
+              {t('meetOurTeam')}
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              The passionate individuals behind our success story.
+              {t('teamDescription')}
             </p>
           </div>
           
@@ -262,18 +270,18 @@ const About = () => {
         {/* CTA Section */}
         <div className="mt-20 bg-gray-50 rounded-lg p-12 text-center">
           <h2 className="text-3xl font-bold text-black mb-4">
-            Ready to Shop with Us?
+            {t('readyToShop')}
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join millions of satisfied customers who trust us for their online shopping needs.
+            {t('ctaDescription')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-black text-white hover:bg-gray-800">
-              Start Shopping
+              {t('startShopping')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
-              Contact Us
+              {t('contactUs')}
             </Button>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import AccountLayout from "@/components/AccountLayout"
 import { useEffect } from "react"
+import { useTranslations } from "next-intl"
 
 // Mock user data
 const userData = {
@@ -16,25 +17,27 @@ const userData = {
 }
 
 export default function ProfilePage() {
+  const t = useTranslations('accountPages.profile')
+
   useEffect(() => {
-    document.title = "My Profile | E-Store";
-  }, []);
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
 
   return (
     <AccountLayout 
-      title="Edit Your Profile"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "My Profile", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
-      <h2 className="text-xl font-bold text-red-500 mb-6">Edit Your Profile</h2>
+      <h2 className="text-xl font-bold text-red-500 mb-6">{t('title')}</h2>
       
       <form className="space-y-6">
         {/* Personal Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-              First Name
+              {t('firstName')}
             </Label>
             <Input
               id="firstName"
@@ -46,7 +49,7 @@ export default function ProfilePage() {
 
           <div>
             <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-              Last Name
+              {t('lastName')}
             </Label>
             <Input
               id="lastName"
@@ -58,7 +61,7 @@ export default function ProfilePage() {
 
           <div className="md:col-span-2">
             <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
+              {t('email')}
             </Label>
             <Input
               id="email"
@@ -70,7 +73,7 @@ export default function ProfilePage() {
 
           <div className="md:col-span-2">
             <Label htmlFor="address" className="text-sm font-medium text-gray-700">
-              Address
+              {t('address')}
             </Label>
             <Input
               id="address"
@@ -83,12 +86,12 @@ export default function ProfilePage() {
 
         {/* Password Changes */}
         <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Password Changes</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('passwordChanges')}</h3>
           
           <div className="space-y-4">
             <div>
               <Label htmlFor="currentPassword" className="text-sm font-medium text-gray-700">
-                Current Password
+                {t('currentPassword')}
               </Label>
               <Input
                 id="currentPassword"
@@ -99,7 +102,7 @@ export default function ProfilePage() {
 
             <div>
               <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700">
-                New Password
+                {t('newPassword')}
               </Label>
               <Input
                 id="newPassword"
@@ -110,7 +113,7 @@ export default function ProfilePage() {
 
             <div>
               <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-                Confirm New Password
+                {t('confirmNewPassword')}
               </Label>
               <Input
                 id="confirmPassword"
@@ -128,13 +131,13 @@ export default function ProfilePage() {
             variant="outline" 
             className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button 
             type="submit" 
             className="bg-red-500 hover:bg-red-600 text-white"
           >
-            Save Changes
+            {t('saveChanges')}
           </Button>
         </div>
       </form>

@@ -16,9 +16,16 @@ import Image from "next/image"
 import Link from "next/link"
 import AccountLayout from "@/components/AccountLayout"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, addToCart } = useCart()
+  const t = useTranslations('accountPages.wishlist')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
 
   const handleAddToCart = async (item: WishlistItem) => {
     try {
@@ -36,19 +43,19 @@ export default function WishlistPage() {
   if (wishlist.length === 0) {
     return (
       <AccountLayout 
-        title="Wishlist"
+        title={t('title')}
         breadcrumbItems={[
-          { label: "Wishlist", isCurrent: true }
+          { label: t('title'), isCurrent: true }
         ]}
       >
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
             <Heart className="w-12 h-12 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
-          <p className="text-gray-600 mb-6">Start adding products you love to your wishlist!</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noWishlistItems')}</h3>
+          <p className="text-gray-600 mb-6">{t('noWishlistItems')}</p>
           <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-            <Link href="/products">Browse Products</Link>
+            <Link href={`/${currentLang}/products`}>{t('browseProducts')}</Link>
           </Button>
         </div>
       </AccountLayout>
@@ -57,24 +64,24 @@ export default function WishlistPage() {
 
   return (
     <AccountLayout 
-      title="Wishlist"
+      title={t('title')}
       breadcrumbItems={[
-        { label: "Wishlist", isCurrent: true }
+        { label: t('title'), isCurrent: true }
       ]}
     >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">My Wishlist</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
             <p className="text-gray-600 mt-1">
-              {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
+              {wishlist.length} {wishlist.length === 1 ? t('item') : t('items')} {t('inWishlist')}
             </p>
           </div>
           <Button asChild variant="outline">
-            <Link href="/products">
+            <Link href={`/${currentLang}/products`}>
               <Package className="w-4 h-4 mr-2" />
-              Continue Shopping
+              {t('continueShopping')}
             </Link>
           </Button>
         </div>
@@ -140,7 +147,7 @@ export default function WishlistPage() {
 
                   {/* Product Name */}
                   <h3 className="font-medium text-gray-900 line-clamp-2 mb-0">
-                    <Link href={`/products/${item.id}`} className="hover:text-red-500">{item.name}</Link>
+                    <Link href={`/${currentLang}/products/${item.id}`} className="hover:text-red-500">{item.name}</Link>
                   </h3>
 
                   {/* Rating */}
@@ -186,7 +193,7 @@ export default function WishlistPage() {
                       size="sm"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add to Cart
+                      {t('addToCart')}
                     </Button>
                     <Button
                       variant="outline"
@@ -215,7 +222,7 @@ export default function WishlistPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
             <p className="text-gray-600 mb-4">Start adding products you love!</p>
             <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-              <Link href="/products">Browse Products</Link>
+              <Link href={`/${currentLang}/products`}>Browse Products</Link>
             </Button>
           </div>
         )}

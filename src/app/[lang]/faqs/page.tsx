@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import Link from "next/link"
 import {
@@ -17,114 +19,121 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { HelpCircle, ShoppingBag, Truck, CreditCard, Shield, MessageCircle, ArrowRight } from "lucide-react"
-import { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "Frequently Asked Questions",
-  description: "Find answers to common questions about shopping, shipping, returns, and more at Eco-Site.",
-}
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 
 export default function FAQsPage() {
+  const t = useTranslations('faqs')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
+
+  useEffect(() => {
+    document.title = `${t('title')} | E-Store`;
+  }, [t]);
+
   const faqCategories = [
     {
-      title: "Shopping & Orders",
+      title: t('categories.shoppingOrders.title'),
       icon: ShoppingBag,
       questions: [
         {
-          question: "How do I place an order?",
-          answer: "Browse our products, add items to your cart, and proceed to checkout. You'll need to create an account or sign in, provide shipping and payment information, and confirm your order. You'll receive an order confirmation email once your order is placed."
+          question: t('categories.shoppingOrders.placeOrder.question'),
+          answer: t('categories.shoppingOrders.placeOrder.answer')
         },
         {
-          question: "Can I modify or cancel my order after it's placed?",
-          answer: "Orders can be modified or cancelled within 1 hour of placement, as long as they haven't been processed for shipping. Contact our customer service team immediately if you need to make changes to your order."
+          question: t('categories.shoppingOrders.modifyOrder.question'),
+          answer: t('categories.shoppingOrders.modifyOrder.answer')
         },
         {
-          question: "How can I track my order?",
-          answer: "Once your order ships, you'll receive a tracking number via email. You can also track your order by logging into your account and visiting the 'My Orders' section. Real-time tracking updates are available through our website."
+          question: t('categories.shoppingOrders.trackOrder.question'),
+          answer: t('categories.shoppingOrders.trackOrder.answer')
         },
         {
-          question: "What payment methods do you accept?",
-          answer: "We accept all major credit cards (Visa, MasterCard, American Express, Discover), PayPal, Apple Pay, Google Pay, and bank transfers. All payments are processed securely through our trusted payment partners."
+          question: t('categories.shoppingOrders.paymentMethods.question'),
+          answer: t('categories.shoppingOrders.paymentMethods.answer')
         }
       ]
     },
     {
-      title: "Shipping & Delivery",
+      title: t('categories.shippingDelivery.title'),
       icon: Truck,
       questions: [
         {
-          question: "How long does shipping take?",
-          answer: "Standard shipping takes 3-5 business days. Express shipping (1-2 business days) is available for an additional fee. International shipping typically takes 7-14 business days depending on the destination."
+          question: t('categories.shippingDelivery.shippingTime.question'),
+          answer: t('categories.shippingDelivery.shippingTime.answer')
         },
         {
-          question: "Do you offer free shipping?",
-          answer: "Yes! We offer free standard shipping on all orders over $25. Orders under $25 have a flat shipping rate of $4.99. Express shipping is available for $9.99 regardless of order value."
+          question: t('categories.shippingDelivery.freeShipping.question'),
+          answer: t('categories.shippingDelivery.freeShipping.answer')
         },
         {
-          question: "Do you ship internationally?",
-          answer: "Yes, we ship to most countries worldwide. International shipping costs and delivery times vary by location. You can check shipping rates and estimated delivery times during checkout."
+          question: t('categories.shippingDelivery.internationalShipping.question'),
+          answer: t('categories.shippingDelivery.internationalShipping.answer')
         },
         {
-          question: "What happens if my package is lost or damaged?",
-          answer: "If your package is lost or damaged during shipping, please contact our customer service team within 30 days of the expected delivery date. We'll work with the shipping carrier to resolve the issue and provide a replacement or refund."
+          question: t('categories.shippingDelivery.lostPackage.question'),
+          answer: t('categories.shippingDelivery.lostPackage.answer')
         }
       ]
     },
     {
-      title: "Returns & Refunds",
+      title: t('categories.returnsRefunds.title'),
       icon: Shield,
       questions: [
         {
-          question: "What's your return policy?",
-          answer: "We offer a 30-day return policy for most items. Items must be unused, in original packaging, and in the same condition as received. Some restrictions apply to electronics, personal care items, and sale items."
+          question: t('categories.returnsRefunds.returnPolicy.question'),
+          answer: t('categories.returnsRefunds.returnPolicy.answer')
         },
         {
-          question: "How do I return an item?",
-          answer: "Log into your account, go to 'My Orders', select the order containing the item you want to return, and click 'Return Item'. Print the return label, package the item securely, and drop it off at any authorized shipping location."
+          question: t('categories.returnsRefunds.howToReturn.question'),
+          answer: t('categories.returnsRefunds.howToReturn.answer')
         },
         {
-          question: "How long does it take to process a refund?",
-          answer: "Once we receive your return, we'll inspect the item and process your refund within 3-5 business days. Refunds are issued to your original payment method and may take 5-10 business days to appear on your statement."
+          question: t('categories.returnsRefunds.refundTime.question'),
+          answer: t('categories.returnsRefunds.refundTime.answer')
         },
         {
-          question: "Do I have to pay for return shipping?",
-          answer: "Returns due to our error (wrong item, damaged item) are free. Returns for other reasons may incur a return shipping fee of $5.99, which will be deducted from your refund amount."
+          question: t('categories.returnsRefunds.returnShipping.question'),
+          answer: t('categories.returnsRefunds.returnShipping.answer')
         }
       ]
     },
     {
-      title: "Account & Security",
+      title: t('categories.accountSecurity.title'),
       icon: CreditCard,
       questions: [
         {
-          question: "How do I create an account?",
-          answer: "Click the 'Sign Up' button in the top navigation, fill in your details (name, email, password), and verify your email address. You can also create an account during checkout."
+          question: t('categories.accountSecurity.createAccount.question'),
+          answer: t('categories.accountSecurity.createAccount.answer')
         },
         {
-          question: "I forgot my password. How can I reset it?",
-          answer: "Click 'Forgot Password' on the sign-in page, enter your email address, and we'll send you a password reset link. The link expires in 24 hours for security."
+          question: t('categories.accountSecurity.resetPassword.question'),
+          answer: t('categories.accountSecurity.resetPassword.answer')
         },
         {
-          question: "Is my personal information secure?",
-          answer: "Yes, we use industry-standard SSL encryption to protect your personal and payment information. We never store your credit card details and use secure payment processors for all transactions."
+          question: t('categories.accountSecurity.security.question'),
+          answer: t('categories.accountSecurity.security.answer')
         },
         {
-          question: "Can I save multiple shipping addresses?",
-          answer: "Yes, you can save multiple shipping addresses in your account. Go to 'My Account' > 'Addresses' to add, edit, or remove shipping addresses."
+          question: t('categories.accountSecurity.multipleAddresses.question'),
+          answer: t('categories.accountSecurity.multipleAddresses.answer')
         }
       ]
     },
     {
-      title: "Customer Support",
+      title: t('categories.customerSupport.title'),
       icon: MessageCircle,
       questions: [
         {
-          question: "How can I contact customer service?",
-          answer: "You can reach us via email at support@eco-site.com, phone at +1 (555) 123-4567, or live chat on our website. Our customer service team is available Monday-Friday, 9 AM-6 PM EST."
+          question: t('categories.customerSupport.contactSupport.question'),
+          answer: t('categories.customerSupport.contactSupport.answer')
         },
         {
-          question: "What information should I provide when contacting support?",
-          answer: "Please include your order number (if applicable), email address, and a detailed description of your issue. Screenshots or photos can also be helpful for certain problems."
+          question: t('categories.customerSupport.supportInfo.question'),
+          answer: t('categories.customerSupport.supportInfo.answer')
         }
       ]
     }
@@ -138,8 +147,8 @@ export default function FAQsPage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="w-2 h-8 bg-red-500 rounded"></div>
             <div>
-              <p className="text-sm text-red-600 font-medium">Support</p>
-              <h1 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h1>
+              <p className="text-sm text-red-600 font-medium">{t('support')}</p>
+              <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
             </div>
           </div>
 
@@ -148,12 +157,12 @@ export default function FAQsPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>FAQs</BreadcrumbPage>
+                <BreadcrumbPage>{t('faqs')}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -166,22 +175,21 @@ export default function FAQsPage() {
               <HelpCircle className="w-8 h-8 text-red-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              How can we help you?
+              {t('heroTitle')}
             </h2>
             <p className="text-gray-600 mb-6">
-              Find answers to the most common questions about shopping, shipping, returns, and more. 
-              Can&apos;t find what you&apos;re looking for? Contact our support team.
+              {t('heroDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-                <Link href="/contact">
-                  Contact Support
+                <Link href={`/${currentLang}/contact`}>
+                  {t('contactSupport')}
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/products">
-                  Browse Products
+                <Link href={`/${currentLang}/products`}>
+                  {t('browseProducts')}
                 </Link>
               </Button>
             </div>
@@ -222,22 +230,22 @@ export default function FAQsPage() {
         <div className="mt-12 bg-white rounded-2xl shadow-sm p-8">
           <div className="text-center max-w-2xl mx-auto">
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Still have questions?
+              {t('stillHaveQuestions')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Our customer support team is here to help you with any questions or concerns you may have.
+              {t('ctaDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
-                <Link href="/contact">
+                <Link href={`/${currentLang}/contact`}>
                   <MessageCircle className="mr-2 w-4 h-4" />
-                  Contact Us
+                  {t('contactUs')}
                 </Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link href="tel:+15551234567">
                   <MessageCircle className="mr-2 w-4 h-4" />
-                  Call Us
+                  {t('callUs')}
                 </Link>
               </Button>
             </div>

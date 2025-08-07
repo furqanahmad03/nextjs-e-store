@@ -49,6 +49,8 @@ import ProductCard from "@/components/ProductCard"
 import { useCart } from "@/contexts/CartContext"
 import { toast } from "sonner"
 import ProductDetailSkeleton from "@/components/skeletons/ProductDetailSkeleton"
+import { useTranslations } from "next-intl"
+import { usePathname } from "next/navigation"
 
 // Extended product interface for detail page
 interface ProductDetail extends Product {
@@ -75,6 +77,11 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const productId = parseInt(params.id as string)
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart()
+  const t = useTranslations('productDetail')
+  const pathname = usePathname()
+  
+  // Extract current language from pathname
+  const currentLang = pathname.split('/')[1] || 'en'
   
   const [product, setProduct] = useState<ProductDetail | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -104,55 +111,55 @@ export default function ProductDetailPage() {
         ...productWithSale,
         images: mockProduct.images || [mockProduct.image], // Use actual images array from product data
         specifications: {
-          "Brand": mockProduct.brand,
-          "Category": mockProduct.category,
-          "Subcategory": mockProduct.subcategory,
-          "Material": "Premium Quality",
-          "Color": "Multiple Options",
-          "Size": "Standard",
-          "Weight": "0.5 kg",
-          "Dimensions": "10 x 5 x 2 inches",
-          "Warranty": "1 Year",
-          "Country of Origin": "United States"
+          [t('specificationLabels.brand')]: mockProduct.brand,
+          [t('specificationLabels.category')]: mockProduct.category,
+          [t('specificationLabels.subcategory')]: mockProduct.subcategory,
+          [t('specificationLabels.material')]: t('specificationValues.premiumQuality'),
+          [t('specificationLabels.color')]: t('specificationValues.multipleOptions'),
+          [t('specificationLabels.size')]: t('specificationValues.standard'),
+          [t('specificationLabels.weight')]: t('specificationValues.weightValue'),
+          [t('specificationLabels.dimensions')]: t('specificationValues.dimensionsValue'),
+          [t('specificationLabels.warranty')]: t('specificationValues.warrantyValue'),
+          [t('specificationLabels.countryOfOrigin')]: t('specificationValues.unitedStates')
         },
         features: [
-          "High-quality materials",
-          "Durable construction",
-          "Comfortable design",
-          "Easy to maintain",
-          "Versatile usage",
-          "Modern styling"
+          t('features.highQualityMaterials'),
+          t('features.durableConstruction'),
+          t('features.comfortableDesign'),
+          t('features.easyToMaintain'),
+          t('features.versatileUsage'),
+          t('features.modernStyling')
         ],
         reviews: [
           {
             id: 1,
-            user: "John Doe",
+            user: t('reviews.review1.user'),
             rating: 5,
             date: "2024-01-15",
-            comment: "Excellent product! Exceeded my expectations. The quality is outstanding and it's very comfortable to use.",
+            comment: t('reviews.review1.comment'),
             helpful: 12
           },
           {
             id: 2,
-            user: "Jane Smith",
+            user: t('reviews.review2.user'),
             rating: 4,
             date: "2024-01-10",
-            comment: "Great product overall. Good value for money. Would recommend to others.",
+            comment: t('reviews.review2.comment'),
             helpful: 8
           },
           {
             id: 3,
-            user: "Mike Johnson",
+            user: t('reviews.review3.user'),
             rating: 5,
             date: "2024-01-05",
-            comment: "Perfect! Exactly what I was looking for. Fast delivery and excellent customer service.",
+            comment: t('reviews.review3.comment'),
             helpful: 15
           }
         ],
         relatedProducts: [2, 3, 4, 5],
-        warranty: "1 Year Manufacturer Warranty",
-        returnPolicy: "30-day return policy with full refund",
-        shippingInfo: "Free shipping on orders over $50"
+        warranty: t('warrantyInfo'),
+        returnPolicy: t('returnPolicyInfo'),
+        shippingInfo: t('shippingInfo')
       }
       
       setProduct(extendedProduct)
@@ -198,9 +205,10 @@ export default function ProductDetailPage() {
           category: product.category,
           subcategory: product.subcategory,
           brand: product.brand,
-          rating: product.rating,
           stock: product.stock,
-          isSale: product.isSale,
+          rating: product.rating,
+          description: product.description,
+          isSale: product.isSale
         })
         toast.success('Added to wishlist!')
       }
@@ -214,23 +222,26 @@ export default function ProductDetailPage() {
     const url = window.location.href
     const text = `Check out this amazing product: ${product?.name}`
     
-    switch (platform) {
-      case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`)
-        break
-      case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`)
-        break
-      case 'linkedin':
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`)
-        break
-      case 'copy':
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-        break
+    try {
+      switch (platform) {
+        case 'facebook':
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`)
+          break
+        case 'twitter':
+          window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`)
+          break
+        case 'linkedin':
+          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`)
+          break
+        case 'copy':
+          await navigator.clipboard.writeText(url)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+          break
+      }
+    } catch (error) {
+      console.error('Error sharing product:', error)
     }
-    setShowShareMenu(false)
   }
 
   const nextImage = () => {
@@ -249,9 +260,9 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
-          <Button onClick={() => router.push('/products')}>
-            Back to Products
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('productNotFound')}</h2>
+          <Button onClick={() => router.push(`/${currentLang}/products`)}>
+            {t('backToProducts')}
           </Button>
         </div>
       </div>
@@ -271,19 +282,19 @@ export default function ProductDetailPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/">Home</Link>
+                  <Link href={`/${currentLang}`}>{t('home')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/products">Products</Link>
+                  <Link href={`/${currentLang}/products`}>{t('products')}</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href={`/products?category=${product.category.toLowerCase().replace(' ', '-')}`}>
+                  <Link href={`/${currentLang}/products?category=${product.category.toLowerCase().replace(' ', '-')}`}>
                     {product.category}
                   </Link>
                 </BreadcrumbLink>
@@ -329,14 +340,14 @@ export default function ProductDetailPage() {
               {/* Sale Badge */}
               {product.isSale && (
                 <div className="absolute top-4 left-4">
-                  <Badge className="bg-red-500 text-white">SALE {discount}% OFF</Badge>
+                  <Badge className="bg-red-500 text-white">{t('sale')} {discount}% {t('off')}</Badge>
                 </div>
               )}
 
               {/* Stock Badge */}
               <div className="absolute top-4 right-4">
                 <Badge className={product.stock > 10 ? "bg-green-500" : product.stock > 0 ? "bg-yellow-500" : "bg-red-500"}>
-                  {product.stock > 10 ? "In Stock" : product.stock > 0 ? `Only ${product.stock} left` : "Out of Stock"}
+                  {product.stock > 10 ? t('inStock') : product.stock > 0 ? t('onlyLeft', { count: product.stock }) : t('outOfStock')}
                 </Badge>
               </div>
             </div>
@@ -384,7 +395,7 @@ export default function ProductDetailPage() {
                   ))}
                 </div>
                 <span className="text-sm text-gray-600">
-                  {averageRating.toFixed(1)} ({product.reviews.length} reviews)
+                  {averageRating.toFixed(1)} ({product.reviews.length} {product.reviews.length === 1 ? t('reviewsCountOne') : t('reviewsCount')})
                 </span>
               </div>
             </div>
@@ -402,24 +413,24 @@ export default function ProductDetailPage() {
                 )}
                 {product.isSale && (
                   <Badge className="bg-red-500 text-white">
-                    Save ${(product.price - discountedPrice).toFixed(2)}
+                    {t('save')} ${(product.price - discountedPrice).toFixed(2)}
                   </Badge>
                 )}
               </div>
               <p className="text-sm text-gray-600">
-                Free shipping on orders over $50
+                {t('freeShippingOnOrders')}
               </p>
             </div>
 
             {/* Description */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('description')}</h3>
               <p className="text-gray-600 leading-relaxed">{product.description}</p>
             </div>
 
             {/* Quantity Selector */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-900">Quantity</label>
+              <label className="text-sm font-medium text-gray-900">{t('quantity')}</label>
               <div className="flex items-center gap-3">
                 <div className="flex items-center border border-gray-300 rounded-lg">
                   <button
@@ -446,7 +457,7 @@ export default function ProductDetailPage() {
                   </button>
                 </div>
                 <span className="text-sm text-gray-600">
-                  {product.stock} available
+                  {product.stock} {t('available')}
                 </span>
               </div>
             </div>
@@ -459,7 +470,7 @@ export default function ProductDetailPage() {
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 text-lg font-semibold"
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+                {isAddingToCart ? t('adding') : t('addToCart')}
               </Button>
               
               <Button
@@ -468,7 +479,7 @@ export default function ProductDetailPage() {
                 className="px-6 border-gray-300 hover:bg-gray-50"
               >
                 <Heart className={`w-5 h-5 mr-2 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
-                {isInWishlist(product.id) ? 'Saved' : 'Wishlist'}
+                {isInWishlist(product.id) ? t('saved') : t('wishlist')}
               </Button>
 
               <div className="relative">
@@ -478,7 +489,7 @@ export default function ProductDetailPage() {
                   className="px-6 border-gray-300 hover:bg-gray-50"
                 >
                   <Share2 className="w-5 h-5 mr-2" />
-                  Share
+                  {t('share')}
                 </Button>
 
                 {/* Share Menu */}
@@ -489,28 +500,28 @@ export default function ProductDetailPage() {
                       className="flex items-center w-full px-3 py-2 text-left hover:bg-gray-50 rounded"
                     >
                       <Facebook className="w-4 h-4 mr-2 text-blue-600" />
-                      Facebook
+                      {t('facebook')}
                     </button>
                     <button
                       onClick={() => shareProduct('twitter')}
                       className="flex items-center w-full px-3 py-2 text-left hover:bg-gray-50 rounded"
                     >
                       <Twitter className="w-4 h-4 mr-2 text-blue-400" />
-                      Twitter
+                      {t('twitter')}
                     </button>
                     <button
                       onClick={() => shareProduct('linkedin')}
                       className="flex items-center w-full px-3 py-2 text-left hover:bg-gray-50 rounded"
                     >
                       <Linkedin className="w-4 h-4 mr-2 text-blue-700" />
-                      LinkedIn
+                      {t('linkedin')}
                     </button>
                     <button
                       onClick={() => shareProduct('copy')}
                       className="flex items-center w-full px-3 py-2 text-left hover:bg-gray-50 rounded"
                     >
                       <Copy className="w-4 h-4 mr-2" />
-                      {copied ? 'Copied!' : 'Copy Link'}
+                      {copied ? t('copied') : t('copyLink')}
                     </button>
                   </div>
                 )}
@@ -521,19 +532,19 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Truck className="w-4 h-4" />
-                Free Shipping
+                {t('freeShipping')}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Shield className="w-4 h-4" />
-                Secure Payment
+                {t('securePayment')}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <RotateCcw className="w-4 h-4" />
-                Easy Returns
+                {t('easyReturns')}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <CheckCircle className="w-4 h-4" />
-                Quality Guaranteed
+                {t('qualityGuaranteed')}
               </div>
             </div>
           </div>
@@ -543,18 +554,18 @@ export default function ProductDetailPage() {
         <div className="mt-16">
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="grid w-full h-fit grid-cols-4">
-              <TabsTrigger className="py-3" value="description">Description</TabsTrigger>
-              <TabsTrigger className="py-3" value="specifications">Specifications</TabsTrigger>
-              <TabsTrigger className="py-3" value="reviews">Reviews ({product.reviews.length})</TabsTrigger>
-              <TabsTrigger className="py-3" value="shipping">Shipping & Returns</TabsTrigger>
+              <TabsTrigger className="py-3" value="description">{t('description')}</TabsTrigger>
+              <TabsTrigger className="py-3" value="specifications">{t('specifications')}</TabsTrigger>
+              <TabsTrigger className="py-3" value="reviews">{t('reviewsTab')} ({product.reviews.length})</TabsTrigger>
+              <TabsTrigger className="py-3" value="shipping">{t('shippingReturns')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="description" className="mt-6">
               <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Product Description</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('productDescription')}</h3>
                 <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
                 
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Key Features</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-3">{t('keyFeatures')}</h4>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {product.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-gray-600">
@@ -568,7 +579,7 @@ export default function ProductDetailPage() {
 
             <TabsContent value="specifications" className="mt-6">
               <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Product Specifications</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('productSpecifications')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(product.specifications).map(([key, value]) => (
                     <div key={key} className="flex justify-between py-2 border-b border-gray-100">
@@ -583,8 +594,8 @@ export default function ProductDetailPage() {
             <TabsContent value="reviews" className="mt-6">
               <div className="bg-white rounded-lg p-6 border border-gray-200">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Customer Reviews</h3>
-                  <Button variant="outline">Write a Review</Button>
+                  <h3 className="text-xl font-semibold text-gray-900">{t('customerReviews')}</h3>
+                  <Button variant="outline">{t('writeReview')}</Button>
                 </div>
 
                 <div className="space-y-6">
@@ -610,7 +621,7 @@ export default function ProductDetailPage() {
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <button className="flex items-center gap-1 hover:text-gray-700">
                           <MessageCircle className="w-4 h-4" />
-                          Helpful ({review.helpful})
+                          {t('helpful')} ({review.helpful})
                         </button>
                       </div>
                     </div>
@@ -625,7 +636,7 @@ export default function ProductDetailPage() {
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Truck className="w-5 h-5" />
-                      Shipping Information
+                      {t('shippingInformation')}
                     </h4>
                     <p className="text-gray-600">{product.shippingInfo}</p>
                   </div>
@@ -633,7 +644,7 @@ export default function ProductDetailPage() {
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <RotateCcw className="w-5 h-5" />
-                      Return Policy
+                      {t('returnPolicy')}
                     </h4>
                     <p className="text-gray-600">{product.returnPolicy}</p>
                   </div>
@@ -641,7 +652,7 @@ export default function ProductDetailPage() {
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Shield className="w-5 h-5" />
-                      Warranty
+                      {t('warranty')}
                     </h4>
                     <p className="text-gray-600">{product.warranty}</p>
                   </div>
@@ -653,7 +664,7 @@ export default function ProductDetailPage() {
 
         {/* Related Products */}
         <div className="mt-16">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">Related Products</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('relatedProducts')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {product.relatedProducts.slice(0, 4).map((relatedId) => {
               const relatedProduct = productsData.find(p => p.id === relatedId)

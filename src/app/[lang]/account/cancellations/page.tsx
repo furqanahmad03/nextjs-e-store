@@ -86,7 +86,7 @@ export default function CancellationsPage() {
                       </Badge>
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">{t('cancellationNumber')}{order.id}</p>
+                      <p className="font-medium text-gray-900 hidden md:block">{t('cancellationNumber')}{order.id}</p>
                       <p className="text-sm text-gray-600">
                         {order.items.length} {order.items.length === 1 ? t('item') : t('items')} • ${order.total.toFixed(2)}
                       </p>
@@ -141,7 +141,7 @@ export default function CancellationsPage() {
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
                         <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
-                        <p>{t('status')}: <span className="font-medium text-gray-600">
+                        <p>{t('statusLabel')}: <span className="font-medium text-gray-600">
                           {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                         </span></p>
                       </div>
@@ -183,12 +183,12 @@ export default function CancellationsPage() {
                             <div className="flex items-start gap-3">
                               <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
                               <div>
-                                <h4 className="font-medium text-red-900">Cancellation Information</h4>
+                                <h4 className="font-medium text-red-900">{t('cancellationInformation')}</h4>
                                 <p className="text-sm text-red-700 mt-1">
-                                  {order.cancellationReason || 'No reason provided'}
+                                  {order.cancellationReason || t('noReasonProvided')}
                                 </p>
                                 <p className="text-xs text-red-600 mt-2">
-                                  Cancelled on: {order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}
+                                  {t('cancelledOn')}: {order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}
                                 </p>
                               </div>
                             </div>
@@ -196,18 +196,18 @@ export default function CancellationsPage() {
 
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="font-medium">Order Date:</span>
+                              <span className="font-medium">{t('orderDate')}:</span>
                               <p>{new Date(order.orderDate).toLocaleString()}</p>
                             </div>
                             <div>
-                              <span className="font-medium">Cancellation Date:</span>
+                              <span className="font-medium">{t('cancelledOn')}:</span>
                               <p>{order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}</p>
                             </div>
                           </div>
                           
                           {/* Order Items */}
                           <div className="space-y-3">
-                            <h4 className="font-medium text-gray-900">Order Items</h4>
+                            <h4 className="font-medium text-gray-900">{t('orderItems')}</h4>
                             {order.items.map((item) => (
                               <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <div className="relative w-16 h-16 bg-white rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
@@ -220,7 +220,7 @@ export default function CancellationsPage() {
                                 </div>
                                 <div className="flex-1">
                                   <h5 className="font-medium text-gray-900">{item.name}</h5>
-                                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                                  <p className="text-sm text-gray-600">{t('quantity')}: {item.quantity}</p>
                                 </div>
                                 <div className="text-right">
                                   <p className="font-semibold text-gray-900">${item.total.toFixed(2)}</p>
@@ -232,7 +232,7 @@ export default function CancellationsPage() {
                           {/* Shipping Address in Dialog */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Shipping Address</h4>
+                              <h4 className="font-medium text-gray-900 mb-2">{t('shippingAddress')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
                                 <p>{order.shippingAddress.address}</p>
@@ -244,13 +244,13 @@ export default function CancellationsPage() {
                             </div>
                             
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Payment Details</h4>
+                              <h4 className="font-medium text-gray-900 mb-2">{t('paymentDetails')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
-                                <p className="capitalize">{order.paymentMethod.replace('cod', 'Cash on Delivery')}</p>
-                                <p>Status: <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
+                                <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
+                                <p>{t('statusLabel')}: <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
                                   {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                                 </span></p>
-                                <p>Total: <span className="font-semibold">${order.total.toFixed(2)}</span></p>
+                                <p>{t('total')}: <span className="font-semibold">${order.total.toFixed(2)}</span></p>
                               </div>
                             </div>
                           </div>

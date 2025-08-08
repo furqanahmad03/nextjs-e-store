@@ -32,7 +32,7 @@ export default function WishlistPage() {
       await addToCart(item.id, 1)
     } catch (error) {
       console.error('Error adding to cart:', error)
-      toast.error('Failed to add item to cart')
+      toast.error(t('toast.failedToAddToCart'))
     }
   }
 

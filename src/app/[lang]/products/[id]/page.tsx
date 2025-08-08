@@ -179,10 +179,10 @@ export default function ProductDetailPage() {
     try {
       setIsAddingToCart(true)
       await addToCart(product.id, quantity)
-      toast.success(`Added ${quantity} ${quantity === 1 ? 'item' : 'items'} to cart!`)
+      toast.success(t('toast.addedItemsToCart', { quantity }))
     } catch (error) {
       console.error('Error adding to cart:', error)
-      toast.error('Failed to add item to cart. Please try again.')
+              toast.error(t('toast.failedToAddToCart'))
     } finally {
       setIsAddingToCart(false)
     }
@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
     try {
       if (isInWishlist(product.id)) {
         removeFromWishlist(product.id)
-        toast.success('Removed from wishlist!')
+        toast.success(t('toast.removedFromWishlist'))
       } else {
         addToWishlist({
           id: product.id,
@@ -210,11 +210,11 @@ export default function ProductDetailPage() {
           description: product.description,
           isSale: product.isSale
         })
-        toast.success('Added to wishlist!')
+                  toast.success(t('toast.addedToWishlist'))
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error)
-      toast.error('Failed to update wishlist. Please try again.')
+              toast.error(t('toast.failedToUpdateWishlist'))
     }
   }
 

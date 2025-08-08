@@ -211,10 +211,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       
       setItems(prevItems => [...prevItems, newItem])
-      toast.success(`Added ${productData.name} to cart!`)
+              toast.success(`Added ${productData.name} to cart!`)
     } catch (error) {
       console.error('Error adding to cart:', error)
-      toast.error('Failed to add item to cart')
+              toast.error('Failed to add item to cart')
       throw error
     }
   }
@@ -280,7 +280,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       })
     } catch (error) {
       console.error('Error updating cart item:', error)
-      toast.error('Failed to update item quantity')
+              toast.error('Failed to update item quantity')
     }
   }
 
@@ -303,13 +303,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Error removing item from cart:', error)
-      toast.error('Failed to remove item from cart')
+              toast.error('Failed to remove item from cart')
     }
   }
 
   const clearCart = () => {
     setItems([])
-    toast.success('Cart cleared successfully')
+            toast.success('Cart cleared successfully')
   }
 
   const getCartTotal = () => {
@@ -337,7 +337,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setOrders(prevOrders => [newOrder, ...prevOrders])
     setItems([]) // Clear cart after order creation
-    toast.success(`Order #${orderId} placed successfully!`)
+            toast.success(`Order #${orderId} placed successfully!`)
   }
 
   const getOrders = () => {
@@ -357,7 +357,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           : order
       )
     )
-    toast.success('Order cancelled successfully')
+            toast.success('Order cancelled successfully')
   }
 
   const returnOrder = (orderId: string, reason: string) => {
@@ -373,7 +373,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           : order
       )
     )
-    toast.success('Return request submitted successfully')
+            toast.success('Return request submitted successfully')
   }
 
   const addToWishlist = (product: Omit<WishlistItem, 'dateAdded'>) => {
@@ -382,12 +382,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       dateAdded: new Date().toISOString()
     }
     setWishlist(prevWishlist => [...prevWishlist, newItem])
-    toast.success(`Added ${newItem.name} to wishlist!`)
+            toast.success(`Added ${newItem.name} to wishlist!`)
   }
 
   const removeFromWishlist = (productId: number) => {
     setWishlist(prevWishlist => prevWishlist.filter(item => item.id !== productId));
-    toast.success('Item removed from wishlist!');
+            toast.success('Item removed from wishlist!');
   };
 
   const isInWishlist = (productId: number) => {

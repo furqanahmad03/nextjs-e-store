@@ -40,7 +40,7 @@ export default function SideBar() {
   ]
 
   return (
-    <div className="min-w-[200px] bg-white border-r border-gray-200 shadow-sm relative">
+    <div className="min-w-[200px] hidden md:block bg-white border-r border-gray-200 shadow-sm relative">
       <div className="p-3">
         <h2 className="text-base font-semibold text-gray-900 mb-3">{t('categories')}</h2>
         <NavigationMenu orientation="vertical" className="w-full" viewport={false}>

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
-import { Search, Heart, ShoppingCart, User, LogOut, Package, Settings, CreditCard, MapPin } from "lucide-react"
+import { Search, Heart, ShoppingCart, User, LogOut, Package, Settings, CreditCard, MapPin, Menu, X, ChevronDown } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { useCart } from "@/contexts/CartContext"
 import LanguageSelector from "@/components/LanguageSelector"
 
@@ -24,10 +36,13 @@ function NavbarContent() {
   const { data: session, status } = useSession()
   const { getCartCount, getWishlistCount, isHydrated } = useCart()
   const [searchQuery, setSearchQuery] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [openCategories, setOpenCategories] = useState<string[]>([])
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations('navigation')
+  const sidebarT = useTranslations('sidebar')
   
   // Extract current language from pathname
   const currentLang = pathname.split('/')[1] || 'en'
@@ -112,18 +127,222 @@ function NavbarContent() {
   const cartCount = getCartCount()
   const wishlistCount = getWishlistCount()
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false)
+  }
+
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    )
+  }
+
+  // Sidebar categories data
+  const womenFashionItems = [
+    { title: sidebarT('shoes'), href: `/${currentLang}/products?category=Woman+Fashion&subCategory=Shoes` },
+    { title: sidebarT('clothes'), href: `/${currentLang}/products?category=Woman+Fashion&subCategory=Clothes` },
+    { title: sidebarT('bags'), href: `/${currentLang}/products?category=Woman+Fashion&subCategory=Bags` },
+    { title: sidebarT('accessories'), href: `/${currentLang}/products?category=Woman+Fashion&subCategory=Accessories` },
+    { title: sidebarT('jewelry'), href: `/${currentLang}/products?category=Woman+Fashion&subCategory=Jewelry` },
+    { title: sidebarT('watches'), href: `/${currentLang}/products?category=Woman+Fashion&subCategory=Watches` },
+  ]
+
+  const menFashionItems = [
+    { title: sidebarT('shoes'), href: `/${currentLang}/products?category=Men+Fashion&subCategory=Shoes` },
+    { title: sidebarT('clothes'), href: `/${currentLang}/products?category=Men+Fashion&subCategory=Clothes` },
+    { title: sidebarT('bags'), href: `/${currentLang}/products?category=Men+Fashion&subCategory=Bags` },
+    { title: sidebarT('accessories'), href: `/${currentLang}/products?category=Men+Fashion&subCategory=Accessories` },
+    { title: sidebarT('watches'), href: `/${currentLang}/products?category=Men+Fashion&subCategory=Watches` },
+    { title: sidebarT('sunglasses'), href: `/${currentLang}/products?category=Men+Fashion&subCategory=Sunglasses` },
+  ]
+
+  const simpleCategories = [
+    { title: sidebarT('electronics'), href: `/${currentLang}/products?category=Electronics` },
+    { title: sidebarT('homeLifestyle'), href: `/${currentLang}/products?category=Home+Lifestyle` },
+    { title: sidebarT('medicine'), href: `/${currentLang}/products?category=Medicine` },
+    { title: sidebarT('sportsOutdoor'), href: `/${currentLang}/products?category=Sports+Outdoor` },
+    { title: sidebarT('automotive'), href: `/${currentLang}/products?category=Automotive` },
+    { title: sidebarT('books'), href: `/${currentLang}/products?category=Books` },
+    { title: sidebarT('babyToys'), href: `/${currentLang}/products?category=Baby+Toys` },
+    { title: sidebarT('groceriesPets'), href: `/${currentLang}/products?category=Groceries+Pets` },
+    { title: sidebarT('healthBeauty'), href: `/${currentLang}/products?category=Health+Beauty` },
+  ]
+
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-allowed mx-auto">
         <div className="flex justify-between items-center h-16">
-          {/* Left side - Logo and Navigation Links */}
-          <div className="flex items-center space-x-8">
+          {/* Left side - Mobile Menu Button and Logo */}
+          <div className="flex items-center space-x-4">
+            {/* Mobile Menu Button */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle className="text-left">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">Eco-Site</span>
+                  </SheetTitle>
+                </SheetHeader>
+                
+                <div className="mt-6 space-y-6">
+                  {/* Mobile Search */}
+                  {pathname.startsWith("/products") && (
+                    <form onSubmit={handleSearch} className="w-full">
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder={t('searchPlaceholder')}
+                          value={searchQuery}
+                          onChange={handleSearchChange}
+                          className="w-full pr-10"
+                        />
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 bg-transparent hover:bg-transparent text-black"
+                        >
+                          <Search className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* Mobile Language Selector */}
+                  <div className="sm:hidden">
+                    <LanguageSelector />
+                  </div>
+
+                  {/* Mobile Navigation Links */}
+                  <div className="space-y-2">
+                    <Link
+                      href={`/${currentLang}`}
+                      onClick={closeMobileMenu}
+                      className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                        isActive("/") 
+                          ? "bg-gray-100 text-gray-900" 
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {t('home')}
+                    </Link>
+                    <Link
+                      href={`/${currentLang}/contact`}
+                      onClick={closeMobileMenu}
+                      className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                        isActive("/contact") 
+                          ? "bg-gray-100 text-gray-900" 
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {t('contact')}
+                    </Link>
+                    <Link
+                      href={`/${currentLang}/about`}
+                      onClick={closeMobileMenu}
+                      className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                        isActive("/about") 
+                          ? "bg-gray-100 text-gray-900" 
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {t('about')}
+                    </Link>
+                  </div>
+
+                  {/* Mobile Categories Section */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
+                      {sidebarT('categories')}
+                    </h3>
+                    
+                    <div className="space-y-1">
+                      {/* Women's Fashion - Collapsible */}
+                      <Collapsible 
+                        open={openCategories.includes('womens')} 
+                        onOpenChange={() => toggleCategory('womens')}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <button className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+                            <span>{sidebarT('womensFashion')}</span>
+                            <ChevronDown className={`h-4 w-4 transition-transform ${openCategories.includes('womens') ? 'rotate-180' : ''}`} />
+                          </button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pl-4">
+                          <div className="space-y-1 mt-2">
+                            {womenFashionItems.map((item) => (
+                              <Link
+                                key={item.title}
+                                href={item.href}
+                                onClick={closeMobileMenu}
+                                className="flex items-center px-4 py-2 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors text-sm"
+                              >
+                                {item.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Men's Fashion - Collapsible */}
+                      <Collapsible 
+                        open={openCategories.includes('mens')} 
+                        onOpenChange={() => toggleCategory('mens')}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <button className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+                            <span>{sidebarT('mensFashion')}</span>
+                            <ChevronDown className={`h-4 w-4 transition-transform ${openCategories.includes('mens') ? 'rotate-180' : ''}`} />
+                          </button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pl-4">
+                          <div className="space-y-1 mt-2">
+                            {menFashionItems.map((item) => (
+                              <Link
+                                key={item.title}
+                                href={item.href}
+                                onClick={closeMobileMenu}
+                                className="flex items-center px-4 py-2 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors text-sm"
+                              >
+                                {item.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Simple Categories */}
+                      {simpleCategories.map((category) => (
+                        <Link
+                          key={category.title}
+                          href={category.href}
+                          onClick={closeMobileMenu}
+                          className="flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                        >
+                          {category.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
             {/* Logo */}
             <Link href={`/${currentLang}`} className="flex items-center">
               <span className="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">Eco-Site</span>
             </Link>
 
-            {/* Navigation Links */}
+            {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center space-x-1">
               <Link
                 href={`/${currentLang}`}
@@ -151,9 +370,9 @@ function NavbarContent() {
 
           {/* Right side - Search, Icons, and Profile */}
           <div className="flex items-center space-x-4">
-            {/* Search Bar */}
+            {/* Desktop Search Bar */}
             {pathname.startsWith("/products") && (
-              <form onSubmit={handleSearch} className="hidden sm:flex items-center">
+              <form onSubmit={handleSearch} className="hidden lg:flex items-center">
                 <div className="relative">
                   <Input
                     type="text"
@@ -173,8 +392,10 @@ function NavbarContent() {
               </form>
             )}
 
-            {/* Language Selector */}
+            {/* Language Selector - Hidden on mobile */}
+            <div className="hidden sm:block">
             <LanguageSelector />
+            </div>
 
             {/* Icons */}
             <div className="flex items-center gap-4">
@@ -198,13 +419,14 @@ function NavbarContent() {
                 )}
               </Link>
               
-              {/* Profile Menu */}
+              {/* Desktop Profile Menu / Sign In Sign Up */}
+              <div className="hidden sm:block">
               {!isHydrated ? (
                 // Show loading state during SSR to prevent hydration mismatch
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
               ) : status === "loading" ? (
                 <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-              ) : !session ? (
+                ) : session ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="!bg-transparent hover:!bg-transparent outline-none border-none">
                     <Button
@@ -338,7 +560,7 @@ function NavbarContent() {
               ) : (
                 <div className="flex items-center space-x-2">
                   <Link href={`/${currentLang}/auth/signin`}>
-                    <Button variant="ghost" size="sm">
+                      <Button size="sm" variant="outline">
                       {t('signIn')}
                     </Button>
                   </Link>
@@ -349,6 +571,7 @@ function NavbarContent() {
                   </Link>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>

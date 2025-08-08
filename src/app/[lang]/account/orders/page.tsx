@@ -101,7 +101,7 @@ export default function OrdersPage() {
       toast.success(t('orderCancelledSuccess'))
       setCancelReason("")
     } catch (error) {
-      toast.error('Failed to cancel order')
+      toast.error(t('toast.failedToCancelOrder'))
     } finally {
       setIsCancelling(false)
     }
@@ -116,10 +116,10 @@ export default function OrdersPage() {
     setIsReturning(true)
     try {
       returnOrder(orderId, returnReason)
-      toast.success('Return request submitted successfully')
+      toast.success(t('toast.returnRequestSubmitted'))
       setReturnReason("")
     } catch (error) {
-      toast.error('Failed to submit return request')
+      toast.error(t('toast.failedToSubmitReturn'))
     } finally {
       setIsReturning(false)
     }

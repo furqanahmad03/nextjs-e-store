@@ -32,7 +32,7 @@ export default function ProductCard({ product }: Props) {
       await addToCart(product.id)
     } catch (error) {
       console.error('Error adding to cart:', error)
-      toast.error('Failed to add item to cart. Please try again.')
+      toast.error(t('toast.failedToAddToCart'))
     } finally {
       setIsAddingToCart(false)
     }
@@ -61,7 +61,7 @@ export default function ProductCard({ product }: Props) {
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error)
-      toast.error('Failed to update wishlist. Please try again.')
+      toast.error(t('toast.failedToUpdateWishlist'))
     } finally {
       setIsWishlistLoading(false)
     }

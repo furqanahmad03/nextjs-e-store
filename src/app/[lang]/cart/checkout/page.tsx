@@ -126,7 +126,7 @@ export default function CheckoutPage() {
 
     for (const field of requiredFields) {
       if (!formData[field as keyof CheckoutForm]) {
-        toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`)
+        toast.error(`${t('fillInField')} ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`)
         return false
       }
     }
@@ -138,7 +138,7 @@ export default function CheckoutPage() {
       ]
       for (const field of billingFields) {
         if (!formData[field as keyof CheckoutForm]) {
-          toast.error(`Please fill in billing ${field.replace('billing', '').replace(/([A-Z])/g, ' $1').toLowerCase()}`)
+          toast.error(`${t('fillInBillingField')} ${field.replace('billing', '').replace(/([A-Z])/g, ' $1').toLowerCase()}`)
           return false
         }
       }
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
     if (formData.paymentMethod === 'card') {
       if (!formData.cardNumber || !formData.cardName || !formData.expiryMonth || 
           !formData.expiryYear || !formData.cvv) {
-        toast.error('Please fill in all credit card information')
+        toast.error(t('fillInCardInfo'))
         return false
       }
     }
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
       // window.location.href = `/${currentLang}/account/orders`
       router.push(`/${currentLang}/account/orders`);
     } catch (error) {
-      toast.error('Failed to process order. Please try again.')
+      toast.error(t('failedToProcessOrder'))
     } finally {
       setIsProcessing(false)
     }
@@ -534,7 +534,7 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <Label htmlFor="card" className="font-medium cursor-pointer">{t('creditCard')}</Label>
-                          <p className="text-sm text-gray-500">Visa, Mastercard, American Express</p>
+                          <p className="text-sm text-gray-500">{t('cardTypes')}</p>
                         </div>
                       </div>
                       <div className="flex gap-1">
@@ -567,7 +567,7 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <Label htmlFor="paypal" className="font-medium cursor-pointer">{t('paypal')}</Label>
-                          <p className="text-sm text-gray-500">Pay with your PayPal account</p>
+                          <p className="text-sm text-gray-500">{t('paypalDescription')}</p>
                         </div>
                       </div>
                     </div>
@@ -595,7 +595,7 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <Label htmlFor="cod" className="font-medium cursor-pointer">{t('cashOnDelivery')}</Label>
-                          <p className="text-sm text-gray-500">Pay when you receive your order</p>
+                          <p className="text-sm text-gray-500">{t('codDescription')}</p>
                         </div>
                       </div>
                     </div>
@@ -605,10 +605,10 @@ export default function CheckoutPage() {
                 {/* Credit Card Details - Only show when card is selected */}
                 {formData.paymentMethod === 'card' && (
                   <div className="space-y-4 border-t pt-6">
-                    <Label className="text-base font-medium">Card Details</Label>
+                    <Label className="text-base font-medium">{t('cardDetails')}</Label>
                     
                     <div>
-                      <Label htmlFor="cardName">Name on Card *</Label>
+                      <Label htmlFor="cardName">{t('nameOnCard')} *</Label>
                       <Input
                         id="cardName"
                         value={formData.cardName}
@@ -619,7 +619,7 @@ export default function CheckoutPage() {
             </div>
 
                     <div>
-                      <Label htmlFor="cardNumber">Card Number *</Label>
+                      <Label htmlFor="cardNumber">{t('cardNumber')} *</Label>
                       <Input
                         id="cardNumber"
                         value={formData.cardNumber}
@@ -632,7 +632,7 @@ export default function CheckoutPage() {
 
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <Label htmlFor="expiryMonth">Month *</Label>
+                        <Label htmlFor="expiryMonth">{t('month')} *</Label>
                         <Input
                           id="expiryMonth"
                           value={formData.expiryMonth}
@@ -643,7 +643,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="expiryYear">Year *</Label>
+                        <Label htmlFor="expiryYear">{t('year')} *</Label>
                         <Input
                           id="expiryYear"
                           value={formData.expiryYear}
@@ -654,7 +654,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="cvv">CVV *</Label>
+                        <Label htmlFor="cvv">{t('cvv')} *</Label>
                         <Input
                           id="cvv"
                           value={formData.cvv}
@@ -671,14 +671,14 @@ export default function CheckoutPage() {
                 {/* PayPal Info - Only show when PayPal is selected */}
                 {formData.paymentMethod === 'paypal' && (
                   <div className="border-t pt-6">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">P</span>
-                        </div>
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                              <span className="text-white font-bold text-xs">P</span>
+                            </div>
                     <div>
-                          <p className="font-medium text-blue-900">PayPal Payment</p>
-                          <p className="text-sm text-blue-700">You will be redirected to PayPal to complete your payment after placing the order.</p>
+                          <p className="font-medium text-blue-900">{t('paypalPayment')}</p>
+                          <p className="text-sm text-blue-700">{t('paypalRedirectMessage')}</p>
                         </div>
                       </div>
                     </div>
@@ -688,14 +688,14 @@ export default function CheckoutPage() {
                 {/* Cash on Delivery Info - Only show when COD is selected */}
                 {formData.paymentMethod === 'cod' && (
                   <div className="border-t pt-6">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">$</span>
-                        </div>
+                                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                              <span className="text-white font-bold text-xs">$</span>
+                            </div>
                         <div>
-                          <p className="font-medium text-green-900">Cash on Delivery</p>
-                          <p className="text-sm text-green-700">Pay with cash when your order is delivered. Additional $5.00 fee applies.</p>
+                          <p className="font-medium text-green-900">{t('codInfo')}</p>
+                          <p className="text-sm text-green-700">{t('codMessage')}</p>
                         </div>
                       </div>
                   </div>
@@ -739,7 +739,7 @@ export default function CheckoutPage() {
                           <div className="flex items-center justify-between mt-1">
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
-                                Qty: {item.quantity}
+                                {t('quantity')}: {item.quantity}
                               </span>
                               <span className="text-xs text-gray-500">×</span>
                               <span className="text-sm font-medium text-gray-700">${item.price.toFixed(2)}</span>

@@ -190,7 +190,7 @@ export default function CartPage() {
           </Breadcrumb>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{t('shoppingCart')}</h1>
             <p className="text-gray-600 mt-2">
@@ -200,7 +200,7 @@ export default function CartPage() {
           <Button
             onClick={handleClearCart}
             variant="outline"
-            className="text-red-600 border-red-600 hover:bg-red-50"
+            className="text-red-600 border-red-600 hover:bg-red-50 w-full sm:w-auto"
           >
             {t('clearCart')}
           </Button>
@@ -210,11 +210,102 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('cartItems')}</h2>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                 {items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-4 p-4 border border-gray-100 rounded-lg">
+                    <div key={item.id} className="border border-gray-100 rounded-lg p-4">
+                      {/* Mobile Layout - Stacked */}
+                      <div className="block sm:hidden">
+                        {/* Product Image and Info Row */}
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
+                            <p className="text-gray-600 text-sm">${(item.price || 0).toFixed(2)}</p>
+                            <p className="text-xs text-gray-500 mt-1">{t('maxAvailable')}: {item.stock}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+
+                        {/* Quantity Controls Row */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const currentQty = tempQuantities[item.id] !== undefined ? tempQuantities[item.id] : item.quantity
+                                const currentQtyNum = typeof currentQty === 'string' ? item.quantity : currentQty
+                                const newQty = Math.max(1, currentQtyNum - 1)
+                                setTempQuantities(prev => ({ ...prev, [item.id]: newQty }))
+                              }}
+                              disabled={updatingItems.has(item.id)}
+                              className="w-8 h-8 p-0"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            <Input
+                              type="number"
+                              value={tempQuantities[item.id] !== undefined && tempQuantities[item.id] !== '' ? tempQuantities[item.id] : item.quantity}
+                              onChange={(e) => handleTempQuantityChange(item.id, e.target.value)}
+                              className="w-16 text-center"
+                              min="1"
+                              max={item.stock} 
+                              disabled={updatingItems.has(item.id)} 
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const currentQty = tempQuantities[item.id] !== undefined ? tempQuantities[item.id] : item.quantity
+                                const currentQtyNum = typeof currentQty === 'string' ? item.quantity : currentQty
+                                const newQty = Math.min(item.stock, currentQtyNum + 1)
+                                setTempQuantities(prev => ({ ...prev, [item.id]: newQty }))
+                              }}
+                              disabled={updatingItems.has(item.id)}
+                              className="w-8 h-8 p-0"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => handleUpdateQuantity(item.id)}
+                            disabled={updatingItems.has(item.id) || (tempQuantities[item.id] !== undefined ? tempQuantities[item.id] : item.quantity) === item.quantity}
+                            className="px-3"
+                          >
+                            {updatingItems.has(item.id) ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : (
+                              t('update')
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* Total Price Row */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">{t('total')}:</span>
+                          <p className="font-semibold text-gray-900">${(item.total || 0).toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      {/* Desktop Layout - Horizontal */}
+                      <div className="hidden sm:flex items-center gap-4">
                       {/* Product Image */}
                       <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
@@ -301,6 +392,7 @@ export default function CartPage() {
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -310,7 +402,7 @@ export default function CartPage() {
 
           {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('orderSummary')}</h2>
               
               <div className="space-y-3 mb-6">
@@ -334,8 +426,8 @@ export default function CartPage() {
                   </div>
                 </div>
 
-              <div className="!space-y-3">
-                <Link href={`/${currentLang}/cart/checkout`} className="w-full block !mb-3">
+              <div className="space-y-3">
+                <Link href={`/${currentLang}/cart/checkout`} className="w-full block">
                   <Button className="w-full bg-red-500 hover:bg-red-600 text-white">
                     {t('proceedToCheckout')}
                   </Button>

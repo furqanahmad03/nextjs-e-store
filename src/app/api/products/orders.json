@@ -125,7 +125,7 @@
     ],
     "totalAmount": 994.989,
     "orderDate": "2025-08-14",
-    "status": "pending",
+    "status": "cancelled",
     "shippingAddress": "Mian Channu, Lahore, Punjab 54590, United States",
     "paymentMethod": "cod",
     "customerPhone": "03304082111",
@@ -133,7 +133,9 @@
     "subtotal": 899.99,
     "shipping": 0,
     "tax": 89.99900000000001,
-    "codFee": 5
+    "codFee": 5,
+    "cancellationReason": "not required anymore",
+    "cancelledAt": "2025-08-14T14:43:31.555Z"
   },
   {
     "id": "ORD1755175028430",
@@ -173,7 +175,7 @@
     ],
     "totalAmount": 2864.978,
     "orderDate": "2025-08-14",
-    "status": "pending",
+    "status": "cancelled",
     "shippingAddress": "Mian Channu, Lahore, Singapore 54590, United States",
     "paymentMethod": "cod",
     "customerPhone": "03304082111",
@@ -181,6 +183,58 @@
     "subtotal": 2599.98,
     "shipping": 0,
     "tax": 259.998,
+    "codFee": 5,
+    "cancellationReason": "not. interested",
+    "cancelledAt": "2025-08-14T14:33:12.903Z"
+  },
+  {
+    "id": "ORD1755181969421",
+    "customerName": "Hafiz Furqan Ahmad",
+    "customerEmail": "hfurqan.se@gmail.com",
+    "products": [
+      {
+        "productId": 17,
+        "name": "Smartphone",
+        "quantity": 1,
+        "price": 899.99
+      }
+    ],
+    "totalAmount": 994.989,
+    "orderDate": "2025-08-14",
+    "status": "delivered",
+    "shippingAddress": "dfjksadj;klsdj, lahore, punjab 58000, United States",
+    "paymentMethod": "cod",
+    "customerPhone": "9749231740",
+    "billingAddress": "dfjksadj;klsdj, lahore, punjab 58000, United States",
+    "subtotal": 899.99,
+    "shipping": 0,
+    "tax": 89.99900000000001,
     "codFee": 5
+  },
+  {
+    "id": "ORD1755182457879",
+    "customerName": "Hafiz Furqan Ahmad",
+    "customerEmail": "hfurqan.se@gmail.com",
+    "products": [
+      {
+        "productId": 17,
+        "name": "Smartphone",
+        "quantity": 1,
+        "price": 899.99
+      }
+    ],
+    "totalAmount": 994.989,
+    "orderDate": "2025-08-14",
+    "status": "returned",
+    "shippingAddress": "dfjksadj;klsdj, Canberra, punjab 58000, United States",
+    "paymentMethod": "cod",
+    "customerPhone": "9749231740",
+    "billingAddress": "dfjksadj;klsdj, Canberra, punjab 58000, United States",
+    "subtotal": 899.99,
+    "shipping": 0,
+    "tax": 89.99900000000001,
+    "codFee": 5,
+    "returnReason": "not interested",
+    "returnedAt": "2025-08-14T14:42:51.449Z"
   }
 ]

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit, Trash2, ChevronLeft, ChevronRight, Eye, Package, TrendingUp, DollarSign, Truck, RefreshCw, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface Product {
   id: number;
@@ -59,6 +60,8 @@ interface Order {
 }
 
 const DashboardPage = () => {
+  const t = useTranslations('dashboard');
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -269,16 +272,16 @@ const DashboardPage = () => {
           setProducts([result.product, ...products]); // Add to beginning for reverse order
           resetForm();
           setIsAddDialogOpen(false);
-          toast.success('Product added successfully!');
+          toast.success(t('toasts.productAdded'));
         } else {
-          toast.error('Failed to add product');
+          toast.error(t('toasts.failedToAddProduct'));
         }
       } else {
-        toast.error('Failed to add product');
+        toast.error(t('toasts.failedToAddProduct'));
       }
     } catch (error) {
       console.error('Error adding product:', error);
-      toast.error('Failed to add product');
+      toast.error(t('toasts.failedToAddProduct'));
     } finally {
       setIsAddingProduct(false);
     }
@@ -349,16 +352,16 @@ const DashboardPage = () => {
           resetForm();
           setIsEditDialogOpen(false);
           setEditingProduct(null);
-          toast.success('Product updated successfully!');
+          toast.success(t('toasts.productUpdated'));
         } else {
-          toast.error('Failed to update product');
+          toast.error(t('toasts.failedToUpdateProduct'));
         }
       } else {
-        toast.error('Failed to update product');
+        toast.error(t('toasts.failedToUpdateProduct'));
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      toast.error('Failed to update product');
+      toast.error(t('toasts.failedToUpdateProduct'));
     } finally {
       setIsUpdatingProduct(false);
     }
@@ -376,16 +379,16 @@ const DashboardPage = () => {
           // Remove from local state
           setProducts(products.filter(p => p.id !== productId));
           setFilteredProducts(filteredProducts.filter(p => p.id !== productId));
-          toast.success('Product deleted successfully!');
+          toast.success(t('toasts.productDeleted'));
         } else {
-          toast.error('Failed to delete product');
+          toast.error(t('toasts.failedToDeleteProduct'));
         }
       } else {
-        toast.error('Failed to delete product');
+        toast.error(t('toasts.failedToDeleteProduct'));
       }
     } catch (error) {
       console.error('Error deleting product:', error);
-      toast.error('Failed to delete product');
+      toast.error(t('toasts.failedToDeleteProduct'));
     }
   };
 
@@ -420,13 +423,13 @@ const DashboardPage = () => {
         
         setOrders(updatedOrders);
         setFilteredOrders(updatedOrders);
-        toast.success(`Order #${orderId.slice(-8)} marked as delivered!`);
+        toast.success(t('toasts.orderMarkedDelivered', { orderId: orderId.slice(-8) }));
       } else {
-        toast.error('Failed to update order status');
+        toast.error(t('toasts.failedToUpdateOrder'));
       }
     } catch (error) {
       console.error('Error marking order as delivered:', error);
-        toast.error('Failed to update order status');
+        toast.error(t('toasts.failedToUpdateOrder'));
     }
   };
 
@@ -456,18 +459,18 @@ const DashboardPage = () => {
       
       if (!response.ok) {
         console.error('Failed to update order status in backend');
-        toast.error('Order dispatched locally but failed to save to backend');
+        toast.error(t('toasts.failedToDispatchOrder'));
         // Revert local state if backend update failed
         setOrders(orders);
         setFilteredOrders(orders);
       } else {
-        toast.success(`Order #${orderToDispatch.id.slice(-8)} dispatched successfully!`);
+        toast.success(t('toasts.orderDispatched'));
         // Update the order in the dialog as well
         setOrderToDispatch({ ...orderToDispatch, status: 'dispatched' });
       }
     } catch (error) {
       console.error('Error dispatching order:', error);
-      toast.error('Failed to dispatch order');
+      toast.error(t('toasts.failedToDispatchOrder'));
       // Revert local state if there was an error
       setOrders(orders);
       setFilteredOrders(orders);
@@ -484,16 +487,16 @@ const DashboardPage = () => {
         if (data.success) {
           setOrders(data.orders)
           setFilteredOrders(data.orders)
-          toast.success(`Orders refreshed successfully! Found ${data.orders.length} orders`)
+          toast.success(t('toasts.ordersRefreshedWithCount', { count: data.orders.length }));
         } else {
-          toast.error('Failed to refresh orders')
+          toast.error(t('toasts.failedToRefreshOrders'))
         }
       } else {
-        toast.error('Failed to refresh orders')
+        toast.error(t('toasts.failedToRefreshOrders'))
       }
     } catch (error) {
       console.error('Error fetching orders:', error)
-      toast.error('Failed to refresh orders')
+      toast.error(t('toasts.failedToRefreshOrders'))
     }
   };
 
@@ -510,16 +513,16 @@ const DashboardPage = () => {
           );
           setProducts(sortedProducts);
           setFilteredProducts(sortedProducts);
-          toast.success(`Products refreshed successfully! Found ${result.products.length} products`);
+          toast.success(t('toasts.productsRefreshed'));
         } else {
-          toast.error('Failed to refresh products');
+          toast.error(t('toasts.failedToRefreshProducts'));
         }
       } else {
-        toast.error('Failed to refresh products');
+        toast.error(t('toasts.failedToRefreshProducts'));
       }
     } catch (error) {
       console.error('Error fetching products:', error);
-      toast.error('Failed to refresh products');
+      toast.error(t('toasts.failedToRefreshProducts'));
     } finally {
       setIsLoadingProducts(false);
     }
@@ -527,7 +530,7 @@ const DashboardPage = () => {
 
   const exportOrders = () => {
     if (orders.length === 0) {
-      toast.error('No orders to export')
+      toast.error(t('toasts.noOrdersToExport'))
       return
     }
 
@@ -553,7 +556,7 @@ const DashboardPage = () => {
     a.download = `orders-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
-    toast.success('Orders exported successfully!')
+    toast.success(t('toasts.ordersExported'))
   };
 
   // Note: Admin cannot return orders - this functionality has been removed
@@ -575,19 +578,94 @@ const DashboardPage = () => {
     setEditingProduct(null);
   };
 
-  const categories = ["Woman Fashion", "Men Fashion", "Sports Outdoor", "Groceries Pets", "Medicine", "Home Lifestyle", "Electronics", "Beauty", "Books", "Toys", "Automotive"];
+  const categories = [
+    t('categories.womanFashion'),
+    t('categories.menFashion'), 
+    t('categories.sportsOutdoor'),
+    t('categories.groceriesPets'),
+    t('categories.medicine'),
+    t('categories.homeLifestyle'),
+    t('categories.electronics'),
+    t('categories.beauty'),
+    t('categories.books'),
+    t('categories.toys'),
+    t('categories.automotive')
+  ];
+  
   const subcategories = {
-    "Woman Fashion": ["Watches", "Dresses", "Shoes", "Accessories", "Bags"],
-    "Men Fashion": ["T-Shirts", "Jeans", "Shirts", "Shoes", "Accessories"],
-    "Sports Outdoor": ["Football", "Baseball", "Tennis", "Basketball", "Fitness", "Outdoor"],
-    "Groceries Pets": ["Pet Food", "Pet Toys", "Pet Care", "Human Food", "Beverages"],
-    "Medicine": ["Vitamins", "Supplements", "First Aid", "Personal Care"],
-    "Home Lifestyle": ["Furniture", "Decor", "Kitchen", "Garden", "Bedding"],
-    "Electronics": ["Mobile", "Audio", "Wearables", "Computers", "Gaming"],
-    "Beauty": ["Skincare", "Makeup", "Haircare", "Fragrances"],
-    "Books": ["Fiction", "Non-Fiction", "Educational", "Children"],
-    "Toys": ["Educational", "Action Figures", "Board Games", "Puzzles"],
-    "Automotive": ["Cars", "Motorcycles", "Parts", "Accessories"]
+    [t('categories.womanFashion')]: [
+      t('subcategories.watches'),
+      t('subcategories.dresses'),
+      t('subcategories.shoes'),
+      t('subcategories.accessories'),
+      t('subcategories.bags')
+    ],
+    [t('categories.menFashion')]: [
+      t('subcategories.tShirts'),
+      t('subcategories.jeans'),
+      t('subcategories.shirts'),
+      t('subcategories.shoes'),
+      t('subcategories.accessories')
+    ],
+    [t('categories.sportsOutdoor')]: [
+      t('subcategories.football'),
+      t('subcategories.baseball'),
+      t('subcategories.tennis'),
+      t('subcategories.basketball'),
+      t('subcategories.fitness'),
+      t('subcategories.outdoor')
+    ],
+    [t('categories.groceriesPets')]: [
+      t('subcategories.petFood'),
+      t('subcategories.petToys'),
+      t('subcategories.petCare'),
+      t('subcategories.humanFood'),
+      t('subcategories.beverages')
+    ],
+    [t('categories.medicine')]: [
+      t('subcategories.vitamins'),
+      t('subcategories.supplements'),
+      t('subcategories.firstAid'),
+      t('subcategories.personalCare')
+    ],
+    [t('categories.homeLifestyle')]: [
+      t('subcategories.furniture'),
+      t('subcategories.decor'),
+      t('subcategories.kitchen'),
+      t('subcategories.garden'),
+      t('subcategories.bedding')
+    ],
+    [t('categories.electronics')]: [
+      t('subcategories.mobile'),
+      t('subcategories.audio'),
+      t('subcategories.wearables'),
+      t('subcategories.computers'),
+      t('subcategories.gaming')
+    ],
+    [t('categories.beauty')]: [
+      t('subcategories.skincare'),
+      t('subcategories.makeup'),
+      t('subcategories.haircare'),
+      t('subcategories.fragrances')
+    ],
+    [t('categories.books')]: [
+      t('subcategories.fiction'),
+      t('subcategories.nonFiction'),
+      t('subcategories.educational'),
+      t('subcategories.children')
+    ],
+    [t('categories.toys')]: [
+      t('subcategories.educational'),
+      t('subcategories.actionFigures'),
+      t('subcategories.boardGames'),
+      t('subcategories.puzzles')
+    ],
+    [t('categories.automotive')]: [
+      t('subcategories.cars'),
+      t('subcategories.motorcycles'),
+      t('subcategories.parts'),
+      t('subcategories.accessories')
+    ]
   };
 
   const getOrderSummary = () => {
@@ -602,10 +680,10 @@ const DashboardPage = () => {
   };
 
   const stats = [
-    { title: "Total Products", value: products.length || 0, icon: Package, color: "text-blue-600" },
-    { title: "Total Orders", value: getOrderSummary().totalOrders, icon: TrendingUp, color: "text-green-600" },
-    { title: "Pending Orders", value: getOrderSummary().pendingOrders, icon: RefreshCw, color: "text-orange-600" },
-    { title: "Dispatched Orders", value: getOrderSummary().dispatchedOrders, icon: Truck, color: "text-purple-600" },
+    { title: t('stats.totalProducts'), value: products.length || 0, icon: Package, color: "text-blue-600" },
+    { title: t('stats.totalOrders'), value: getOrderSummary().totalOrders, icon: TrendingUp, color: "text-green-600" },
+    { title: t('stats.pendingOrders'), value: getOrderSummary().pendingOrders, icon: RefreshCw, color: "text-orange-600" },
+    { title: t('stats.dispatchedOrders'), value: getOrderSummary().dispatchedOrders, icon: Truck, color: "text-purple-600" },
   ];
 
   // Pagination for products
@@ -626,17 +704,17 @@ const DashboardPage = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">⏳ Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">{t('orders.statusBadges.pending')}</Badge>;
       case 'dispatched':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-100">🚚 Dispatched</Badge>;
+        return <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-100">{t('orders.statusBadges.dispatched')}</Badge>;
       case 'delivered':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">✅ Delivered</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">{t('orders.statusBadges.delivered')}</Badge>;
       case 'received':
-        return <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">✅ Received</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">{t('orders.statusBadges.received')}</Badge>;
       case 'returned':
-        return <Badge variant="destructive" className="bg-red-100 text-red-800 hover:bg-red-100">↩️ Returned</Badge>;
+        return <Badge variant="destructive" className="bg-red-100 text-red-800 hover:bg-red-100">{t('orders.statusBadges.returned')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 hover:bg-gray-100">❌ Cancelled</Badge>;
+        return <Badge variant="outline" className="bg-gray-100 text-gray-800 hover:bg-gray-100">{t('orders.statusBadges.cancelled')}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -648,30 +726,34 @@ const DashboardPage = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage products and orders</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+            <p className="text-gray-600 mt-1">{t('subtitle')}</p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
             setIsAddDialogOpen(open);
-            if (!open) {
+            if (open) {
+              // Reset form when opening add dialog
+              resetForm();
+            } else {
+              // Reset form when closing dialog
               resetForm();
             }
           }}>
             <DialogTrigger asChild>
               <Button className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Product
+                {t('addProduct')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Add New Product</DialogTitle>
-                <DialogDescription>Fill in the product details below</DialogDescription>
+                <DialogTitle>{t('forms.addProduct.title')}</DialogTitle>
+                <DialogDescription>{t('forms.addProduct.subtitle')}</DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name" className="mb-1">Product Name</Label>
+                    <Label htmlFor="name" className="mb-1">{t('forms.addProduct.fields.name')}</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -680,7 +762,7 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="brand" className="mb-1">Brand</Label>
+                    <Label htmlFor="brand" className="mb-1">{t('forms.addProduct.fields.brand')}</Label>
                     <Input
                       id="brand"
                       value={formData.brand}
@@ -691,10 +773,10 @@ const DashboardPage = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="category" className="mb-1">Category</Label>
+                    <Label htmlFor="category" className="mb-1">{t('forms.addProduct.fields.category')}</Label>
                     <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: "" })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder={t('forms.addProduct.placeholders.selectCategory')} />
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category) => (
@@ -704,14 +786,14 @@ const DashboardPage = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="subcategory" className="mb-1">Subcategory</Label>
+                    <Label htmlFor="subcategory" className="mb-1">{t('forms.addProduct.fields.subcategory')}</Label>
                     <Select 
                       value={formData.subcategory} 
                       onValueChange={(value) => setFormData({ ...formData, subcategory: value })}
                       disabled={!formData.category}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={formData.category ? "Select a subcategory" : "Select category first"} />
+                        <SelectValue placeholder={formData.category ? t('forms.addProduct.placeholders.selectSubcategory') : t('forms.addProduct.placeholders.selectCategoryFirst')} />
                       </SelectTrigger>
                       <SelectContent>
                         {formData.category && subcategories[formData.category as keyof typeof subcategories]?.map((subcategory) => (
@@ -722,7 +804,7 @@ const DashboardPage = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="description" className="mb-1">Description</Label>
+                  <Label htmlFor="description" className="mb-1">{t('forms.addProduct.fields.description')}</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
@@ -733,7 +815,7 @@ const DashboardPage = () => {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="price" className="mb-1">Price ($)</Label>
+                    <Label htmlFor="price" className="mb-1">{t('forms.addProduct.fields.price')}</Label>
                     <Input
                       id="price"
                       type="number"
@@ -744,7 +826,7 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="rating" className="mb-1">Rating</Label>
+                    <Label htmlFor="rating" className="mb-1">{t('forms.addProduct.fields.rating')}</Label>
                     <Input
                       id="rating"
                       type="number"
@@ -757,7 +839,7 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="stock" className="mb-1">Stock</Label>
+                    <Label htmlFor="stock" className="mb-1">{t('forms.addProduct.fields.stock')}</Label>
                     <Input
                       id="stock"
                       type="number"
@@ -776,11 +858,11 @@ const DashboardPage = () => {
                       onChange={(e) => setFormData({ ...formData, isSale: e.target.checked })}
                       className="rounded border-gray-300"
                     />
-                    <Label htmlFor="isSale" className="mb-1">On Sale</Label>
+                    <Label htmlFor="isSale" className="mb-1">{t('forms.addProduct.fields.isSale')}</Label>
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="image" className="mb-1">Product Images</Label>
+                  <Label htmlFor="image" className="mb-1">{t('forms.addProduct.fields.images')}</Label>
                   <div className="mt-2 flex items-center space-x-4">
                     <Input
                       id="image"
@@ -801,16 +883,16 @@ const DashboardPage = () => {
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                    Cancel
+                    {t('forms.addProduct.buttons.cancel')}
                   </Button>
                   <Button type="submit" disabled={isAddingProduct}>
                     {isAddingProduct ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Adding...
+                        {t('forms.addProduct.buttons.adding')}
                       </>
                     ) : (
-                      'Add Product'
+                      t('forms.addProduct.buttons.add')
                     )}
                   </Button>
                 </DialogFooter>
@@ -841,22 +923,22 @@ const DashboardPage = () => {
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 h-fit">
-            <TabsTrigger value="products" className="py-2">Products Management</TabsTrigger>
-            <TabsTrigger value="orders" className="py-2">Orders Management</TabsTrigger>
+            <TabsTrigger value="products" className="py-2">{t('tabs.productsManagement')}</TabsTrigger>
+            <TabsTrigger value="orders" className="py-2">{t('tabs.ordersManagement')}</TabsTrigger>
           </TabsList>
 
           {/* Products Tab */}
           <TabsContent value="products" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Product Management</CardTitle>
-                <CardDescription>View, edit, and manage all your products</CardDescription>
+                <CardTitle>{t('products.title')}</CardTitle>
+                <CardDescription>{t('products.subtitle')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
                   <div className="flex-1">
                     <Input
-                      placeholder="Search products by name, brand, or description..."
+                      placeholder={t('products.searchPlaceholder')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="max-w-md"
@@ -869,14 +951,14 @@ const DashboardPage = () => {
                       className="w-full sm:w-auto"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
-                      Refresh
+                      {t('products.refresh')}
                     </Button>
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                       <SelectTrigger className="w-40">
-                        <SelectValue placeholder="All Categories" />
+                        <SelectValue placeholder={t('products.allCategories')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="all">{t('products.allCategories')}</SelectItem>
                         {categories.map((category) => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
@@ -884,13 +966,13 @@ const DashboardPage = () => {
                     </Select>
                     <Select value={selectedFilter} onValueChange={setSelectedFilter}>
                       <SelectTrigger className="w-32">
-                        <SelectValue placeholder="All Products" />
+                        <SelectValue placeholder={t('products.allProducts')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Products</SelectItem>
-                        <SelectItem value="onsale">On Sale</SelectItem>
-                        <SelectItem value="lowstock">Low Stock</SelectItem>
-                        <SelectItem value="highrating">High Rating</SelectItem>
+                        <SelectItem value="all">{t('products.allProducts')}</SelectItem>
+                        <SelectItem value="onsale">{t('products.onSale')}</SelectItem>
+                        <SelectItem value="lowstock">{t('products.lowStock')}</SelectItem>
+                        <SelectItem value="highrating">{t('products.highRating')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -901,30 +983,30 @@ const DashboardPage = () => {
                   {isLoadingProducts ? (
                     <div className="p-8 text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                      <p className="text-gray-500 text-lg">Loading products...</p>
+                      <p className="text-gray-500 text-lg">{t('products.loadingProducts')}</p>
                     </div>
                   ) : (
                     <>
                       <div className="grid grid-cols-9 gap-4 p-4 bg-gray-50">
-                        <div className="font-medium">Image</div>
-                        <div className="font-medium">Product</div>
-                        <div className="font-medium">Brand</div>
-                        <div className="font-medium">Category</div>
-                        <div className="font-medium">Price</div>
-                        <div className="font-medium">Rating</div>
-                        <div className="font-medium">Stock</div>
-                        <div className="font-medium">Status</div>
-                        <div className="font-medium">Actions</div>
+                        <div className="font-medium">{t('products.tableHeaders.image')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.product')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.brand')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.category')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.price')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.rating')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.stock')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.status')}</div>
+                        <div className="font-medium">{t('products.tableHeaders.actions')}</div>
                       </div>
                       <div className="divide-y">
                         {currentProducts.length === 0 ? (
                           <div className="p-8 text-center">
                             <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                            <p className="text-gray-500 text-lg">No products found</p>
+                            <p className="text-gray-500 text-lg">{t('products.noProductsFound')}</p>
                             <p className="text-gray-400 text-sm mt-2">
                               {filteredProducts.length === 0 && products.length === 0 
-                                ? "No products have been added yet" 
-                                : "No products match your current filters"}
+                                ? t('products.noProductsAdded')
+                                : t('products.noProductsMatchFilters')}
                             </p>
                           </div>
                         ) : (
@@ -963,7 +1045,7 @@ const DashboardPage = () => {
                                 </span>
                               </div>
                               <div>
-                                {product.isSale && <Badge variant="destructive">On Sale</Badge>}
+                                {product.isSale && <Badge variant="destructive">{t('products.onSaleBadge')}</Badge>}
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Button
@@ -994,7 +1076,7 @@ const DashboardPage = () => {
                 {!isLoadingProducts && totalPages > 1 && (
                   <div className="flex items-center justify-between mt-6">
                     <div className="text-sm text-gray-700">
-                      Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} results
+                      {t('products.pagination.showing')} {startIndex + 1} {t('products.pagination.to')} {Math.min(endIndex, filteredProducts.length)} {t('products.pagination.of')} {filteredProducts.length} {t('products.pagination.results')}
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button
@@ -1034,14 +1116,14 @@ const DashboardPage = () => {
           <TabsContent value="orders" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Order Management</CardTitle>
-                <CardDescription>View and manage customer orders</CardDescription>
+                <CardTitle>{t('orders.title')}</CardTitle>
+                <CardDescription>{t('orders.subtitle')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
                   <div className="flex-1">
                     <Input
-                      placeholder="Search orders by customer name, email, or order ID..."
+                      placeholder={t('orders.searchPlaceholder')}
                       value={orderSearchTerm}
                       onChange={(e) => setOrderSearchTerm(e.target.value)}
                       className="max-w-md"
@@ -1050,15 +1132,15 @@ const DashboardPage = () => {
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Select value={selectedOrderStatus} onValueChange={setSelectedOrderStatus}>
                       <SelectTrigger className="w-40">
-                        <SelectValue placeholder="All Statuses" />
+                        <SelectValue placeholder={t('orders.allStatuses')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="dispatched">Dispatched</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                        <SelectItem value="returned">Returned</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="all">{t('orders.allStatuses')}</SelectItem>
+                        <SelectItem value="pending">{t('orders.pending')}</SelectItem>
+                        <SelectItem value="dispatched">{t('orders.dispatched')}</SelectItem>
+                        <SelectItem value="delivered">{t('orders.delivered')}</SelectItem>
+                        <SelectItem value="returned">{t('orders.returned')}</SelectItem>
+                        <SelectItem value="cancelled">{t('orders.cancelled')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
@@ -1067,7 +1149,7 @@ const DashboardPage = () => {
                       className="w-full sm:w-auto"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
-                      Refresh
+                      {t('orders.refresh')}
                     </Button>
                     <Button
                       variant="outline"
@@ -1075,7 +1157,7 @@ const DashboardPage = () => {
                       className="w-full sm:w-auto"
                     >
                       <DollarSign className="w-4 h-4 mr-2" />
-                      Export
+                      {t('orders.export')}
                     </Button>
                   </div>
                 </div>
@@ -1085,27 +1167,27 @@ const DashboardPage = () => {
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
                     <div className="bg-blue-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-blue-600">{getOrderSummary().totalOrders}</div>
-                      <div className="text-xs md:text-sm text-blue-600">Total Orders</div>
+                      <div className="text-xs md:text-sm text-blue-600">{t('orders.summaryCards.totalOrders')}</div>
                     </div>
                     <div className="bg-yellow-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-yellow-600">{getOrderSummary().pendingOrders}</div>
-                      <div className="text-xs md:text-sm text-yellow-600">Pending</div>
+                      <div className="text-xs md:text-sm text-yellow-600">{t('orders.summaryCards.pending')}</div>
                     </div>
                     <div className="bg-blue-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-blue-600">{getOrderSummary().dispatchedOrders}</div>
-                      <div className="text-xs md:text-sm text-blue-600">Dispatched</div>
+                      <div className="text-xs md:text-sm text-blue-600">{t('orders.summaryCards.dispatched')}</div>
                     </div>
                     <div className="bg-green-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-green-600">{getOrderSummary().deliveredOrders}</div>
-                      <div className="text-xs md:text-sm text-green-600">Delivered</div>
+                      <div className="text-xs md:text-sm text-green-600">{t('orders.summaryCards.delivered')}</div>
                     </div>
                     <div className="bg-red-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-red-600">{getOrderSummary().returnedOrders}</div>
-                      <div className="text-xs md:text-sm text-red-600">Returned</div>
+                      <div className="text-xs md:text-sm text-red-600">{t('orders.summaryCards.returned')}</div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-gray-600">{getOrderSummary().cancelledOrders}</div>
-                      <div className="text-xs md:text-sm text-gray-600">Cancelled</div>
+                      <div className="text-xs md:text-sm text-gray-600">{t('orders.summaryCards.cancelled')}</div>
                     </div>
                   </div>
                 )}
@@ -1115,22 +1197,22 @@ const DashboardPage = () => {
                   {/* Desktop Table View */}
                   <div className="hidden lg:block">
                     <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50">
-                      <div className="font-medium">Customer</div>
-                      <div className="font-medium">Products</div>
-                      <div className="font-medium">Total</div>
-                      <div className="font-medium">Status</div>
-                      <div className="font-medium">Payment</div>
-                      <div className="font-medium">Actions</div>
+                      <div className="font-medium">{t('orders.tableHeaders.customer')}</div>
+                      <div className="font-medium">{t('orders.tableHeaders.products')}</div>
+                      <div className="font-medium">{t('orders.tableHeaders.total')}</div>
+                      <div className="font-medium">{t('orders.tableHeaders.status')}</div>
+                      <div className="font-medium">{t('orders.tableHeaders.payment')}</div>
+                      <div className="font-medium">{t('orders.tableHeaders.actions')}</div>
                     </div>
                     
                     {currentOrders.length === 0 ? (
                       <div className="p-8 text-center">
                         <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                        <p className="text-gray-500 text-lg">No orders found</p>
+                        <p className="text-gray-500 text-lg">{t('orders.noOrdersFound')}</p>
                         <p className="text-gray-400 text-sm mt-2">
                           {filteredOrders.length === 0 && orders.length === 0 
-                            ? "No orders have been placed yet" 
-                            : "No orders match your current filters"}
+                            ? t('orders.noOrdersYet') 
+                            : t('orders.noOrdersMatchFilters')}
                         </p>
                       </div>
                     ) : (
@@ -1147,22 +1229,22 @@ const DashboardPage = () => {
                                 <div key={index} className="text-sm mb-1">
                                   <span className="font-medium">{product.name}</span>
                                   <span className="text-gray-500"> x{product.quantity}</span>
-                                  <div className="text-xs text-gray-400">${product.price} each</div>
+                                  <div className="text-xs text-gray-400">${product.price} {t('orderDetails.fields.each')}</div>
                                 </div>
                               ))}
                             </div>
                             <div>
                               <div className="font-medium text-lg">${order.totalAmount.toFixed(2)}</div>
                               <div className="text-xs text-gray-500 space-y-1">
-                                <div>Sub: ${order.subtotal.toFixed(2)}</div>
-                                <div>Tax: ${order.tax.toFixed(2)}</div>
-                                <div>Ship: ${order.shipping.toFixed(2)}</div>
-                                {order.codFee > 0 && <div>COD: ${order.codFee.toFixed(2)}</div>}
+                                <div>{t('orderDetails.fields.subtotal')}: ${order.subtotal.toFixed(2)}</div>
+                                <div>{t('orderDetails.fields.tax')}: ${order.tax.toFixed(2)}</div>
+                                <div>{t('orderDetails.fields.shipping')}: ${order.shipping.toFixed(2)}</div>
+                                {order.codFee > 0 && <div>{t('orderDetails.fields.codFee')}: ${order.codFee.toFixed(2)}</div>}
                               </div>
                             </div>
                             <div>{getStatusBadge(order.status)}</div>
                             <div className="text-sm">
-                              <div className="font-medium capitalize">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}</div>
+                              <div className="font-medium capitalize">{order.paymentMethod === 'cod' ? t('orders.paymentMethods.cod') : order.paymentMethod}</div>
                               <div className="text-xs text-gray-500">
                                 {new Date(order.orderDate).toLocaleDateString()}
                               </div>
@@ -1176,7 +1258,7 @@ const DashboardPage = () => {
                                   className="text-green-600 hover:text-green-700"
                                 >
                                   <Truck className="w-4 h-4 mr-1" />
-                                  Dispatch
+                                  {t('orders.actions.dispatch')}
                                 </Button>
                               )}
                               {order.status === 'dispatched' && (
@@ -1187,7 +1269,7 @@ const DashboardPage = () => {
                                   className="text-blue-600 hover:text-blue-700"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-1" />
-                                  Mark Delivered
+                                  {t('orders.actions.markDelivered')}
                                 </Button>
                               )}
                               <Button
@@ -1198,7 +1280,7 @@ const DashboardPage = () => {
                                   setIsDispatchDialogOpen(true);
                                 }}
                                 className="text-blue-600 hover:text-blue-700"
-                                title="View Order Details"
+                                title={t('orders.actions.viewDetails')}
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
@@ -1214,11 +1296,11 @@ const DashboardPage = () => {
                     {currentOrders.length === 0 ? (
                       <div className="p-8 text-center">
                         <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                        <p className="text-gray-500 text-lg">No orders found</p>
+                        <p className="text-gray-500 text-lg">{t('orders.noOrdersFound')}</p>
                         <p className="text-gray-400 text-sm mt-2">
                           {filteredOrders.length === 0 && orders.length === 0 
-                            ? "No orders have been placed yet" 
-                            : "No orders match your current filters"}
+                            ? t('orders.noOrdersYet') 
+                            : t('orders.noOrdersMatchFilters')}
                         </p>
                       </div>
                     ) : (
@@ -1248,14 +1330,14 @@ const DashboardPage = () => {
 
                             {/* Products */}
                             <div className="space-y-2">
-                              <div className="text-sm font-medium text-gray-700">Products:</div>
+                              <div className="text-sm font-medium text-gray-700">{t('mobile.products')}:</div>
                               {order.products.map((product, index) => (
                                 <div key={index} className="text-sm bg-gray-50 p-2 rounded">
                                   <div className="flex justify-between">
                                     <span className="font-medium">{product.name}</span>
                                     <span className="text-gray-600">x{product.quantity}</span>
                                   </div>
-                                  <div className="text-gray-500">${product.price} each</div>
+                                  <div className="text-gray-500">${product.price} {t('orderDetails.fields.each')}</div>
                                 </div>
                               ))}
                             </div>
@@ -1263,11 +1345,11 @@ const DashboardPage = () => {
                             {/* Order Summary */}
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <div className="text-gray-600">Subtotal:</div>
+                                <div className="text-gray-600">{t('mobile.subtotal')}:</div>
                                 <div className="font-medium">${order.subtotal.toFixed(2)}</div>
                               </div>
                               <div>
-                                <div className="text-gray-600">Total:</div>
+                                <div className="text-gray-600">{t('orderDetails.fields.total')}:</div>
                                 <div className="font-medium text-lg">${order.totalAmount.toFixed(2)}</div>
                               </div>
                             </div>
@@ -1275,20 +1357,20 @@ const DashboardPage = () => {
                             {/* Payment & Shipping */}
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <div className="text-gray-600">Payment:</div>
+                                <div className="text-gray-600">{t('orderDetails.fields.paymentMethod')}:</div>
                                 <div className="font-medium capitalize">
-                                  {order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}
+                                  {order.paymentMethod === 'cod' ? t('orders.paymentMethods.cod') : order.paymentMethod}
                                 </div>
                               </div>
                               <div>
-                                <div className="text-gray-600">Shipping:</div>
+                                <div className="text-gray-600">{t('mobile.shipping')}:</div>
                                 <div className="font-medium">${order.shipping.toFixed(2)}</div>
                               </div>
                             </div>
 
                             {/* Address */}
                             <div className="text-sm">
-                              <div className="text-gray-600">Shipping Address:</div>
+                              <div className="text-gray-600">{t('orderDetails.fields.shippingAddress')}:</div>
                               <div className="text-gray-900">{order.shippingAddress}</div>
                             </div>
 
@@ -1302,7 +1384,7 @@ const DashboardPage = () => {
                                   className="text-green-600 hover:text-green-700 flex-1"
                                 >
                                   <Truck className="w-4 h-4 mr-2" />
-                                  Dispatch Order
+                                  {t('mobile.dispatchOrder')}
                                 </Button>
                               )}
                               {order.status === 'dispatched' && (
@@ -1313,7 +1395,7 @@ const DashboardPage = () => {
                                   className="text-blue-600 hover:text-blue-700 flex-1"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2" />
-                                  Mark Delivered
+                                  {t('mobile.markDelivered')}
                                 </Button>
                               )}
                             <Button
@@ -1324,10 +1406,10 @@ const DashboardPage = () => {
                                 setIsDispatchDialogOpen(true);
                                 }}
                                 className="text-blue-600 hover:text-blue-700 flex-1"
-                                title="View Order Details"
+                                title={t('orders.actions.viewDetails')}
                             >
                                 <Eye className="w-4 h-4 mr-2" />
-                                View Details
+                                {t('orders.actions.viewDetails')}
                             </Button>
                             </div>
                           </div>
@@ -1341,7 +1423,7 @@ const DashboardPage = () => {
                 {totalOrdersPages > 1 && (
                   <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
                     <div className="text-sm text-gray-700 text-center sm:text-left">
-                      Showing {startOrdersIndex + 1} to {Math.min(endOrdersIndex, filteredOrders.length)} of {filteredOrders.length} results
+                      {t('orders.pagination.showing')} {startOrdersIndex + 1} {t('orders.pagination.to')} {Math.min(endOrdersIndex, filteredOrders.length)} {t('orders.pagination.of')} {filteredOrders.length} {t('orders.pagination.results')}
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button
@@ -1396,13 +1478,13 @@ const DashboardPage = () => {
       }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-            <DialogDescription>Update the product details below</DialogDescription>
+            <DialogTitle>{t('forms.editProduct.title')}</DialogTitle>
+            <DialogDescription>{t('forms.editProduct.subtitle')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="edit-name">Product Name</Label>
+                <Label htmlFor="edit-name">{t('forms.editProduct.fields.name')}</Label>
                 <Input
                   id="edit-name"
                   value={formData.name}
@@ -1411,7 +1493,7 @@ const DashboardPage = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-brand">Brand</Label>
+                <Label htmlFor="edit-brand">{t('forms.editProduct.fields.brand')}</Label>
                 <Input
                   id="edit-brand"
                   value={formData.brand}
@@ -1422,10 +1504,10 @@ const DashboardPage = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="edit-category">Category</Label>
+                <Label htmlFor="edit-category">{t('forms.editProduct.fields.category')}</Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: "" })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder={t('forms.editProduct.placeholders.selectCategory')} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -1435,14 +1517,14 @@ const DashboardPage = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="edit-subcategory">Subcategory</Label>
+                <Label htmlFor="edit-subcategory">{t('forms.editProduct.fields.subcategory')}</Label>
                 <Select 
                   value={formData.subcategory} 
                   onValueChange={(value) => setFormData({ ...formData, subcategory: value })}
                   disabled={!formData.category}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={formData.category ? "Select a subcategory" : "Select category first"} />
+                    <SelectValue placeholder={formData.category ? t('forms.editProduct.placeholders.selectSubcategory') : t('forms.editProduct.placeholders.selectCategoryFirst')} />
                   </SelectTrigger>
                   <SelectContent>
                     {formData.category && subcategories[formData.category as keyof typeof subcategories]?.map((subcategory) => (
@@ -1453,7 +1535,7 @@ const DashboardPage = () => {
               </div>
             </div>
             <div>
-              <Label htmlFor="edit-description">Description</Label>
+              <Label htmlFor="edit-description">{t('forms.editProduct.fields.description')}</Label>
               <Textarea
                 id="edit-description"
                 value={formData.description}
@@ -1464,40 +1546,40 @@ const DashboardPage = () => {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="edit-price">Price ($)</Label>
+                <Label htmlFor="edit-price">{t('forms.editProduct.fields.price')}</Label>
                 <Input
                   id="edit-price"
                   type="number"
                   step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-rating">Rating</Label>
-                <Input
-                  id="edit-rating"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  value={formData.rating}
-                  onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-stock">Stock</Label>
-                <Input
-                  id="edit-stock"
-                  type="number"
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-rating">{t('forms.editProduct.fields.rating')}</Label>
+                    <Input
+                      id="edit-rating"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={formData.rating}
+                      onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-stock">{t('forms.editProduct.fields.stock')}</Label>
+                    <Input
+                      id="edit-stock"
+                      type="number"
+                      value={formData.stock}
+                      onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <input
@@ -1507,11 +1589,11 @@ const DashboardPage = () => {
                   onChange={(e) => setFormData({ ...formData, isSale: e.target.checked })}
                   className="rounded border-gray-300"
                 />
-                <Label htmlFor="edit-isSale">On Sale</Label>
+                <Label htmlFor="edit-isSale">{t('forms.editProduct.fields.isSale')}</Label>
               </div>
             </div>
             <div>
-              <Label htmlFor="edit-image">Product Images</Label>
+              <Label htmlFor="edit-image">{t('forms.editProduct.fields.images')}</Label>
               <div className="mt-2 flex items-center space-x-4">
                 <Input
                   id="edit-image"
@@ -1532,16 +1614,16 @@ const DashboardPage = () => {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
+                {t('forms.editProduct.buttons.cancel')}
               </Button>
               <Button type="submit" disabled={isUpdatingProduct}>
                 {isUpdatingProduct ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Updating...
+                    {t('forms.editProduct.buttons.updating')}
                   </>
                 ) : (
-                  'Update Product'
+                  t('forms.editProduct.buttons.update')
                 )}
               </Button>
             </DialogFooter>
@@ -1553,8 +1635,8 @@ const DashboardPage = () => {
       <Dialog open={isDispatchDialogOpen} onOpenChange={setIsDispatchDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order Details - #{orderToDispatch?.id}</DialogTitle>
-            <DialogDescription>Complete order information and dispatch options</DialogDescription>
+            <DialogTitle>{t('orderDetails.title')} - #{orderToDispatch?.id}</DialogTitle>
+            <DialogDescription>{t('orderDetails.subtitle')}</DialogDescription>
           </DialogHeader>
           
           {orderToDispatch && (
@@ -1562,29 +1644,26 @@ const DashboardPage = () => {
               {/* Order Header */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Customer Information</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">{t('orderDetails.sections.customerInfo')}</h4>
                   <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Name:</span> {orderToDispatch.customerName}</p>
-                    <p><span className="font-medium">Email:</span> {orderToDispatch.customerEmail}</p>
-                    <p><span className="font-medium">Phone:</span> {orderToDispatch.customerPhone}</p>
+                    <p><span className="font-medium">{t('orderDetails.fields.name')}:</span> {orderToDispatch.customerName}</p>
+                    <p><span className="font-medium">{t('orderDetails.fields.email')}:</span> {orderToDispatch.customerEmail}</p>
+                    <p><span className="font-medium">{t('orderDetails.fields.phone')}:</span> {orderToDispatch.customerPhone}</p>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Order Information</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">{t('orderDetails.sections.orderInfo')}</h4>
                   <div className="space-y-1 text-sm">
-                    <p><span className="font-medium">Order ID:</span> {orderToDispatch.id}</p>
-                    <p><span className="font-medium">Order Date:</span> {new Date(orderToDispatch.orderDate).toLocaleString()}</p>
-                    <p><span className="font-medium">Status:</span> {getStatusBadge(orderToDispatch.status)}</p>
+                    <p><span className="font-medium">{t('orderDetails.fields.orderId')}:</span> {orderToDispatch.id}</p>
+                    <p><span className="font-medium">{t('orderDetails.fields.orderDate')}:</span> {new Date(orderToDispatch.orderDate).toLocaleString()}</p>
+                    <p><span className="font-medium">{t('orderDetails.fields.status')}:</span> {getStatusBadge(orderToDispatch.status)}</p>
                   </div>
                 </div>
               </div>
 
               {/* Products Section */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Order Products</h4>
-                <div className="text-xs text-gray-500 mb-2">
-                  Debug: Total products loaded: {products.length}
-                </div>
+                <h4 className="font-medium text-gray-900 mb-3">{t('orderDetails.sections.orderProducts')}</h4>
                 <div className="space-y-3">
                   {orderToDispatch.products.map((product, index) => {
                     // Find the actual product data to get the image
@@ -1615,13 +1694,13 @@ const DashboardPage = () => {
                         </div>
                         <div className="flex-1">
                           <h5 className="font-medium text-gray-900">{product.name}</h5>
-                          <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
-                          <p className="text-sm text-gray-600">Price: ${product.price.toFixed(2)} each</p>
+                          <p className="text-sm text-gray-600">{t('orderDetails.fields.quantity')}: {product.quantity}</p>
+                          <p className="text-sm text-gray-600">{t('orderDetails.fields.price')}: ${product.price.toFixed(2)} {t('orderDetails.fields.each')}</p>
                           {actualProduct && (
                             <div className="text-xs text-gray-500 mt-1">
-                              <span>Brand: {actualProduct.brand}</span>
+                              <span>{t('orderDetails.fields.brand')}: {actualProduct.brand}</span>
                               <span className="mx-2">•</span>
-                              <span>Category: {actualProduct.category}</span>
+                              <span>{t('orderDetails.fields.category')}: {actualProduct.category}</span>
                             </div>
                           )}
                         </div>
@@ -1637,48 +1716,48 @@ const DashboardPage = () => {
               {/* Order Summary */}
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Payment Details</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">{t('orderDetails.sections.paymentDetails')}</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Payment Method:</span>
+                      <span>{t('orderDetails.fields.paymentMethod')}:</span>
                       <span className="font-medium capitalize">
-                        {orderToDispatch.paymentMethod === 'cod' ? 'Cash on Delivery' : orderToDispatch.paymentMethod}
+                        {orderToDispatch.paymentMethod === 'cod' ? t('orders.paymentMethods.cod') : orderToDispatch.paymentMethod}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Subtotal:</span>
+                      <span>{t('orderDetails.fields.subtotal')}:</span>
                       <span>${orderToDispatch.subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Tax:</span>
+                      <span>{t('orderDetails.fields.tax')}:</span>
                       <span>${orderToDispatch.tax.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Shipping:</span>
+                      <span>{t('orderDetails.fields.shipping')}:</span>
                       <span>${orderToDispatch.shipping.toFixed(2)}</span>
                     </div>
                     {orderToDispatch.codFee > 0 && (
                       <div className="flex justify-between">
-                        <span>COD Fee:</span>
+                        <span>{t('orderDetails.fields.codFee')}:</span>
                         <span>${orderToDispatch.codFee.toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between border-t pt-2">
-                      <span className="font-semibold">Total:</span>
+                      <span className="font-semibold">{t('orderDetails.fields.total')}:</span>
                       <span className="font-semibold text-lg">${orderToDispatch.totalAmount.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Shipping Information</h4>
+                  <h4 className="font-medium text-gray-900 mb-3">{t('orderDetails.sections.shippingInfo')}</h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="font-medium">Shipping Address:</span>
+                      <span className="font-medium">{t('orderDetails.fields.shippingAddress')}:</span>
                       <p className="text-gray-600 mt-1">{orderToDispatch.shippingAddress}</p>
                     </div>
                     <div>
-                      <span className="font-medium">Billing Address:</span>
+                      <span className="font-medium">{t('orderDetails.fields.billingAddress')}:</span>
                       <p className="text-gray-600 mt-1">{orderToDispatch.billingAddress}</p>
                     </div>
                   </div>
@@ -1691,9 +1770,9 @@ const DashboardPage = () => {
                   <div className="flex items-start gap-3">
                     <Truck className="w-5 h-5 text-yellow-600 mt-0.5" />
                     <div>
-                      <h5 className="font-medium text-yellow-900">Ready to Dispatch</h5>
+                      <h5 className="font-medium text-yellow-900">{t('orderDetails.dispatchSection.title')}</h5>
                       <p className="text-sm text-yellow-700 mt-1">
-                        This order is ready to be dispatched. Click the dispatch button below to update the order status.
+                        {t('orderDetails.dispatchSection.description')}
                       </p>
                     </div>
                   </div>
@@ -1706,13 +1785,13 @@ const DashboardPage = () => {
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                     <div>
-                      <h5 className="font-medium text-green-900">Order Delivered</h5>
+                      <h5 className="font-medium text-green-900">{t('orderDetails.deliveredSection.title')}</h5>
                       <p className="text-sm text-green-700 mt-1">
-                        This order has been delivered. The customer can now mark it as received in their account.
+                        {t('orderDetails.deliveredSection.description')}
                       </p>
                       {orderToDispatch.deliveredAt && (
                         <p className="text-xs text-green-600 mt-2">
-                          Delivered on: {new Date(orderToDispatch.deliveredAt).toLocaleString()}
+                          {t('orderDetails.deliveredSection.deliveredOn')}: {new Date(orderToDispatch.deliveredAt).toLocaleString()}
                         </p>
                       )}
                     </div>
@@ -1724,7 +1803,7 @@ const DashboardPage = () => {
           
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setIsDispatchDialogOpen(false)} className="w-full sm:w-auto">
-              Close
+              {t('orderDetails.buttons.close')}
             </Button>
             {orderToDispatch?.status === 'pending' && (
               <Button 
@@ -1739,12 +1818,12 @@ const DashboardPage = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Dispatching...
+                    {t('orderDetails.buttons.dispatching')}
                   </>
                 ) : (
                   <>
                     <Truck className="w-4 h-4 mr-2" />
-                    Dispatch Order
+                    {t('orderDetails.buttons.dispatchOrder')}
                   </>
                 )}
               </Button>
@@ -1756,7 +1835,7 @@ const DashboardPage = () => {
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Mark as Delivered
+                {t('orderDetails.buttons.markAsDelivered')}
               </Button>
             )}
             {orderToDispatch?.status === 'delivered' && (
@@ -1767,10 +1846,10 @@ const DashboardPage = () => {
                   setIsDispatchDialogOpen(true);
                 }}
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
-                title="View Order Details"
+                title={t('orders.actions.viewDetails')}
               >
                 <Eye className="w-4 h-4 mr-2" />
-                View Details
+                {t('orderDetails.buttons.viewDetails')}
               </Button>
             )}
           </DialogFooter>

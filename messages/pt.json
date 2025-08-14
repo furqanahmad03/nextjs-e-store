@@ -890,5 +890,303 @@
     "fillInBillingField": "Por favor preencha a cobrança",
     "fillInCardInfo": "Por favor preencha todas as informações do cartão de crédito",
     "failedToProcessOrder": "Falha ao processar pedido. Por favor tente novamente."
+  },
+  "dashboard": {
+    "title": "Painel de Administração",
+    "subtitle": "Gerenciar produtos e pedidos",
+    "addProduct": "Adicionar Produto",
+    "stats": {
+      "totalProducts": "Total de Produtos",
+      "totalOrders": "Total de Pedidos",
+      "pendingOrders": "Pedidos Pendentes",
+      "dispatchedOrders": "Pedidos Enviados"
+    },
+    "tabs": {
+      "productsManagement": "Gestão de Produtos",
+      "ordersManagement": "Gestão de Pedidos"
+    },
+    "products": {
+      "title": "Gestão de Produtos",
+      "subtitle": "Ver, editar e gerenciar todos os seus produtos",
+      "searchPlaceholder": "Buscar produtos por nome, marca ou descrição...",
+      "refresh": "Atualizar",
+      "allCategories": "Todas as Categorias",
+      "allProducts": "Todos os Produtos",
+      "onSale": "Em Oferta",
+      "lowStock": "Estoque Baixo",
+      "highRating": "Alta Avaliação",
+      "tableHeaders": {
+        "image": "Imagem",
+        "product": "Produto",
+        "brand": "Marca",
+        "category": "Categoria",
+        "price": "Preço",
+        "rating": "Avaliação",
+        "stock": "Estoque",
+        "status": "Status",
+        "actions": "Ações"
+      },
+      "onSaleBadge": "Em Oferta",
+      "editButton": "Editar",
+      "deleteButton": "Excluir",
+      "loadingProducts": "Carregando produtos...",
+      "noProductsFound": "Nenhum produto encontrado",
+      "noProductsAdded": "Nenhum produto foi adicionado ainda",
+      "noProductsMatchFilters": "Nenhum produto corresponde aos seus filtros atuais",
+      "pagination": {
+        "showing": "Mostrando",
+        "to": "a",
+        "of": "de",
+        "results": "resultados"
+      }
+    },
+    "orders": {
+      "title": "Gestão de Pedidos",
+      "subtitle": "Ver e gerenciar pedidos de clientes",
+      "searchPlaceholder": "Buscar pedidos por nome do cliente, email ou ID do pedido...",
+      "allStatuses": "Todos os Status",
+      "pending": "Pendente",
+      "dispatched": "Enviado",
+      "delivered": "Entregue",
+      "returned": "Devolvido",
+      "cancelled": "Cancelado",
+      "refresh": "Atualizar",
+      "export": "Exportar",
+      "summaryCards": {
+        "totalOrders": "Total de Pedidos",
+        "pending": "Pendentes",
+        "dispatched": "Enviados",
+        "delivered": "Entregues",
+        "returned": "Devolvidos",
+        "cancelled": "Cancelados"
+      },
+      "tableHeaders": {
+        "customer": "Cliente",
+        "products": "Produtos",
+        "total": "Total",
+        "status": "Status",
+        "payment": "Pagamento",
+        "actions": "Ações"
+      },
+      "statusBadges": {
+        "pending": "⏳ Pendente",
+        "dispatched": "🚚 Enviado",
+        "delivered": "✅ Entregue",
+        "received": "✅ Recebido",
+        "returned": "↩️ Devolvido",
+        "cancelled": "❌ Cancelado"
+      },
+      "paymentMethods": {
+        "cod": "Contra Entrega",
+        "creditCard": "Cartão de Crédito",
+        "debitCard": "Cartão de Débito",
+        "paypal": "PayPal"
+      },
+      "actions": {
+        "dispatch": "Enviar",
+        "markDelivered": "Marcar como Entregue",
+        "viewDetails": "Ver Detalhes"
+      },
+      "noOrdersFound": "Nenhum pedido encontrado",
+      "noOrdersYet": "Nenhum pedido foi feito ainda",
+      "noOrdersMatchFilters": "Nenhum pedido corresponde aos seus filtros atuais",
+      "pagination": {
+        "showing": "Mostrando",
+        "to": "a",
+        "of": "de",
+        "results": "resultados"
+      }
+    },
+    "forms": {
+      "addProduct": {
+        "title": "Adicionar Novo Produto",
+        "subtitle": "Preencha os detalhes do produto abaixo",
+        "fields": {
+          "name": "Nome do Produto",
+          "brand": "Marca",
+          "category": "Categoria",
+          "subcategory": "Subcategoria",
+          "description": "Descrição",
+          "price": "Preço ($)",
+          "rating": "Avaliação",
+          "stock": "Estoque",
+          "isSale": "Em Oferta",
+          "images": "Imagens do Produto"
+        },
+        "placeholders": {
+          "selectCategory": "Selecionar categoria",
+          "selectSubcategory": "Selecionar subcategoria",
+          "selectCategoryFirst": "Selecionar categoria primeiro"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "add": "Adicionar Produto",
+          "adding": "Adicionando..."
+        }
+      },
+      "editProduct": {
+        "title": "Editar Produto",
+        "subtitle": "Atualize os detalhes do produto abaixo",
+        "fields": {
+          "name": "Nome do Produto",
+          "brand": "Marca",
+          "category": "Categoria",
+          "subcategory": "Subcategoria",
+          "description": "Descrição",
+          "price": "Preço ($)",
+          "rating": "Avaliação",
+          "stock": "Estoque",
+          "isSale": "Em Oferta",
+          "images": "Imagens do Produto"
+        },
+        "placeholders": {
+          "selectCategory": "Selecionar categoria",
+          "selectSubcategory": "Selecionar subcategoria",
+          "selectCategoryFirst": "Selecionar categoria primeiro"
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "update": "Atualizar Produto",
+          "updating": "Atualizando..."
+        }
+      }
+    },
+    "orderDetails": {
+      "title": "Detalhes do Pedido",
+      "subtitle": "Informações completas do pedido e opções de envio",
+      "sections": {
+        "customerInfo": "Informações do Cliente",
+        "orderInfo": "Informações do Pedido",
+        "orderProducts": "Produtos do Pedido",
+        "paymentDetails": "Detalhes do Pagamento",
+        "shippingInfo": "Informações de Envio"
+      },
+      "fields": {
+        "name": "Nome",
+        "email": "Email",
+        "phone": "Telefone",
+        "orderId": "ID do Pedido",
+        "orderDate": "Data do Pedido",
+        "status": "Status",
+        "quantity": "Quantidade",
+        "price": "Preço",
+        "each": "cada",
+        "brand": "Marca",
+        "category": "Categoria",
+        "paymentMethod": "Método de Pagamento",
+        "subtotal": "Subtotal",
+        "tax": "Impostos",
+        "shipping": "Envio",
+        "codFee": "Taxa COD",
+        "total": "Total",
+        "shippingAddress": "Endereço de Envio",
+        "billingAddress": "Endereço de Cobrança"
+      },
+      "dispatchSection": {
+        "title": "Pronto para Enviar",
+        "description": "Este pedido está pronto para ser enviado. Clique no botão de envio abaixo para atualizar o status do pedido."
+      },
+      "deliveredSection": {
+        "title": "Pedido Entregue",
+        "description": "Este pedido foi entregue. O cliente agora pode marcá-lo como recebido em sua conta.",
+        "deliveredOn": "Entregue em"
+      },
+      "buttons": {
+        "close": "Fechar",
+        "dispatchOrder": "Enviar Pedido",
+        "dispatching": "Enviando...",
+        "markAsDelivered": "Marcar como Entregue",
+        "viewDetails": "Ver Detalhes"
+      }
+    },
+    "toasts": {
+      "productAdded": "Produto adicionado com sucesso!",
+      "productUpdated": "Produto atualizado com sucesso!",
+      "productDeleted": "Produto excluído com sucesso!",
+      "failedToAddProduct": "Erro ao adicionar produto",
+      "failedToUpdateProduct": "Erro ao atualizar produto",
+      "failedToDeleteProduct": "Erro ao excluir produto",
+      "orderDispatched": "Pedido enviado com sucesso!",
+      "orderMarkedDelivered": "Pedido marcado como entregue!",
+      "failedToUpdateOrder": "Erro ao atualizar status do pedido",
+      "ordersRefreshed": "Pedidos atualizados com sucesso!",
+      "ordersRefreshedWithCount": "Pedidos atualizados com sucesso! Encontrados {count} pedidos",
+      "failedToRefreshOrders": "Erro ao atualizar pedidos",
+      "ordersExported": "Pedidos exportados com sucesso!",
+      "noOrdersToExport": "Nenhum pedido para exportar",
+      "productsRefreshed": "Produtos atualizados com sucesso!",
+      "failedToRefreshProducts": "Erro ao atualizar produtos"
+    },
+    "mobile": {
+      "orderId": "ID do Pedido",
+      "orderTime": "Hora do Pedido",
+      "products": "Produtos",
+      "subtotal": "Subtotal",
+      "shipping": "Envio",
+      "dispatchOrder": "Enviar Pedido",
+      "markDelivered": "Marcar como Entregue"
+    },
+    "categories": {
+      "womanFashion": "Moda Feminina",
+      "menFashion": "Moda Masculina",
+      "sportsOutdoor": "Esportes e Ar Livre",
+      "groceriesPets": "Mercearia e Pets",
+      "medicine": "Medicina",
+      "homeLifestyle": "Casa e Estilo de Vida",
+      "electronics": "Eletrônicos",
+      "beauty": "Beleza",
+      "books": "Livros",
+      "toys": "Brinquedos",
+      "automotive": "Automotivo"
+    },
+    "subcategories": {
+      "watches": "Relógios",
+      "dresses": "Vestidos",
+      "shoes": "Sapatos",
+      "accessories": "Acessórios",
+      "bags": "Bolsas",
+      "tShirts": "Camisetas",
+      "jeans": "Jeans",
+      "shirts": "Camisas",
+      "football": "Futebol",
+      "baseball": "Beisebol",
+      "tennis": "Tênis",
+      "basketball": "Basquete",
+      "fitness": "Fitness",
+      "outdoor": "Ar Livre",
+      "petFood": "Ração para Pets",
+      "petToys": "Brinquedos para Pets",
+      "petCare": "Cuidados com Pets",
+      "humanFood": "Comida Humana",
+      "beverages": "Bebidas",
+      "vitamins": "Vitaminas",
+      "supplements": "Suplementos",
+      "firstAid": "Primeiros Socorros",
+      "personalCare": "Cuidados Pessoais",
+      "furniture": "Móveis",
+      "decor": "Decoração",
+      "kitchen": "Cozinha",
+      "garden": "Jardim",
+      "bedding": "Roupas de Cama",
+      "mobile": "Celular",
+      "audio": "Áudio",
+      "wearables": "Dispositivos Vestíveis",
+      "computers": "Computadores",
+      "gaming": "Gaming",
+      "skincare": "Cuidados com a Pele",
+      "makeup": "Maquiagem",
+      "haircare": "Cuidados com o Cabelo",
+      "fragrances": "Fragrâncias",
+      "fiction": "Ficção",
+      "nonFiction": "Não Ficção",
+      "educational": "Educativo",
+      "children": "Infantil",
+      "actionFigures": "Figuras de Ação",
+      "boardGames": "Jogos de Tabuleiro",
+      "puzzles": "Quebra-Cabeças",
+      "cars": "Carros",
+      "motorcycles": "Motocicletas",
+      "parts": "Peças"
+    }
   }
 } 

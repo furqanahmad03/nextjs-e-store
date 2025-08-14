@@ -1183,5 +1183,303 @@
     "fillInBillingField": "Please fill in billing",
     "fillInCardInfo": "Please fill in all credit card information",
     "failedToProcessOrder": "Failed to process order. Please try again."
+  },
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "Manage products and orders",
+    "addProduct": "Add Product",
+    "stats": {
+      "totalProducts": "Total Products",
+      "totalOrders": "Total Orders",
+      "pendingOrders": "Pending Orders",
+      "dispatchedOrders": "Dispatched Orders"
+    },
+    "tabs": {
+      "productsManagement": "Products Management",
+      "ordersManagement": "Orders Management"
+    },
+    "products": {
+      "title": "Product Management",
+      "subtitle": "View, edit, and manage all your products",
+      "searchPlaceholder": "Search products by name, brand, or description...",
+      "refresh": "Refresh",
+      "allCategories": "All Categories",
+      "allProducts": "All Products",
+      "onSale": "On Sale",
+      "lowStock": "Low Stock",
+      "highRating": "High Rating",
+      "tableHeaders": {
+        "image": "Image",
+        "product": "Product",
+        "brand": "Brand",
+        "category": "Category",
+        "price": "Price",
+        "rating": "Rating",
+        "stock": "Stock",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "onSaleBadge": "On Sale",
+      "editButton": "Edit",
+      "deleteButton": "Delete",
+      "loadingProducts": "Loading products...",
+      "noProductsFound": "No products found",
+      "noProductsAdded": "No products have been added yet",
+      "noProductsMatchFilters": "No products match your current filters",
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "results": "results"
+      }
+    },
+    "orders": {
+      "title": "Order Management",
+      "subtitle": "View and manage customer orders",
+      "searchPlaceholder": "Search orders by customer name, email, or order ID...",
+      "allStatuses": "All Statuses",
+      "pending": "Pending",
+      "dispatched": "Dispatched",
+      "delivered": "Delivered",
+      "returned": "Returned",
+      "cancelled": "Cancelled",
+      "refresh": "Refresh",
+      "export": "Export",
+      "summaryCards": {
+        "totalOrders": "Total Orders",
+        "pending": "Pending",
+        "dispatched": "Dispatched",
+        "delivered": "Delivered",
+        "returned": "Returned",
+        "cancelled": "Cancelled"
+      },
+      "tableHeaders": {
+        "customer": "Customer",
+        "products": "Products",
+        "total": "Total",
+        "status": "Status",
+        "payment": "Payment",
+        "actions": "Actions"
+      },
+      "statusBadges": {
+        "pending": "⏳ Pending",
+        "dispatched": "🚚 Dispatched",
+        "delivered": "✅ Delivered",
+        "received": "✅ Received",
+        "returned": "↩️ Returned",
+        "cancelled": "❌ Cancelled"
+      },
+      "paymentMethods": {
+        "cod": "Cash on Delivery",
+        "creditCard": "Credit Card",
+        "debitCard": "Debit Card",
+        "paypal": "PayPal"
+      },
+      "actions": {
+        "dispatch": "Dispatch",
+        "markDelivered": "Mark Delivered",
+        "viewDetails": "View Details"
+      },
+      "noOrdersFound": "No orders found",
+      "noOrdersYet": "No orders have been placed yet",
+      "noOrdersMatchFilters": "No orders match your current filters",
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "results": "results"
+      }
+    },
+    "forms": {
+      "addProduct": {
+        "title": "Add New Product",
+        "subtitle": "Fill in the product details below",
+        "fields": {
+          "name": "Product Name",
+          "brand": "Brand",
+          "category": "Category",
+          "subcategory": "Subcategory",
+          "description": "Description",
+          "price": "Price ($)",
+          "rating": "Rating",
+          "stock": "Stock",
+          "isSale": "On Sale",
+          "images": "Product Images"
+        },
+        "placeholders": {
+          "selectCategory": "Select a category",
+          "selectSubcategory": "Select a subcategory",
+          "selectCategoryFirst": "Select category first"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "add": "Add Product",
+          "adding": "Adding..."
+        }
+      },
+      "editProduct": {
+        "title": "Edit Product",
+        "subtitle": "Update the product details below",
+        "fields": {
+          "name": "Product Name",
+          "brand": "Brand",
+          "category": "Category",
+          "subcategory": "Subcategory",
+          "description": "Description",
+          "price": "Price ($)",
+          "rating": "Rating",
+          "stock": "Stock",
+          "isSale": "On Sale",
+          "images": "Product Images"
+        },
+        "placeholders": {
+          "selectCategory": "Select a category",
+          "selectSubcategory": "Select a subcategory",
+          "selectCategoryFirst": "Select category first"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "update": "Update Product",
+          "updating": "Updating..."
+        }
+      }
+    },
+    "orderDetails": {
+      "title": "Order Details",
+      "subtitle": "Complete order information and dispatch options",
+      "sections": {
+        "customerInfo": "Customer Information",
+        "orderInfo": "Order Information",
+        "orderProducts": "Order Products",
+        "paymentDetails": "Payment Details",
+        "shippingInfo": "Shipping Information"
+      },
+      "fields": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "orderId": "Order ID",
+        "orderDate": "Order Date",
+        "status": "Status",
+        "quantity": "Quantity",
+        "price": "Price",
+        "each": "each",
+        "brand": "Brand",
+        "category": "Category",
+        "paymentMethod": "Payment Method",
+        "subtotal": "Subtotal",
+        "tax": "Tax",
+        "shipping": "Shipping",
+        "codFee": "COD Fee",
+        "total": "Total",
+        "shippingAddress": "Shipping Address",
+        "billingAddress": "Billing Address"
+      },
+      "dispatchSection": {
+        "title": "Ready to Dispatch",
+        "description": "This order is ready to be dispatched. Click the dispatch button below to update the order status."
+      },
+      "deliveredSection": {
+        "title": "Order Delivered",
+        "description": "This order has been delivered. The customer can now mark it as received in their account.",
+        "deliveredOn": "Delivered on"
+      },
+      "buttons": {
+        "close": "Close",
+        "dispatchOrder": "Dispatch Order",
+        "dispatching": "Dispatching...",
+        "markAsDelivered": "Mark as Delivered",
+        "viewDetails": "View Details"
+      }
+    },
+    "toasts": {
+      "productAdded": "Product added successfully!",
+      "productUpdated": "Product updated successfully!",
+      "productDeleted": "Product deleted successfully!",
+      "failedToAddProduct": "Failed to add product",
+      "failedToUpdateProduct": "Failed to update product",
+      "failedToDeleteProduct": "Failed to delete product",
+      "orderDispatched": "Order dispatched successfully!",
+      "orderMarkedDelivered": "Order marked as delivered!",
+      "failedToUpdateOrder": "Failed to update order status",
+      "ordersRefreshed": "Orders refreshed successfully!",
+      "ordersRefreshedWithCount": "Orders refreshed successfully! Found {count} orders",
+      "failedToRefreshOrders": "Failed to refresh orders",
+      "ordersExported": "Orders exported successfully!",
+      "noOrdersToExport": "No orders to export",
+      "productsRefreshed": "Products refreshed successfully!",
+      "failedToRefreshProducts": "Failed to refresh products"
+    },
+    "mobile": {
+      "orderId": "Order ID",
+      "orderTime": "Order Time",
+      "products": "Products",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "dispatchOrder": "Dispatch Order",
+      "markDelivered": "Mark Delivered"
+    },
+    "categories": {
+      "womanFashion": "Woman Fashion",
+      "menFashion": "Men Fashion",
+      "sportsOutdoor": "Sports Outdoor",
+      "groceriesPets": "Groceries Pets",
+      "medicine": "Medicine",
+      "homeLifestyle": "Home Lifestyle",
+      "electronics": "Electronics",
+      "beauty": "Beauty",
+      "books": "Books",
+      "toys": "Toys",
+      "automotive": "Automotive"
+    },
+    "subcategories": {
+      "watches": "Watches",
+      "dresses": "Dresses",
+      "shoes": "Shoes",
+      "accessories": "Accessories",
+      "bags": "Bags",
+      "tShirts": "T-Shirts",
+      "jeans": "Jeans",
+      "shirts": "Shirts",
+      "football": "Football",
+      "baseball": "Baseball",
+      "tennis": "Tennis",
+      "basketball": "Basketball",
+      "fitness": "Fitness",
+      "outdoor": "Outdoor",
+      "petFood": "Pet Food",
+      "petToys": "Pet Toys",
+      "petCare": "Pet Care",
+      "humanFood": "Human Food",
+      "beverages": "Beverages",
+      "vitamins": "Vitamins",
+      "supplements": "Supplements",
+      "firstAid": "First Aid",
+      "personalCare": "Personal Care",
+      "furniture": "Furniture",
+      "decor": "Decor",
+      "kitchen": "Kitchen",
+      "garden": "Garden",
+      "bedding": "Bedding",
+      "mobile": "Mobile",
+      "audio": "Audio",
+      "wearables": "Wearables",
+      "computers": "Computers",
+      "gaming": "Gaming",
+      "skincare": "Skincare",
+      "makeup": "Makeup",
+      "haircare": "Haircare",
+      "fragrances": "Fragrances",
+      "fiction": "Fiction",
+      "nonFiction": "Non-Fiction",
+      "educational": "Educational",
+      "children": "Children",
+      "actionFigures": "Action Figures",
+      "boardGames": "Board Games",
+      "puzzles": "Puzzles",
+      "cars": "Cars",
+      "motorcycles": "Motorcycles",
+      "parts": "Parts"
+    }
   }
 } 

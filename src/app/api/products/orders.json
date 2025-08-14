@@ -101,7 +101,7 @@
     ],
     "totalAmount": 994.989,
     "orderDate": "2025-08-14",
-    "status": "dispatched",
+    "status": "delivered",
     "shippingAddress": "Mian Channu, Lahore, Punjab 54590, United States",
     "paymentMethod": "cod",
     "customerPhone": "03304082111",
@@ -133,6 +133,54 @@
     "subtotal": 899.99,
     "shipping": 0,
     "tax": 89.99900000000001,
+    "codFee": 5
+  },
+  {
+    "id": "ORD1755175028430",
+    "customerName": "Hafiz Ahmad",
+    "customerEmail": "hfurqan.se@gmail.com",
+    "products": [
+      {
+        "productId": 51,
+        "name": "Headphones Astro A10",
+        "quantity": 1,
+        "price": 32.44
+      }
+    ],
+    "totalAmount": 40.684,
+    "orderDate": "2025-08-14",
+    "status": "dispatched",
+    "shippingAddress": "Mian Channu, Lahore, Punjab 54590, United States",
+    "paymentMethod": "cod",
+    "customerPhone": "03304082111",
+    "billingAddress": "Mian Channu, Lahore, Punjab 54590, United States",
+    "subtotal": 32.44,
+    "shipping": 0,
+    "tax": 3.2439999999999998,
+    "codFee": 5
+  },
+  {
+    "id": "ORD1755175927610",
+    "customerName": "Hafiz Ahmad",
+    "customerEmail": "hfurqan.se@gmail.com",
+    "products": [
+      {
+        "productId": 21,
+        "name": "Gaming Laptop",
+        "quantity": 2,
+        "price": 1299.99
+      }
+    ],
+    "totalAmount": 2864.978,
+    "orderDate": "2025-08-14",
+    "status": "pending",
+    "shippingAddress": "Mian Channu, Lahore, Singapore 54590, United States",
+    "paymentMethod": "cod",
+    "customerPhone": "03304082111",
+    "billingAddress": "Mian Channu, Lahore, Singapore 54590, United States",
+    "subtotal": 2599.98,
+    "shipping": 0,
+    "tax": 259.998,
     "codFee": 5
   }
 ]

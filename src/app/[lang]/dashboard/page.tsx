@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit, Trash2, ChevronLeft, ChevronRight, Eye, Package, TrendingUp, DollarSign, Truck, RefreshCw, CheckCircle, XCircle } from "lucide-react";
-import productsData from "@/app/api/products/products.json";
 import { toast } from "sonner";
 
 interface Product {
@@ -81,6 +80,9 @@ const DashboardPage = () => {
   const [isDispatchDialogOpen, setIsDispatchDialogOpen] = useState(false);
   const [orderToDispatch, setOrderToDispatch] = useState<Order | null>(null);
   const [isDispatching, setIsDispatching] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -94,26 +96,41 @@ const DashboardPage = () => {
     isSale: false,
   });
 
-  // Load products from JSON file
+  // Load products from API
   useEffect(() => {
-    console.log('Loading products from productsData:', productsData);
-    setProducts(productsData);
-    setFilteredProducts(productsData);
-    
-    // Also try to fetch products from API as fallback
     const fetchProducts = async () => {
+      setIsLoadingProducts(true);
       try {
-        const response = await fetch('/api/products/products.json');
+        const response = await fetch('/api/products');
         if (response.ok) {
-          const apiProducts = await response.json();
-          console.log('Products from API:', apiProducts);
-          if (apiProducts && apiProducts.length > 0) {
-            setProducts(apiProducts);
-            setFilteredProducts(apiProducts);
+          const result = await response.json();
+          if (result.success) {
+            console.log('Products loaded from API:', result.products);
+            // Sort products by date_added in reverse order (newest first)
+            const sortedProducts = result.products.sort((a: Product, b: Product) => 
+              new Date(b.date_added).getTime() - new Date(a.date_added).getTime()
+            );
+            setProducts(sortedProducts);
+            setFilteredProducts(sortedProducts);
+          } else {
+            console.error('Failed to load products from API');
+            setProducts([]);
+            setFilteredProducts([]);
+            toast.error('Failed to load products from API. Please try again later.');
           }
+        } else {
+          console.error('Failed to load products from API');
+          setProducts([]);
+          setFilteredProducts([]);
+          toast.error('Failed to load products from API. Please try again later.');
         }
       } catch (error) {
         console.error('Error fetching products from API:', error);
+        setProducts([]);
+        setFilteredProducts([]);
+        toast.error('Failed to load products from API. Please try again later.');
+      } finally {
+        setIsLoadingProducts(false);
       }
     };
     
@@ -218,30 +235,67 @@ const DashboardPage = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newProduct: Product = {
-      id: Date.now(),
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      category: formData.category,
-      subcategory: formData.subcategory,
-      image: imagePreviews[0] || "/productImages/default.jpg",
-      images: imagePreviews.length > 0 ? imagePreviews : ["/productImages/default.jpg"],
-      date_added: new Date().toISOString().split('T')[0],
-      brand: formData.brand,
-      rating: parseFloat(formData.rating),
-      stock: parseInt(formData.stock),
-      isSale: formData.isSale,
-    };
+    
+    setIsAddingProduct(true);
+    try {
+      const productData = {
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        category: formData.category,
+        subcategory: formData.subcategory,
+        image: imagePreviews[0] || "/productImages/default.jpg",
+        images: imagePreviews.length > 0 ? imagePreviews : ["/productImages/default.jpg"],
+        brand: formData.brand,
+        rating: parseFloat(formData.rating),
+        stock: parseInt(formData.stock),
+        isSale: formData.isSale,
+      };
 
-    setProducts([...products, newProduct]);
-    resetForm();
-    setIsAddDialogOpen(false);
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Add to local state
+          setProducts([result.product, ...products]); // Add to beginning for reverse order
+          resetForm();
+          setIsAddDialogOpen(false);
+          toast.success('Product added successfully!');
+        } else {
+          toast.error('Failed to add product');
+        }
+      } else {
+        toast.error('Failed to add product');
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+      toast.error('Failed to add product');
+    } finally {
+      setIsAddingProduct(false);
+    }
   };
 
   const handleEdit = (product: Product) => {
+    // Reset form first to clear any previous data
+    resetForm();
+    
+    // Debug: Log the product data being loaded
+    console.log('Editing product:', product);
+    console.log('Product category:', product.category);
+    console.log('Product subcategory:', product.subcategory);
+    console.log('Available categories:', categories);
+    console.log('Available subcategories for category:', subcategories[product.category as keyof typeof subcategories]);
+    
+    // Set editing product and form data
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -258,33 +312,81 @@ const DashboardPage = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
 
-    const updatedProduct: Product = {
-      ...editingProduct,
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      category: formData.category,
-      subcategory: formData.subcategory,
-      image: imagePreviews[0] || editingProduct.image,
-      images: imagePreviews.length > 0 ? imagePreviews : editingProduct.images,
-      brand: formData.brand,
-      rating: parseFloat(formData.rating),
-      stock: parseInt(formData.stock),
-      isSale: formData.isSale,
-    };
+    setIsUpdatingProduct(true);
+    try {
+      const updateData = {
+        id: editingProduct.id,
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        category: formData.category,
+        subcategory: formData.subcategory,
+        image: imagePreviews[0] || editingProduct.image,
+        images: imagePreviews.length > 0 ? imagePreviews : editingProduct.images,
+        brand: formData.brand,
+        rating: parseFloat(formData.rating),
+        stock: parseInt(formData.stock),
+        isSale: formData.isSale,
+      };
 
-    setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct : p));
-    resetForm();
-    setIsEditDialogOpen(false);
-    setEditingProduct(null);
+      const response = await fetch('/api/products', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Update local state
+          setProducts(products.map(p => p.id === editingProduct.id ? result.product : p));
+          resetForm();
+          setIsEditDialogOpen(false);
+          setEditingProduct(null);
+          toast.success('Product updated successfully!');
+        } else {
+          toast.error('Failed to update product');
+        }
+      } else {
+        toast.error('Failed to update product');
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product');
+    } finally {
+      setIsUpdatingProduct(false);
+    }
   };
 
-  const handleDelete = (productId: number) => {
-    setProducts(products.filter(p => p.id !== productId));
+  const handleDelete = async (productId: number) => {
+    try {
+      const response = await fetch(`/api/products?id=${productId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Remove from local state
+          setProducts(products.filter(p => p.id !== productId));
+          setFilteredProducts(filteredProducts.filter(p => p.id !== productId));
+          toast.success('Product deleted successfully!');
+        } else {
+          toast.error('Failed to delete product');
+        }
+      } else {
+        toast.error('Failed to delete product');
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Failed to delete product');
+    }
   };
 
   const handleDispatchOrder = async (orderId: string) => {
@@ -395,6 +497,34 @@ const DashboardPage = () => {
     }
   };
 
+  const refreshProducts = async () => {
+    setIsLoadingProducts(true);
+    try {
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Sort products by date_added in reverse order (newest first)
+          const sortedProducts = result.products.sort((a: Product, b: Product) => 
+            new Date(b.date_added).getTime() - new Date(a.date_added).getTime()
+          );
+          setProducts(sortedProducts);
+          setFilteredProducts(sortedProducts);
+          toast.success(`Products refreshed successfully! Found ${result.products.length} products`);
+        } else {
+          toast.error('Failed to refresh products');
+        }
+      } else {
+        toast.error('Failed to refresh products');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to refresh products');
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
   const exportOrders = () => {
     if (orders.length === 0) {
       toast.error('No orders to export')
@@ -442,14 +572,18 @@ const DashboardPage = () => {
     });
     setSelectedImages([]);
     setImagePreviews([]);
+    setEditingProduct(null);
   };
 
-  const categories = ["Electronics", "Clothing", "Home & Garden", "Sports", "Beauty", "Books", "Toys", "Automotive"];
+  const categories = ["Woman Fashion", "Men Fashion", "Sports Outdoor", "Groceries Pets", "Medicine", "Home Lifestyle", "Electronics", "Beauty", "Books", "Toys", "Automotive"];
   const subcategories = {
+    "Woman Fashion": ["Watches", "Dresses", "Shoes", "Accessories", "Bags"],
+    "Men Fashion": ["T-Shirts", "Jeans", "Shirts", "Shoes", "Accessories"],
+    "Sports Outdoor": ["Football", "Baseball", "Tennis", "Basketball", "Fitness", "Outdoor"],
+    "Groceries Pets": ["Pet Food", "Pet Toys", "Pet Care", "Human Food", "Beverages"],
+    "Medicine": ["Vitamins", "Supplements", "First Aid", "Personal Care"],
+    "Home Lifestyle": ["Furniture", "Decor", "Kitchen", "Garden", "Bedding"],
     "Electronics": ["Mobile", "Audio", "Wearables", "Computers", "Gaming"],
-    "Clothing": ["Men", "Women", "Kids", "Accessories"],
-    "Home & Garden": ["Furniture", "Decor", "Kitchen", "Garden"],
-    "Sports": ["Fitness", "Outdoor", "Team Sports", "Individual Sports"],
     "Beauty": ["Skincare", "Makeup", "Haircare", "Fragrances"],
     "Books": ["Fiction", "Non-Fiction", "Educational", "Children"],
     "Toys": ["Educational", "Action Figures", "Board Games", "Puzzles"],
@@ -468,7 +602,7 @@ const DashboardPage = () => {
   };
 
   const stats = [
-    { title: "Total Products", value: products.length, icon: Package, color: "text-blue-600" },
+    { title: "Total Products", value: products.length || 0, icon: Package, color: "text-blue-600" },
     { title: "Total Orders", value: getOrderSummary().totalOrders, icon: TrendingUp, color: "text-green-600" },
     { title: "Pending Orders", value: getOrderSummary().pendingOrders, icon: RefreshCw, color: "text-orange-600" },
     { title: "Dispatched Orders", value: getOrderSummary().dispatchedOrders, icon: Truck, color: "text-purple-600" },
@@ -517,7 +651,12 @@ const DashboardPage = () => {
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
             <p className="text-gray-600 mt-1">Manage products and orders</p>
           </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+            setIsAddDialogOpen(open);
+            if (!open) {
+              resetForm();
+            }
+          }}>
             <DialogTrigger asChild>
               <Button className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-4 h-4 mr-2" />
@@ -532,7 +671,7 @@ const DashboardPage = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Product Name</Label>
+                    <Label htmlFor="name" className="mb-1">Product Name</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -541,7 +680,7 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="brand">Brand</Label>
+                    <Label htmlFor="brand" className="mb-1">Brand</Label>
                     <Input
                       id="brand"
                       value={formData.brand}
@@ -552,10 +691,10 @@ const DashboardPage = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="category" className="mb-1">Category</Label>
                     <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: "" })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category) => (
@@ -565,14 +704,14 @@ const DashboardPage = () => {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="subcategory">Subcategory</Label>
+                    <Label htmlFor="subcategory" className="mb-1">Subcategory</Label>
                     <Select 
                       value={formData.subcategory} 
                       onValueChange={(value) => setFormData({ ...formData, subcategory: value })}
                       disabled={!formData.category}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select subcategory" />
+                        <SelectValue placeholder={formData.category ? "Select a subcategory" : "Select category first"} />
                       </SelectTrigger>
                       <SelectContent>
                         {formData.category && subcategories[formData.category as keyof typeof subcategories]?.map((subcategory) => (
@@ -583,7 +722,7 @@ const DashboardPage = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="mb-1">Description</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
@@ -594,7 +733,7 @@ const DashboardPage = () => {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="price">Price ($)</Label>
+                    <Label htmlFor="price" className="mb-1">Price ($)</Label>
                     <Input
                       id="price"
                       type="number"
@@ -605,7 +744,7 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="rating">Rating</Label>
+                    <Label htmlFor="rating" className="mb-1">Rating</Label>
                     <Input
                       id="rating"
                       type="number"
@@ -618,7 +757,7 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="stock">Stock</Label>
+                    <Label htmlFor="stock" className="mb-1">Stock</Label>
                     <Input
                       id="stock"
                       type="number"
@@ -637,11 +776,11 @@ const DashboardPage = () => {
                       onChange={(e) => setFormData({ ...formData, isSale: e.target.checked })}
                       className="rounded border-gray-300"
                     />
-                    <Label htmlFor="isSale">On Sale</Label>
+                    <Label htmlFor="isSale" className="mb-1">On Sale</Label>
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="image">Product Images</Label>
+                  <Label htmlFor="image" className="mb-1">Product Images</Label>
                   <div className="mt-2 flex items-center space-x-4">
                     <Input
                       id="image"
@@ -649,7 +788,7 @@ const DashboardPage = () => {
                       accept="image/*"
                       multiple
                       onChange={handleImageSelect}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      className="file:mr-4 file:py-2 file:h-fit file:px-4 h-fit py-1 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     {imagePreviews.length > 0 && (
                       <div className="flex flex-wrap gap-2">
@@ -664,7 +803,16 @@ const DashboardPage = () => {
                   <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">Add Product</Button>
+                  <Button type="submit" disabled={isAddingProduct}>
+                    {isAddingProduct ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      'Add Product'
+                    )}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -715,6 +863,14 @@ const DashboardPage = () => {
                     />
                   </div>
                   <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={refreshProducts}
+                      className="w-full sm:w-auto"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </Button>
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                       <SelectTrigger className="w-40">
                         <SelectValue placeholder="All Categories" />
@@ -728,7 +884,7 @@ const DashboardPage = () => {
                     </Select>
                     <Select value={selectedFilter} onValueChange={setSelectedFilter}>
                       <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Filter" />
+                        <SelectValue placeholder="All Products" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Products</SelectItem>
@@ -742,79 +898,100 @@ const DashboardPage = () => {
 
                 {/* Products Table */}
                 <div className="rounded-md border">
-                  <div className="grid grid-cols-9 gap-4 p-4 bg-gray-50">
-                    <div className="font-medium">Image</div>
-                    <div className="font-medium">Product</div>
-                    <div className="font-medium">Brand</div>
-                    <div className="font-medium">Category</div>
-                    <div className="font-medium">Price</div>
-                    <div className="font-medium">Rating</div>
-                    <div className="font-medium">Stock</div>
-                    <div className="font-medium">Status</div>
-                    <div className="font-medium">Actions</div>
-                  </div>
-                  <div className="divide-y">
-                    {currentProducts.map((product) => (
-                      <div key={product.id} className="grid grid-cols-9 gap-4 p-4 items-center">
-                        <div>
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-12 h-12 object-cover rounded border"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-medium">{product.name}</div>
-                          <div className="text-sm text-gray-500 truncate max-w-48">
-                            {product.description}
-                          </div>
-                        </div>
-                        <div>{product.brand}</div>
-                        <div>
-                          <div className="text-sm">
-                            <div>{product.category}</div>
-                            <div className="text-gray-500">{product.subcategory}</div>
-                          </div>
-                        </div>
-                        <div>${product.price}</div>
-                        <div>
-                          <div className="flex items-center space-x-1">
-                            <span>{product.rating}</span>
-                            <span className="text-yellow-500">⭐</span>
-                          </div>
-                        </div>
-                        <div>
-                          <span className={product.stock < 10 ? "text-red-600 font-semibold" : ""}>
-                            {product.stock}
-                          </span>
-                        </div>
-                        <div>
-                          {product.isSale && <Badge variant="destructive">On Sale</Badge>}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(product)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(product.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                  {isLoadingProducts ? (
+                    <div className="p-8 text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <p className="text-gray-500 text-lg">Loading products...</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-9 gap-4 p-4 bg-gray-50">
+                        <div className="font-medium">Image</div>
+                        <div className="font-medium">Product</div>
+                        <div className="font-medium">Brand</div>
+                        <div className="font-medium">Category</div>
+                        <div className="font-medium">Price</div>
+                        <div className="font-medium">Rating</div>
+                        <div className="font-medium">Stock</div>
+                        <div className="font-medium">Status</div>
+                        <div className="font-medium">Actions</div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="divide-y">
+                        {currentProducts.length === 0 ? (
+                          <div className="p-8 text-center">
+                            <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                            <p className="text-gray-500 text-lg">No products found</p>
+                            <p className="text-gray-400 text-sm mt-2">
+                              {filteredProducts.length === 0 && products.length === 0 
+                                ? "No products have been added yet" 
+                                : "No products match your current filters"}
+                            </p>
+                          </div>
+                        ) : (
+                          currentProducts.map((product) => (
+                            <div key={product.id} className="grid grid-cols-9 gap-4 p-4 items-center">
+                              <div>
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="w-12 h-12 object-cover rounded border"
+                                />
+                              </div>
+                              <div>
+                                <div className="font-medium">{product.name}</div>
+                                <div className="text-sm text-gray-500 truncate max-w-48">
+                                  {product.description}
+                                </div>
+                              </div>
+                              <div>{product.brand}</div>
+                              <div>
+                                <div className="text-sm">
+                                  <div>{product.category}</div>
+                                  <div className="text-gray-500">{product.subcategory}</div>
+                                </div>
+                              </div>
+                              <div>${product.price}</div>
+                              <div>
+                                <div className="flex items-center space-x-1">
+                                  <span>{product.rating}</span>
+                                  <span className="text-yellow-500">⭐</span>
+                                </div>
+                              </div>
+                              <div>
+                                <span className={product.stock < 10 ? "text-red-600 font-semibold" : ""}>
+                                  {product.stock}
+                                </span>
+                              </div>
+                              <div>
+                                {product.isSale && <Badge variant="destructive">On Sale</Badge>}
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEdit(product)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDelete(product.id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Products Pagination */}
-                {totalPages > 1 && (
+                {!isLoadingProducts && totalPages > 1 && (
                   <div className="flex items-center justify-between mt-6">
                     <div className="text-sm text-gray-700">
                       Showing {startIndex + 1} to {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} results
@@ -1210,7 +1387,13 @@ const DashboardPage = () => {
       </div>
 
       {/* Edit Product Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+        setIsEditDialogOpen(open);
+        if (!open) {
+          resetForm();
+          setEditingProduct(null);
+        }
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
@@ -1242,7 +1425,7 @@ const DashboardPage = () => {
                 <Label htmlFor="edit-category">Category</Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value, subcategory: "" })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -1259,7 +1442,7 @@ const DashboardPage = () => {
                   disabled={!formData.category}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select subcategory" />
+                    <SelectValue placeholder={formData.category ? "Select a subcategory" : "Select category first"} />
                   </SelectTrigger>
                   <SelectContent>
                     {formData.category && subcategories[formData.category as keyof typeof subcategories]?.map((subcategory) => (
@@ -1336,7 +1519,7 @@ const DashboardPage = () => {
                   accept="image/*"
                   multiple
                   onChange={handleImageSelect}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="file:mr-4 file:py-2 file:h-fit file:px-4 h-fit py-1 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
                 {imagePreviews.length > 0 && (
                   <div className="flex flex-wrap gap-2">
@@ -1351,7 +1534,16 @@ const DashboardPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Update Product</Button>
+              <Button type="submit" disabled={isUpdatingProduct}>
+                {isUpdatingProduct ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Updating...
+                  </>
+                ) : (
+                  'Update Product'
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

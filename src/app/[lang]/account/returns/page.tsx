@@ -212,7 +212,7 @@ export default function ReturnsPage() {
                   <div className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
-                      <div>
+                <div>
                         <h5 className="font-medium text-orange-900">{t('returnDetails')}</h5>
                         <p className="text-sm text-orange-700 mt-1">
                           {order.returnReason || t('noReasonProvided')}
@@ -221,8 +221,8 @@ export default function ReturnsPage() {
                           {t('returnedOn')}: {order.returnedAt ? new Date(order.returnedAt).toLocaleString() : 'N/A'}
                         </p>
                       </div>
-                    </div>
-                  </div>
+                </div>
+              </div>
 
                   {/* Order Summary */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -237,7 +237,7 @@ export default function ReturnsPage() {
                         <p><span className="font-medium">{t('orderDate')}:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
                         <p><span className="font-medium">{t('orderTime')}:</span> {new Date(order.orderDate).toLocaleTimeString()}</p>
                       </div>
-                    </div>
+            </div>
 
                     <div>
                       <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
@@ -309,7 +309,7 @@ export default function ReturnsPage() {
                         <DialogHeader>
                           <DialogTitle>{t('returnedOrderDetails')} - #{order.id}</DialogTitle>
                         </DialogHeader>
-                        <div className="space-y-4">
+            <div className="space-y-4">
                           {/* Return Info */}
                           <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
                             <div className="flex items-start gap-3">
@@ -345,52 +345,52 @@ export default function ReturnsPage() {
                                 <div className="relative w-16 h-16 bg-white rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
                                   <img
                                     src={getProductImage(item.productId)}
-                                    alt={item.name}
+                      alt={item.name}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                       e.currentTarget.src = '/productImages/default.jpg'
                                     }}
-                                  />
-                                </div>
-                                <div className="flex-1">
+                    />
+                  </div>
+                  <div className="flex-1">
                                   <h5 className="font-medium text-gray-900">{item.name}</h5>
                                   <p className="text-sm text-gray-600">{t('quantity')}: {item.quantity}</p>
                                   <p className="text-sm text-gray-600">{t('productPrice')}: ${item.price.toFixed(2)} each</p>
-                                </div>
-                                <div className="text-right">
+                  </div>
+                  <div className="text-right">
                                   <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
                           {/* Shipping Address in Dialog */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                               <h4 className="font-medium text-gray-900 mb-2">{t('shippingAddress')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <p>{order.shippingAddress}</p>
                                 <p>{order.customerPhone}</p>
                                 <p>{order.customerEmail}</p>
                               </div>
-                            </div>
+                </div>
                             
-                            <div>
+                <div>
                               <h4 className="font-medium text-gray-900 mb-2">{t('paymentDetails')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
                                 <p>{t('total')}: <span className="font-semibold">${order.totalAmount.toFixed(2)}</span></p>
                               </div>
-                            </div>
-                          </div>
-                        </div>
+                </div>
+              </div>
+            </div>
                       </DialogContent>
                     </Dialog>
-                  </div>
-                </div>
+            </div>
+          </div>
               </AccordionContent>
             </AccordionItem>
-          ))}
+        ))}
         </Accordion>
       </div>
     </AccountLayout>

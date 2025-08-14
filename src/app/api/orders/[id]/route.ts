@@ -27,11 +27,11 @@ interface Order {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { status } = await request.json()
-    const orderId = params.id
+    const orderId = (await params).id
     
     // Validate status
     const validStatuses = ['pending', 'dispatched', 'delivered', 'received', 'returned', 'cancelled']

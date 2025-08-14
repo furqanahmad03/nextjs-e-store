@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useCart, Order } from "@/contexts/CartContext"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -15,12 +14,52 @@ import {
   MapPin,
   CreditCard
 } from "lucide-react"
-import Image from "next/image"
 import AccountLayout from "@/components/AccountLayout"
 import { useTranslations } from "next-intl"
 import { usePathname } from "next/navigation"
 
-const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
+interface Product {
+  id: number
+  name: string
+  description: string
+  price: number
+  category: string
+  subcategory: string
+  image: string
+  images: string[]
+  date_added: string
+  brand: string
+  rating: number
+  stock: number
+  isSale: boolean
+}
+
+interface Order {
+  id: string
+  customerName: string
+  customerEmail: string
+  products: Array<{
+    productId: number
+    name: string
+    quantity: number
+    price: number
+  }>
+  totalAmount: number
+  orderDate: string
+  status: 'pending' | 'dispatched' | 'delivered' | 'received' | 'returned' | 'cancelled'
+  shippingAddress: string
+  paymentMethod: string
+  customerPhone: string
+  billingAddress: string
+  subtotal: number
+  shipping: number
+  tax: number
+  codFee: number
+  cancellationReason?: string
+  cancelledAt?: string
+}
+
+const getPaymentMethodIcon = (method: string) => {
   switch (method) {
     case 'card':
       return <CreditCard className="w-4 h-4" />
@@ -28,19 +67,84 @@ const getPaymentMethodIcon = (method: Order['paymentMethod']) => {
       return <span className="text-blue-500 font-bold text-xs">PayPal</span>
     case 'cod':
       return <span className="text-green-600 font-bold text-xs">COD</span>
+    default:
+      return <CreditCard className="w-4 h-4" />
   }
 }
 
 export default function CancellationsPage() {
-  const { orders } = useCart()
   const t = useTranslations('accountPages.cancellations')
   const pathname = usePathname()
+  const [orders, setOrders] = useState<Order[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   
   // Extract current language from pathname
   const currentLang = pathname.split('/')[1] || 'en'
   
   // Filter only cancelled orders
   const cancelledOrders = orders.filter(order => order.status === 'cancelled')
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch orders
+        const ordersResponse = await fetch('/api/orders')
+        if (ordersResponse.ok) {
+          const ordersData = await ordersResponse.json()
+          if (ordersData.success) {
+            setOrders(ordersData.orders)
+          } else {
+            setOrders([])
+          }
+        } else {
+          setOrders([])
+        }
+
+        // Fetch products
+        const productsResponse = await fetch('/api/products/products.json')
+        if (productsResponse.ok) {
+          const productsData = await productsResponse.json()
+          setProducts(productsData)
+        } else {
+          setProducts([])
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        setOrders([])
+        setProducts([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Helper function to get product image by productId
+  const getProductImage = (productId: number) => {
+    const product = products.find(p => p.id === productId)
+    return product ? product.image : '/productImages/default.jpg'
+  }
+
+  if (loading) {
+    return (
+      <AccountLayout 
+        title={t('title')}
+        breadcrumbItems={[
+          { label: t('title'), isCurrent: true }
+        ]}
+      >
+        <div className="text-center py-12">
+          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+            <XCircle className="w-12 h-12 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Loading...</h3>
+          <p className="text-gray-600 mb-6">Please wait while we fetch your cancelled orders...</p>
+        </div>
+      </AccountLayout>
+    )
+  }
 
   if (cancelledOrders.length === 0) {
     return (
@@ -88,7 +192,7 @@ export default function CancellationsPage() {
                     <div className="text-left">
                       <p className="font-medium text-gray-900 hidden md:block">{t('cancellationNumber')}{order.id}</p>
                       <p className="text-sm text-gray-600">
-                        {order.items.length} {order.items.length === 1 ? t('item') : t('items')} • ${order.total.toFixed(2)}
+                        {order.products.length} {order.products.length === 1 ? t('item') : t('items')} • ${order.totalAmount.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -96,7 +200,7 @@ export default function CancellationsPage() {
                   {/* Cancellation Date */}
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Calendar className="w-4 h-4" />
-                    {order.cancellationDate ? new Date(order.cancellationDate).toLocaleDateString() : 'N/A'}
+                    {order.cancelledAt ? new Date(order.cancelledAt).toLocaleDateString() : 'N/A'}
                   </div>
                 </div>
               </AccordionTrigger>
@@ -113,7 +217,7 @@ export default function CancellationsPage() {
                           {order.cancellationReason || t('noReasonProvided')}
                         </p>
                         <p className="text-xs text-red-600 mt-2">
-                          {t('cancelledOn')}: {order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}
+                          {t('cancelledOn')}: {order.cancelledAt ? new Date(order.cancelledAt).toLocaleString() : 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -127,8 +231,8 @@ export default function CancellationsPage() {
                         {t('orderSummary')}
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <p><span className="font-medium">{t('items')}:</span> {order.items.length} {order.items.length === 1 ? t('item') : t('items')}</p>
-                        <p><span className="font-medium">{t('total')}:</span> ${order.total.toFixed(2)}</p>
+                        <p><span className="font-medium">{t('items')}:</span> {order.products.length} {order.products.length === 1 ? t('item') : t('items')}</p>
+                        <p><span className="font-medium">{t('total')}:</span> ${order.totalAmount.toFixed(2)}</p>
                         <p><span className="font-medium">{t('orderDate')}:</span> {new Date(order.orderDate).toLocaleDateString()}</p>
                         <p><span className="font-medium">{t('orderTime')}:</span> {new Date(order.orderDate).toLocaleTimeString()}</p>
                       </div>
@@ -141,9 +245,7 @@ export default function CancellationsPage() {
                       </h4>
                       <div className="text-sm text-gray-600 space-y-1">
                         <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
-                        <p>{t('statusLabel')}: <span className="font-medium text-gray-600">
-                          {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                        </span></p>
+                        <p>{t('total')}: <span className="font-semibold">${order.totalAmount.toFixed(2)}</span></p>
                       </div>
                     </div>
                   </div>
@@ -155,12 +257,9 @@ export default function CancellationsPage() {
                       {t('shippingAddress')}
                     </h4>
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
-                      <p>{order.shippingAddress.address}</p>
-                      <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-                      <p>{order.shippingAddress.country}</p>
-                      <p>{order.shippingAddress.email}</p>
-                      <p>{order.shippingAddress.phone}</p>
+                      <p>{order.shippingAddress}</p>
+                      <p>{order.customerPhone}</p>
+                      <p>{order.customerEmail}</p>
                     </div>
                   </div>
 
@@ -188,7 +287,7 @@ export default function CancellationsPage() {
                                   {order.cancellationReason || t('noReasonProvided')}
                                 </p>
                                 <p className="text-xs text-red-600 mt-2">
-                                  {t('cancelledOn')}: {order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}
+                                  {t('cancelledOn')}: {order.cancelledAt ? new Date(order.cancelledAt).toLocaleString() : 'N/A'}
                                 </p>
                               </div>
                             </div>
@@ -201,29 +300,32 @@ export default function CancellationsPage() {
                             </div>
                             <div>
                               <span className="font-medium">{t('cancelledOn')}:</span>
-                              <p>{order.cancellationDate ? new Date(order.cancellationDate).toLocaleString() : 'N/A'}</p>
+                              <p>{order.cancelledAt ? new Date(order.cancelledAt).toLocaleString() : 'N/A'}</p>
                             </div>
                           </div>
                           
                           {/* Order Items */}
                           <div className="space-y-3">
                             <h4 className="font-medium text-gray-900">{t('orderItems')}</h4>
-                            {order.items.map((item) => (
-                              <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            {order.products.map((item) => (
+                              <div key={item.productId} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                 <div className="relative w-16 h-16 bg-white rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
-                                  <Image
-                                    src={item.image}
+                                  <img
+                                    src={getProductImage(item.productId)}
                                     alt={item.name}
-                                    fill
-                                    className="object-cover"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.src = '/productImages/default.jpg'
+                                    }}
                                   />
                                 </div>
                                 <div className="flex-1">
                                   <h5 className="font-medium text-gray-900">{item.name}</h5>
                                   <p className="text-sm text-gray-600">{t('quantity')}: {item.quantity}</p>
+                                  <p className="text-sm text-gray-600">{t('productPrice')}: ${item.price.toFixed(2)} each</p>
                                 </div>
                                 <div className="text-right">
-                                  <p className="font-semibold text-gray-900">${item.total.toFixed(2)}</p>
+                                  <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
                                 </div>
                               </div>
                             ))}
@@ -234,12 +336,9 @@ export default function CancellationsPage() {
                             <div>
                               <h4 className="font-medium text-gray-900 mb-2">{t('shippingAddress')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
-                                <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
-                                <p>{order.shippingAddress.address}</p>
-                                <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-                                <p>{order.shippingAddress.country}</p>
-                                <p>{order.shippingAddress.email}</p>
-                                <p>{order.shippingAddress.phone}</p>
+                                <p>{order.shippingAddress}</p>
+                                <p>{order.customerPhone}</p>
+                                <p>{order.customerEmail}</p>
                               </div>
                             </div>
                             
@@ -247,10 +346,7 @@ export default function CancellationsPage() {
                               <h4 className="font-medium text-gray-900 mb-2">{t('paymentDetails')}</h4>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <p className="capitalize">{order.paymentMethod.replace('cod', t('cashOnDelivery'))}</p>
-                                <p>{t('statusLabel')}: <span className={`font-medium ${order.paymentStatus === 'paid' ? 'text-green-600' : 'text-yellow-600'}`}>
-                                  {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                                </span></p>
-                                <p>{t('total')}: <span className="font-semibold">${order.total.toFixed(2)}</span></p>
+                                <p>{t('total')}: <span className="font-semibold">${order.totalAmount.toFixed(2)}</span></p>
                               </div>
                             </div>
                           </div>

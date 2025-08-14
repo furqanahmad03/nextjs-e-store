@@ -167,8 +167,48 @@ export default function CheckoutPage() {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      // Create order data
+      // Create order data with proper structure for admin panel
       const orderData = {
+        id: `ORD${Date.now()}`,
+        customerName: `${formData.firstName} ${formData.lastName}`,
+        customerEmail: formData.email,
+        products: items.map(item => ({
+          productId: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        totalAmount: total,
+        orderDate: new Date().toISOString().split('T')[0],
+        status: 'pending' as const,
+        shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
+        paymentMethod: formData.paymentMethod,
+        // Additional order details
+        customerPhone: formData.phone,
+        billingAddress: formData.sameAsShipping ? 
+          `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}` :
+          `${formData.billingAddress}, ${formData.billingCity}, ${formData.billingState} ${formData.billingZipCode}, ${formData.billingCountry}`,
+        subtotal: subtotal,
+        shipping: shipping,
+        tax: tax,
+        codFee: codFee
+      }
+
+      // Save order to orders.json via API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save order')
+      }
+
+      // Create the order in cart context (for user's order history)
+      createOrder({
         items: items.map(item => ({
           id: item.id,
           name: item.name,
@@ -199,15 +239,19 @@ export default function CheckoutPage() {
           country: formData.sameAsShipping ? formData.country : formData.billingCountry,
         },
         paymentMethod: formData.paymentMethod,
-      }
-
-      // Create the order
-      createOrder(orderData)
+      })
+      
+      // Clear cart from localStorage
+      localStorage.removeItem('cart')
+      sessionStorage.removeItem('orders')
+      
+      // Show success message
+      toast.success('Order placed successfully!')
       
       // Redirect to orders page
-      // window.location.href = `/${currentLang}/account/orders`
       router.push(`/${currentLang}/account/orders`);
     } catch (error) {
+      console.error('Order placement error:', error)
       toast.error(t('failedToProcessOrder'))
     } finally {
       setIsProcessing(false)

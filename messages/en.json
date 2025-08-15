@@ -892,7 +892,11 @@
       "returnedOrderDetails": "Returned Order Details",
       "returnInformation": "Return Information",
       "returnedItems": "Returned Items",
+      "item": "item",
       "quantity": "Qty",
+      "status": {
+        "returned": "Returned"
+      },
       "productImage": "Product Image",
       "productName": "Product Name",
       "productPrice": "Price",
@@ -1064,7 +1068,12 @@
     },
     "warrantyInfo": "1 Year Manufacturer Warranty",
     "returnPolicyInfo": "30-day return policy with full refund",
-    "shippingInfo": "Free shipping on orders over $50"
+    "shippingInfo": "Free shipping on orders over $50",
+    "toast": {
+      "addedItemsToCart": "Added {quantity} {quantity, plural, one {item} other {items}} to cart!",
+      "removedFromWishlist": "Item removed from wishlist!",
+      "addedToWishlist": "Added to wishlist!"
+    }
   },
   "toast": {
     "failedToAddToCart": "Failed to add item to cart. Please try again.",
@@ -1098,8 +1107,8 @@
     "returnRequestSubmitted": "Return request submitted successfully",
     "failedToSubmitReturn": "Failed to submit return request",
     "addedItemsToCart": "Added {quantity} {quantity, plural, one {item} other {items}} to cart!",
-    "removedFromWishlist": "Removed from wishlist!",
-    "addedToWishlist": "Added to wishlist!",
+    "removedFromWishlist": "Item removed from wishlist!",
+    "addedToWishlist": "Added {name} to wishlist!",
     "failedToUpdateWishlist": "Failed to update wishlist. Please try again.",
     "itemNotFoundInCart": "Item not found in cart",
     "cannotUpdateQuantity": "Cannot update quantity. Only {count} available in stock.",

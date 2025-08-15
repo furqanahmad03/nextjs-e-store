@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import productsData from '../products.json'
+import { Product } from '@/types/Product'
 
 export async function GET() {
   try {
     // Filter products where isSale is true and limit to 10
-    const saleProducts = productsData
-      .filter(product => product.isSale === true)
+    const saleProducts = (productsData as Product[])
+      .filter((product: Product) => product.isSale === true)
       .slice(0, 10)
-      .map(product => ({
+      .map((product: Product) => ({
         id: product.id,
         name: product.name,
         category: product.category,

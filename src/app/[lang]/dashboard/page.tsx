@@ -225,6 +225,7 @@ const DashboardPage = () => {
     const files = Array.from(event.target.files || []);
     setSelectedImages(files);
     
+    // Create previews for immediate display
     const previews: string[] = [];
     files.forEach((file) => {
       const reader = new FileReader();
@@ -238,19 +239,55 @@ const DashboardPage = () => {
     });
   };
 
+  const uploadImages = async (): Promise<string[]> => {
+    if (selectedImages.length === 0) {
+      return [];
+    }
+
+    try {
+      const formData = new FormData();
+      selectedImages.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          return result.images;
+        } else {
+          throw new Error(result.error);
+        }
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload images');
+      return [];
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setIsAddingProduct(true);
     try {
+      // Upload images first
+      const uploadedImagePaths = await uploadImages();
+      
       const productData = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
         category: formData.category,
         subcategory: formData.subcategory,
-        image: imagePreviews[0] || "/productImages/default.jpg",
-        images: imagePreviews.length > 0 ? imagePreviews : ["/productImages/default.jpg"],
+        image: uploadedImagePaths[0] || "/productImages/default.jpg",
+        images: uploadedImagePaths.length > 0 ? uploadedImagePaths : ["/productImages/default.jpg"],
         brand: formData.brand,
         rating: parseFloat(formData.rating),
         stock: parseInt(formData.stock),
@@ -321,6 +358,15 @@ const DashboardPage = () => {
 
     setIsUpdatingProduct(true);
     try {
+      // Upload new images if any were selected
+      let finalImagePaths = editingProduct.images;
+      if (selectedImages.length > 0) {
+        const uploadedImagePaths = await uploadImages();
+        if (uploadedImagePaths.length > 0) {
+          finalImagePaths = uploadedImagePaths;
+        }
+      }
+
       const updateData = {
         id: editingProduct.id,
         name: formData.name,
@@ -328,8 +374,8 @@ const DashboardPage = () => {
         price: parseFloat(formData.price),
         category: formData.category,
         subcategory: formData.subcategory,
-        image: imagePreviews[0] || editingProduct.image,
-        images: imagePreviews.length > 0 ? imagePreviews : editingProduct.images,
+        image: finalImagePaths[0] || editingProduct.image,
+        images: finalImagePaths,
         brand: formData.brand,
         rating: parseFloat(formData.rating),
         stock: parseInt(formData.stock),

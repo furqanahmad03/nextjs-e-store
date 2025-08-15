@@ -606,6 +606,7 @@
       "returnedOrderDetails": "Detalles del Pedido Devuelto",
       "returnInformation": "Información de Devolución",
       "returnedItems": "Artículos Devueltos",
+      "item": "artículo",
       "quantity": "Cant",
       "productImage": "Imagen del Producto",
       "productName": "Nombre del Producto",
@@ -776,7 +777,12 @@
     },
     "warrantyInfo": "Garantía del Fabricante de 1 Año",
     "returnPolicyInfo": "Política de devolución de 30 días con reembolso completo",
-    "shippingInfo": "Envío gratis en pedidos superiores a $50"
+    "shippingInfo": "Envío gratis en pedidos superiores a $50",
+    "toast": {
+      "addedItemsToCart": "¡Agregados {quantity} {quantity, plural, one {artículo} other {artículos}} al carrito!",
+      "removedFromWishlist": "¡Artículo removido de la lista de deseos!",
+      "addedToWishlist": "¡Agregado a la lista de deseos!"
+    }
   },
   "toast": {
     "failedToAddToCart": "Error al agregar artículo al carrito. Por favor intenta de nuevo.",

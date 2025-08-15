@@ -41,8 +41,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import {
-} from "@/components/ui/accordion"
+
 import productsData from "@/app/api/products/products.json"
 import { Product } from "@/types/Product"
 import ProductCard from "@/components/ProductCard"
@@ -95,25 +94,165 @@ export default function ProductDetailPage() {
     document.title = `${product?.name} | Eco-Site`;
   }, [product]);
 
-  // Generate mock product data
+  // Fetch product data
   useEffect(() => {
-    const mockProduct = productsData.find(p => p.id === productId)
-    
-    if (mockProduct) {
-      // Add missing isInSale property
+    const fetchProduct = async () => {
+      try {
+        // First try to fetch from API
+        const response = await fetch(`/api/products/${productId}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            // Process the product data
       const productWithSale: Product = {
-        ...mockProduct,
-        isSale: Math.random() > 0.5 // Randomly assign sale status
+              ...data.product,
+              isSale: data.product.isSale || Math.random() > 0.5
       }
       
       // Create extended product data
       const extendedProduct: ProductDetail = {
         ...productWithSale,
-        images: mockProduct.images || [mockProduct.image], // Use actual images array from product data
+              images: productWithSale.images || [productWithSale.image],
+              specifications: {
+                [t('specificationLabels.brand')]: productWithSale.brand,
+                [t('specificationLabels.category')]: productWithSale.category,
+                [t('specificationLabels.subcategory')]: productWithSale.subcategory,
+                [t('specificationLabels.material')]: t('specificationValues.premiumQuality'),
+                [t('specificationLabels.color')]: t('specificationValues.multipleOptions'),
+                [t('specificationLabels.size')]: t('specificationValues.standard'),
+                [t('specificationLabels.weight')]: t('specificationValues.weightValue'),
+                [t('specificationLabels.dimensions')]: t('specificationValues.dimensionsValue'),
+                [t('specificationLabels.warranty')]: t('specificationValues.warrantyValue'),
+                [t('specificationLabels.countryOfOrigin')]: t('specificationValues.unitedStates')
+              },
+              features: [
+                t('features.highQualityMaterials'),
+                t('features.durableConstruction'),
+                t('features.comfortableDesign'),
+                t('features.easyToMaintain'),
+                t('features.versatileUsage'),
+                t('features.modernStyling')
+              ],
+              reviews: [
+                {
+                  id: 1,
+                  user: t('reviews.review1.user'),
+                  rating: 5,
+                  date: "2024-01-15",
+                  comment: t('reviews.review1.comment'),
+                  helpful: 12
+                },
+                {
+                  id: 2,
+                  user: t('reviews.review2.user'),
+                  rating: 4,
+                  date: "2024-01-10",
+                  comment: t('reviews.review2.comment'),
+                  helpful: 8
+                },
+                {
+                  id: 3,
+                  user: t('reviews.review3.user'),
+                  rating: 5,
+                  date: "2024-01-05",
+                  comment: t('reviews.review3.comment'),
+                  helpful: 15
+                }
+              ],
+              relatedProducts: [2, 3, 4, 5],
+              warranty: t('warrantyInfo'),
+              returnPolicy: t('returnPolicyInfo'),
+              shippingInfo: t('shippingInfo')
+            }
+            
+            setProduct(extendedProduct)
+          } else {
+            console.error('Failed to fetch product:', data.error)
+          }
+        } else {
+          // Fallback to JSON file if API fails
+          const mockProduct = (productsData as Product[]).find((p: Product) => p.id === productId)
+          if (mockProduct) {
+            const productWithSale: Product = {
+              ...mockProduct,
+              isSale: mockProduct.isSale || Math.random() > 0.5
+            }
+            
+            const extendedProduct: ProductDetail = {
+              ...productWithSale,
+              images: mockProduct.images || [mockProduct.image],
+              specifications: {
+                [t('specificationLabels.brand')]: productWithSale.brand,
+                [t('specificationLabels.category')]: productWithSale.category,
+                [t('specificationLabels.subcategory')]: productWithSale.subcategory,
+                [t('specificationLabels.material')]: t('specificationValues.premiumQuality'),
+                [t('specificationLabels.color')]: t('specificationValues.multipleOptions'),
+                [t('specificationLabels.size')]: t('specificationValues.standard'),
+                [t('specificationLabels.weight')]: t('specificationValues.weightValue'),
+                [t('specificationLabels.dimensions')]: t('specificationValues.dimensionsValue'),
+                [t('specificationLabels.warranty')]: t('specificationValues.warrantyValue'),
+                [t('specificationLabels.countryOfOrigin')]: t('specificationValues.unitedStates')
+              },
+              features: [
+                t('features.highQualityMaterials'),
+                t('features.durableConstruction'),
+                t('features.comfortableDesign'),
+                t('features.easyToMaintain'),
+                t('features.versatileUsage'),
+                t('features.modernStyling')
+              ],
+              reviews: [
+                {
+                  id: 1,
+                  user: t('reviews.review1.user'),
+                  rating: 5,
+                  date: "2024-01-15",
+                  comment: t('reviews.review1.comment'),
+                  helpful: 12
+                },
+                {
+                  id: 2,
+                  user: t('reviews.review2.user'),
+                  rating: 4,
+                  date: "2024-01-10",
+                  comment: t('reviews.review2.comment'),
+                  helpful: 8
+                },
+                {
+                  id: 3,
+                  user: t('reviews.review3.user'),
+                  rating: 5,
+                  date: "2024-01-05",
+                  comment: t('reviews.review3.comment'),
+                  helpful: 15
+                }
+              ],
+              relatedProducts: [2, 3, 4, 5],
+              warranty: t('warrantyInfo'),
+              returnPolicy: t('returnPolicyInfo'),
+              shippingInfo: t('shippingInfo')
+            }
+            
+            setProduct(extendedProduct)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error)
+        // Fallback to JSON file on error
+        const mockProduct = (productsData as Product[]).find((p: Product) => p.id === productId)
+        if (mockProduct) {
+          const productWithSale: Product = {
+            ...mockProduct,
+            isSale: mockProduct.isSale || Math.random() > 0.5
+          }
+          
+          const extendedProduct: ProductDetail = {
+            ...productWithSale,
+            images: mockProduct.images || [mockProduct.image],
         specifications: {
-          [t('specificationLabels.brand')]: mockProduct.brand,
-          [t('specificationLabels.category')]: mockProduct.category,
-          [t('specificationLabels.subcategory')]: mockProduct.subcategory,
+              [t('specificationLabels.brand')]: productWithSale.brand,
+              [t('specificationLabels.category')]: productWithSale.category,
+              [t('specificationLabels.subcategory')]: productWithSale.subcategory,
           [t('specificationLabels.material')]: t('specificationValues.premiumQuality'),
           [t('specificationLabels.color')]: t('specificationValues.multipleOptions'),
           [t('specificationLabels.size')]: t('specificationValues.standard'),
@@ -164,8 +303,13 @@ export default function ProductDetailPage() {
       
       setProduct(extendedProduct)
     }
+      } finally {
     setLoading(false)
-  }, [productId])
+      }
+    }
+    
+    fetchProduct()
+  }, [productId, t])
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= product!.stock) {
@@ -667,7 +811,7 @@ export default function ProductDetailPage() {
           <h3 className="text-2xl font-bold text-gray-900 mb-6">{t('relatedProducts')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {product.relatedProducts.slice(0, 4).map((relatedId) => {
-              const relatedProduct = productsData.find(p => p.id === relatedId)
+              const relatedProduct = (productsData as Product[]).find((p: Product) => p.id === relatedId)
               if (!relatedProduct) return null
               
               // Add missing isInSale property for related products

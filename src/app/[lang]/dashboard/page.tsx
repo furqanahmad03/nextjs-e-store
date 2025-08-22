@@ -108,8 +108,6 @@ const DashboardPage = () => {
         if (response.ok) {
           const result = await response.json();
           if (result.success) {
-            console.log('Products loaded from API:', result.products);
-            // Sort products by date_added in reverse order (newest first)
             const sortedProducts = result.products.sort((a: Product, b: Product) => 
               new Date(b.date_added).getTime() - new Date(a.date_added).getTime()
             );
@@ -974,7 +972,8 @@ const DashboardPage = () => {
           </TabsList>
 
           {/* Products Tab */}
-          <TabsContent value="products" className="space-y-6">
+          <div className="overflow-x-scroll">
+          <TabsContent value="products" className="space-y-6 min-w-6xl max-w-7xl mx-auto">
             <Card>
               <CardHeader>
                 <CardTitle>{t('products.title')}</CardTitle>
@@ -990,11 +989,11 @@ const DashboardPage = () => {
                       className="max-w-md"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       variant="outline"
                       onClick={refreshProducts}
-                      className="w-full sm:w-auto"
+                      className="w-auto"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
                       {t('products.refresh')}
@@ -1157,9 +1156,11 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          </div>
 
           {/* Orders Tab */}
-          <TabsContent value="orders" className="space-y-6">
+          <div className="overflow-x-scroll">
+          <TabsContent value="orders" className="space-y-6 min-w-6xl max-w-7xl mx-auto">
             <Card>
               <CardHeader>
                 <CardTitle>{t('orders.title')}</CardTitle>
@@ -1210,7 +1211,7 @@ const DashboardPage = () => {
 
                 {/* Order Summary Cards */}
                 {orders.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
+                  <div className="grid grid-cols-6 gap-3 md:gap-4 mb-6">
                     <div className="bg-blue-50 p-3 rounded-lg text-center">
                       <div className="text-xl md:text-2xl font-bold text-blue-600">{getOrderSummary().totalOrders}</div>
                       <div className="text-xs md:text-sm text-blue-600">{t('orders.summaryCards.totalOrders')}</div>
@@ -1241,7 +1242,7 @@ const DashboardPage = () => {
                 {/* Orders Table */}
                 <div className="rounded-md border overflow-hidden">
                   {/* Desktop Table View */}
-                  <div className="hidden lg:block">
+                  <div>
                     <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50">
                       <div className="font-medium">{t('orders.tableHeaders.customer')}</div>
                       <div className="font-medium">{t('orders.tableHeaders.products')}</div>
@@ -1336,133 +1337,6 @@ const DashboardPage = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* Mobile/Tablet Card View */}
-                  <div className="lg:hidden">
-                    {currentOrders.length === 0 ? (
-                      <div className="p-8 text-center">
-                        <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                        <p className="text-gray-500 text-lg">{t('orders.noOrdersFound')}</p>
-                        <p className="text-gray-400 text-sm mt-2">
-                          {filteredOrders.length === 0 && orders.length === 0 
-                            ? t('orders.noOrdersYet') 
-                            : t('orders.noOrdersMatchFilters')}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4 p-4">
-                        {currentOrders.map((order) => (
-                          <div key={order.id} className="border rounded-lg p-4 space-y-3 hover:bg-gray-50">
-                            {/* Order Header */}
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-xs font-mono">
-                                  {order.id.slice(-8)}
-                                </Badge>
-                                {getStatusBadge(order.status)}
-                              </div>
-                              <div className="text-right text-sm text-gray-600">
-                                <div>{new Date(order.orderDate).toLocaleDateString()}</div>
-                                <div>{new Date(order.orderDate).toLocaleTimeString()}</div>
-                              </div>
-                            </div>
-
-                            {/* Customer Info */}
-                            <div className="space-y-1">
-                              <div className="font-medium text-gray-900">{order.customerName}</div>
-                              <div className="text-sm text-gray-600">{order.customerEmail}</div>
-                              <div className="text-sm text-gray-600">{order.customerPhone}</div>
-                            </div>
-
-                            {/* Products */}
-                            <div className="space-y-2">
-                              <div className="text-sm font-medium text-gray-700">{t('mobile.products')}:</div>
-                              {order.products.map((product, index) => (
-                                <div key={index} className="text-sm bg-gray-50 p-2 rounded">
-                                  <div className="flex justify-between">
-                                    <span className="font-medium">{product.name}</span>
-                                    <span className="text-gray-600">x{product.quantity}</span>
-                                  </div>
-                                  <div className="text-gray-500">${product.price} {t('orderDetails.fields.each')}</div>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Order Summary */}
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <div className="text-gray-600">{t('mobile.subtotal')}:</div>
-                                <div className="font-medium">${order.subtotal.toFixed(2)}</div>
-                              </div>
-                              <div>
-                                <div className="text-gray-600">{t('orderDetails.fields.total')}:</div>
-                                <div className="font-medium text-lg">${order.totalAmount.toFixed(2)}</div>
-                              </div>
-                            </div>
-
-                            {/* Payment & Shipping */}
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <div className="text-gray-600">{t('orderDetails.fields.paymentMethod')}:</div>
-                                <div className="font-medium capitalize">
-                                  {order.paymentMethod === 'cod' ? t('orders.paymentMethods.cod') : order.paymentMethod}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-gray-600">{t('mobile.shipping')}:</div>
-                                <div className="font-medium">${order.shipping.toFixed(2)}</div>
-                              </div>
-                            </div>
-
-                            {/* Address */}
-                            <div className="text-sm">
-                              <div className="text-gray-600">{t('orderDetails.fields.shippingAddress')}:</div>
-                              <div className="text-gray-900">{order.shippingAddress}</div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex items-center gap-2 pt-2 border-t">
-                              {order.status === 'pending' && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleDispatchOrder(order.id)}
-                                  className="text-green-600 hover:text-green-700 flex-1"
-                                >
-                                  <Truck className="w-4 h-4 mr-2" />
-                                  {t('mobile.dispatchOrder')}
-                                </Button>
-                              )}
-                              {order.status === 'dispatched' && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => markOrderAsDelivered(order.id)}
-                                  className="text-blue-600 hover:text-blue-700 flex-1"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  {t('mobile.markDelivered')}
-                                </Button>
-                              )}
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                setOrderToDispatch(order);
-                                setIsDispatchDialogOpen(true);
-                                }}
-                                className="text-blue-600 hover:text-blue-700 flex-1"
-                                title={t('orders.actions.viewDetails')}
-                            >
-                                <Eye className="w-4 h-4 mr-2" />
-                                {t('orders.actions.viewDetails')}
-                            </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
 
                 {/* Orders Pagination */}
@@ -1511,6 +1385,7 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          </div>
         </Tabs>
       </div>
 
@@ -1882,20 +1757,6 @@ const DashboardPage = () => {
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 {t('orderDetails.buttons.markAsDelivered')}
-              </Button>
-            )}
-            {orderToDispatch?.status === 'delivered' && (
-              <Button 
-                variant="default" 
-                onClick={() => {
-                  setOrderToDispatch(orderToDispatch);
-                  setIsDispatchDialogOpen(true);
-                }}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
-                title={t('orders.actions.viewDetails')}
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                {t('orderDetails.buttons.viewDetails')}
               </Button>
             )}
           </DialogFooter>

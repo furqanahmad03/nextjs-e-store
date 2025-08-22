@@ -1094,7 +1094,7 @@
       },
       "deliveredSection": {
         "title": "Pedido Entregue",
-        "description": "Este pedido foi entregue. O cliente agora pode marcá-lo como recebido em sua conta.",
+        "description": "Este pedido foi entregue.",
         "deliveredOn": "Entregue em"
       },
       "buttons": {

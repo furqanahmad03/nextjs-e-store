@@ -1390,7 +1390,7 @@
       },
       "deliveredSection": {
         "title": "Order Delivered",
-        "description": "This order has been delivered. The customer can now mark it as received in their account.",
+        "description": "This order has been delivered.",
         "deliveredOn": "Delivered on"
       },
       "buttons": {

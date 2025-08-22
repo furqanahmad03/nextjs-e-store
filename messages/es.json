@@ -1099,7 +1099,7 @@
       },
       "deliveredSection": {
         "title": "Pedido Entregado",
-        "description": "Este pedido ha sido entregado. El cliente ahora puede marcarlo como recibido en su cuenta.",
+        "description": "Este pedido ha sido entregado.",
         "deliveredOn": "Entregado el"
       },
       "buttons": {
